@@ -3,7 +3,7 @@ import { Terminal } from "@/components/landing/terminal";
 import { StatsCounter } from "@/components/landing/stats-counter";
 import { db } from "@/lib/db";
 import { projects, users, flowers } from "@/lib/db/schema";
-import { count } from "drizzle-orm";
+import { count, sql } from "drizzle-orm";
 import { Skull, Sparkles, Github, Cross } from "lucide-react";
 import { type ReactNode } from "react";
 
@@ -35,29 +35,17 @@ const features: { icon: ReactNode; title: string; desc: string; comingSoon?: boo
   },
 ];
 
-const tombstones = [
-  {
-    name: "todo-app-v3",
-    dates: "2023 \u2013 2023",
-    epitaph: "This time it\u2019ll be different",
-  },
-  {
-    name: "crypto-tracker",
-    dates: "2021 \u2013 2021",
-    epitaph: "Lost interest before losing money",
-  },
-  {
-    name: "dating-for-dogs",
-    dates: "2024 \u2013 2024",
-    epitaph: "Good boy. Bad idea.",
-  },
-];
-
 export default async function Home() {
-  const [projectsResult, usersResult, flowersResult] = await Promise.all([
+  const [projectsResult, usersResult, flowersResult, randomGraves] = await Promise.all([
     db.select({ value: count() }).from(projects),
     db.select({ value: count() }).from(users),
     db.select({ value: count() }).from(flowers),
+    db.query.projects.findMany({
+      orderBy: sql`RANDOM()`,
+      limit: 3,
+      columns: { name: true, slug: true, startDate: true, endDate: true, epitaph: true },
+      with: { user: { columns: { username: true } } },
+    }),
   ]);
 
   const stats = {
@@ -134,35 +122,41 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* Graveyard Preview */}
-        <section className="py-12">
-          <div className="max-w-4xl mx-auto px-6">
-            <div className="text-[0.65rem] uppercase tracking-[0.15em] text-text-muted mb-8 pb-3 border-b border-border">
-              // preview: someone&apos;s graveyard
+        {/* Random Graveyard */}
+        {randomGraves.length > 0 && (
+          <section className="py-12">
+            <div className="max-w-4xl mx-auto px-6">
+              <div className="text-[0.65rem] uppercase tracking-[0.15em] text-text-muted mb-8 pb-3 border-b border-border">
+                // random graves
+              </div>
+              <div className="flex justify-center gap-10 flex-wrap">
+                {randomGraves.map((t) => (
+                  <Link
+                    key={t.slug}
+                    href={`/${t.user.username}/${t.slug}`}
+                    className="w-48 group"
+                  >
+                    <div className="tombstone-card p-6 border border-border rounded-t-md text-center group-hover:border-border-hover transition-all duration-300">
+                      <div className="tombstone-cross text-lg text-text-muted mb-3">
+                        &#10013;
+                      </div>
+                      <div className="text-xs font-medium text-text-dim mb-1">
+                        {t.name}
+                      </div>
+                      <div className="text-[0.6rem] text-text-muted font-light">
+                        {t.startDate.slice(0, 4)} &ndash; {t.endDate.slice(0, 4)}
+                      </div>
+                      <div className="text-sm font-serif text-text-dim italic mt-2 leading-relaxed">
+                        &ldquo;{t.epitaph}&rdquo;
+                      </div>
+                    </div>
+                    <div className="tombstone-base mx-[10%] h-2 bg-bg border border-border border-t-0 rounded-b" />
+                  </Link>
+                ))}
+              </div>
             </div>
-            <div className="flex justify-center gap-10 flex-wrap">
-              {tombstones.map((t) => (
-                <div key={t.name} className="w-48">
-                  <div className="tombstone-card p-6 border border-border rounded-t-md text-center hover:border-border-hover transition-all duration-300">
-                    <div className="tombstone-cross text-lg text-text-muted mb-3">
-                      &#10013;
-                    </div>
-                    <div className="text-xs font-medium text-text-dim mb-1">
-                      {t.name}
-                    </div>
-                    <div className="text-[0.6rem] text-text-muted font-light">
-                      {t.dates}
-                    </div>
-                    <div className="text-sm font-serif text-text-dim italic mt-2 leading-relaxed">
-                      &ldquo;{t.epitaph}&rdquo;
-                    </div>
-                  </div>
-                  <div className="tombstone-base mx-[10%] h-2 bg-bg border border-border border-t-0 rounded-b" />
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         {/* Stats */}
         <section className="mb-16 bg-bg-subtle border-y border-border">
