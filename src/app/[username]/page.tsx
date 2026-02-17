@@ -4,8 +4,8 @@ import { eq, desc } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { GraveyardGrid } from "@/components/graveyard-grid";
 import { ShareMenu } from "@/components/share-menu";
+import { GraveyardViewToggle } from "@/components/graveyard-view-toggle";
 
 export default async function GraveyardPage({
   params,
@@ -74,14 +74,10 @@ export default async function GraveyardPage({
         />
       </div>
 
-      {/* Graveyard Grid */}
+      {/* Graveyard */}
       <div>
-        <div className="text-[0.65rem] text-text-muted uppercase tracking-widest border-b border-border pb-3 mb-6">
-          The Graveyard
-        </div>
-
         {userProjects.length > 0 ? (
-          <GraveyardGrid projects={userProjects} username={username} />
+          <GraveyardViewToggle projects={userProjects} username={username} />
         ) : (
           <p className="text-center text-text-muted text-xs py-12">
             No projects buried yet.
