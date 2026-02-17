@@ -174,8 +174,12 @@
     }
 
     .terminal-line {
-      opacity: 0;
-      animation: typeIn 0.3s ease forwards;
+      display: none;
+    }
+
+    .terminal-line.shown {
+      display: block;
+      animation: lineReveal 0.3s ease forwards;
     }
 
     .terminal-line .prompt {
@@ -200,17 +204,78 @@
       font-style: italic;
     }
 
-    .terminal-line:nth-child(1) { animation-delay: 0.3s; }
-    .terminal-line:nth-child(2) { animation-delay: 0.8s; }
-    .terminal-line:nth-child(3) { animation-delay: 1.3s; }
-    .terminal-line:nth-child(4) { animation-delay: 1.8s; }
-    .terminal-line:nth-child(5) { animation-delay: 2.3s; }
-    .terminal-line:nth-child(6) { animation-delay: 2.8s; }
-    .terminal-line:nth-child(7) { animation-delay: 3.3s; }
+    /* Blinking block cursor */
+    .terminal-cursor {
+      display: inline;
+      color: var(--text);
+      animation: cursorBlink 1s step-end infinite;
+    }
 
-    @keyframes typeIn {
+    @keyframes cursorBlink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    /* Interactive hint between commands */
+    .terminal-hint {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 0 2px;
+      animation: hintAppear 0.4s ease forwards;
+      cursor: pointer;
+    }
+
+    .terminal-hint .hint-key {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 12px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%);
+      border: 1px solid var(--border-hover);
+      border-bottom-width: 2px;
+      border-radius: 4px;
+      color: var(--text-dim);
+      font-size: 0.7rem;
+      font-family: var(--font);
+      letter-spacing: 0.02em;
+      animation: hintPulse 2s ease-in-out infinite;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .terminal-hint:hover .hint-key {
+      background: rgba(255,255,255,0.1);
+      border-color: var(--text-muted);
+    }
+
+    .terminal-hint .hint-text {
+      color: var(--text-muted);
+      font-size: 0.65rem;
+      letter-spacing: 0.02em;
+    }
+
+    @keyframes hintPulse {
+      0%, 100% { border-color: var(--border-hover); }
+      50% { border-color: var(--text-muted); }
+    }
+
+    @keyframes hintAppear {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes lineReveal {
       from { opacity: 0; transform: translateY(4px); }
       to { opacity: 1; transform: translateY(0); }
+    }
+
+    .terminal:focus {
+      outline: none;
+    }
+
+    .terminal.interactive {
+      cursor: pointer;
+      border-color: var(--border-hover);
+      transition: border-color 0.3s ease;
     }
 
     /* === FEATURES SECTION === */
@@ -541,32 +606,32 @@
           It's time to give them a <strong>proper burial</strong>.
         </p>
 
-        <div class="terminal">
+        <div class="terminal" id="terminal" tabindex="0" aria-label="Interactive terminal demo">
           <div class="terminal-bar">
             <div class="terminal-dot"></div>
             <div class="terminal-dot"></div>
             <div class="terminal-dot"></div>
           </div>
-          <div class="terminal-body">
-            <div class="terminal-line">
-              <span class="prompt">~ $</span> <span class="cmd">ls ~/projects/abandoned/</span>
+          <div class="terminal-body" id="terminal-body">
+            <div class="terminal-line shown" data-group="1">
+              <span class="prompt">~ $</span> <span class="cmd" data-cmd="ls ~/projects/abandoned/"></span>
             </div>
-            <div class="terminal-line">
+            <div class="terminal-line" data-group="2">
               <span class="output">todo-app-v3/&nbsp;&nbsp;crypto-tracker/&nbsp;&nbsp;ai-chatbot/</span>
             </div>
-            <div class="terminal-line">
+            <div class="terminal-line" data-group="2">
               <span class="output">saas-idea/&nbsp;&nbsp;&nbsp;&nbsp;dating-for-dogs/&nbsp;&nbsp;yet-another-cms/</span>
             </div>
-            <div class="terminal-line">
-              <span class="prompt">~ $</span> <span class="cmd">deadprojects bury --all</span>
+            <div class="terminal-line" data-group="3">
+              <span class="prompt">~ $</span> <span class="cmd" data-cmd="deadprojects bury --all"></span>
             </div>
-            <div class="terminal-line">
+            <div class="terminal-line" data-group="4">
               <span class="comment"># cataloging 6 projects...</span>
             </div>
-            <div class="terminal-line">
+            <div class="terminal-line" data-group="4">
               <span class="success">&#10003; 6 projects laid to rest.</span>
             </div>
-            <div class="terminal-line">
+            <div class="terminal-line" data-group="4">
               <span class="comment"># visit mydeadprojects.com/~artem to pay respects</span>
             </div>
           </div>
@@ -688,6 +753,132 @@
   </footer>
 
   <script>
+    // Interactive terminal animation
+    (function() {
+      var terminal = document.getElementById('terminal');
+      var tbody = document.getElementById('terminal-body');
+      if (!terminal || !tbody) return;
+
+      var CHAR_DELAY = 50;
+      var CHAR_JITTER = 30;
+      var LINE_DELAY = 150;
+      var POST_TYPE_PAUSE = 400;
+      var PRE_CMD_PAUSE = 500;
+      var phase = 0;
+      var waitingForInput = false;
+      var activeCursor = null;
+
+      var sequence = [
+        { action: 'type', group: '1' },
+        { action: 'hint' },
+        { action: 'reveal', group: '2' },
+        { action: 'pause', ms: PRE_CMD_PAUSE },
+        { action: 'type', group: '3' },
+        { action: 'hint' },
+        { action: 'reveal', group: '4' },
+        { action: 'done' }
+      ];
+
+      function typeText(cmdEl, text, cb) {
+        var i = 0;
+        var cursor = document.createElement('span');
+        cursor.className = 'terminal-cursor';
+        cursor.textContent = '\u2588';
+        cmdEl.after(cursor);
+        activeCursor = cursor;
+
+        function next() {
+          if (i < text.length) {
+            cmdEl.textContent += text[i++];
+            var delay = CHAR_DELAY + Math.random() * CHAR_JITTER * 2 - CHAR_JITTER;
+            setTimeout(next, delay);
+          } else {
+            setTimeout(cb, POST_TYPE_PAUSE);
+          }
+        }
+        next();
+      }
+
+      function revealGroup(group, cb) {
+        var lines = tbody.querySelectorAll('[data-group="' + group + '"]');
+        var len = lines.length;
+        lines.forEach(function(line, i) {
+          setTimeout(function() {
+            line.classList.add('shown');
+            if (i === len - 1 && cb) setTimeout(cb, 100);
+          }, i * LINE_DELAY);
+        });
+        if (!len && cb) cb();
+      }
+
+      function showHint() {
+        waitingForInput = true;
+        terminal.classList.add('interactive');
+        var hint = document.createElement('div');
+        hint.className = 'terminal-hint';
+        hint.innerHTML = '<span class="hint-key">\u21B5 Enter</span><span class="hint-text">to run</span>';
+        tbody.appendChild(hint);
+      }
+
+      function clearHint() {
+        var hint = tbody.querySelector('.terminal-hint');
+        if (hint) hint.remove();
+        if (activeCursor) { activeCursor.remove(); activeCursor = null; }
+        terminal.classList.remove('interactive');
+        waitingForInput = false;
+      }
+
+      function runNext() {
+        if (phase >= sequence.length) return;
+        var step = sequence[phase++];
+
+        if (step.action === 'type') {
+          var line = tbody.querySelector('[data-group="' + step.group + '"]');
+          var cmd = line.querySelector('[data-cmd]');
+          line.classList.add('shown');
+          typeText(cmd, cmd.dataset.cmd, runNext);
+
+        } else if (step.action === 'hint') {
+          showHint();
+
+        } else if (step.action === 'reveal') {
+          revealGroup(step.group, runNext);
+
+        } else if (step.action === 'pause') {
+          setTimeout(runNext, step.ms);
+
+        } else if (step.action === 'done') {
+          document.removeEventListener('keydown', onInteract);
+          var finalLine = document.createElement('div');
+          finalLine.className = 'terminal-line shown';
+          finalLine.innerHTML = '<span class="prompt">~ $</span> <span class="terminal-cursor">\u2588</span>';
+          tbody.appendChild(finalLine);
+        }
+      }
+
+      function onInteract(e) {
+        if (!waitingForInput) return;
+        if (e.type === 'keydown' && e.key !== 'Enter') return;
+        if (e.type === 'keydown') e.preventDefault();
+        clearHint();
+        runNext();
+      }
+
+      terminal.addEventListener('click', onInteract);
+      document.addEventListener('keydown', onInteract);
+
+      var tObs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            setTimeout(runNext, 500);
+            tObs.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.3 });
+
+      tObs.observe(terminal);
+    })();
+
     // Intersection Observer for fade-in animations
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
