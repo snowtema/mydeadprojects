@@ -65,17 +65,17 @@ export default async function ProjectPage({ params }: Props) {
 
       {/* Large Tombstone */}
       <div className="max-w-xs mx-auto">
-        <div className="p-8 bg-bg-card border border-border rounded-t-md text-center space-y-3">
-          <div className="text-2xl text-text-muted">&#10013;</div>
+        <div className="tombstone-card p-8 border border-border rounded-t-md text-center space-y-3">
+          <div className="tombstone-cross text-2xl text-text-muted">&#10013;</div>
           <h1 className="text-lg font-medium text-text-dim">{project.name}</h1>
           <div className="text-xs text-text-muted font-light">
             {formatDateRange(project.startDate, project.endDate)}
           </div>
-          <div className="text-sm text-text-muted italic leading-relaxed">
+          <div className="text-lg font-serif text-text-dim italic leading-relaxed">
             &ldquo;{project.epitaph}&rdquo;
           </div>
         </div>
-        <div className="mx-[10%] h-2 bg-bg-subtle border border-border border-t-0 rounded-b" />
+        <div className="tombstone-base mx-[10%] h-2 bg-bg border border-border border-t-0 rounded-b" />
       </div>
 
       {/* Details */}

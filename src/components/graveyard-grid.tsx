@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
 import { type Project } from "@/lib/db/schema";
 import { TombstoneCard } from "./tombstone-card";
 
@@ -12,15 +15,63 @@ export function GraveyardGrid({
   username,
   showEdit,
 }: GraveyardGridProps) {
+  const gridRef = useRef<HTMLDivElement>(null);
+  const [visibleSet, setVisibleSet] = useState<Set<number>>(new Set());
+  const observedRef = useRef<Set<number>>(new Set());
+
+  useEffect(() => {
+    const grid = gridRef.current;
+    if (!grid) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const index = Number(
+              (entry.target as HTMLElement).dataset.index
+            );
+            if (!observedRef.current.has(index)) {
+              observedRef.current.add(index);
+              setVisibleSet((prev) => new Set(prev).add(index));
+              observer.unobserve(entry.target);
+            }
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    const items = grid.querySelectorAll("[data-index]");
+    items.forEach((item) => observer.observe(item));
+
+    return () => observer.disconnect();
+  }, [projects]);
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {projects.map((project) => (
-        <TombstoneCard
+    <div
+      ref={gridRef}
+      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+    >
+      {projects.map((project, index) => (
+        <div
           key={project.id}
-          project={project}
-          username={username}
-          showEdit={showEdit}
-        />
+          data-index={index}
+          style={{
+            opacity: visibleSet.has(index) ? 1 : 0,
+            transform: visibleSet.has(index)
+              ? "translateY(0)"
+              : "translateY(16px)",
+            animation: visibleSet.has(index)
+              ? `fade-in 0.4s ease ${index * 80}ms both`
+              : "none",
+          }}
+        >
+          <TombstoneCard
+            project={project}
+            username={username}
+            showEdit={showEdit}
+          />
+        </div>
       ))}
     </div>
   );

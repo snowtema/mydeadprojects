@@ -9,7 +9,8 @@
   --color-text: #e0e0e0;
   --color-text-dim: #999999;
   --color-text-muted: #6a6a6a;
-  --color-accent: #aaaaaa;
+  --color-accent: #9B7E7E;
+  --color-accent-dim: #1f1a1a;
   --color-green-dim: #2a3a2a;
   --color-green: #5a9a5a;
   --color-red-dim: #3a1a1a;
@@ -17,6 +18,7 @@
 
   --font-mono: "JetBrains Mono", "SF Mono", "Fira Code", "Cascadia Code",
     monospace;
+  --font-serif: "Cormorant Garamond", "Georgia", "Times New Roman", serif;
 }
 
 /* Noise overlay */
@@ -45,6 +47,47 @@ body::after {
   );
   pointer-events: none;
   z-index: 9998;
+}
+
+/* Tombstone stone effect */
+.tombstone-card {
+  background: linear-gradient(175deg, #181818 0%, #141414 40%, #121212 100%);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.03),
+    inset 0 -1px 0 0 rgba(0, 0, 0, 0.2),
+    0 1px 3px 0 rgba(0, 0, 0, 0.3),
+    0 4px 12px 0 rgba(0, 0, 0, 0.15);
+  position: relative;
+}
+
+.tombstone-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 128 128' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='s'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.5' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23s)'/%3E%3C/svg%3E");
+  background-size: 128px 128px;
+  pointer-events: none;
+}
+
+.tombstone-card:hover {
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.04),
+    inset 0 -1px 0 0 rgba(0, 0, 0, 0.2),
+    0 2px 6px 0 rgba(0, 0, 0, 0.4),
+    0 8px 24px 0 rgba(0, 0, 0, 0.2),
+    0 0 20px 0 rgba(155, 126, 126, 0.04);
+}
+
+.tombstone-cross {
+  text-shadow: 0 0 8px rgba(155, 126, 126, 0.15);
+}
+
+.tombstone-base {
+  box-shadow:
+    inset 0 1px 2px rgba(0, 0, 0, 0.3),
+    0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 /* Animations */

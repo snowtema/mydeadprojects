@@ -63,7 +63,7 @@ export default function LoginPage() {
 
       <button
         onClick={handleGitHub}
-        className="w-full py-3 px-4 bg-white text-bg rounded-md text-sm font-medium hover:opacity-90 transition-opacity cursor-pointer"
+        className="w-full py-3 px-4 bg-accent text-bg rounded-md text-sm font-medium hover:opacity-90 transition-opacity cursor-pointer"
       >
         Continue with GitHub
       </button>

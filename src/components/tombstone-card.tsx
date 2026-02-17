@@ -17,16 +17,16 @@ export function TombstoneCard({
     <div className="group relative">
       <Link
         href={`/${username}/${project.slug}`}
-        className="block p-6 bg-bg-card border border-border rounded-t-md text-center transition-all duration-200 hover:border-border-hover hover:-translate-y-0.5"
+        className="tombstone-card block p-6 border border-border rounded-t-md text-center transition-all duration-300 hover:border-border-hover hover:-translate-y-1"
       >
-        <div className="text-text-muted text-lg mb-3">&#10013;</div>
+        <div className="tombstone-cross text-text-muted text-lg mb-3">&#10013;</div>
         <div className="text-sm font-medium text-text-dim mb-1">
           {project.name}
         </div>
         <div className="text-[0.6rem] text-text-muted font-light mb-2">
           {formatDateRange(project.startDate, project.endDate)}
         </div>
-        <div className="text-[0.6rem] text-text-muted italic leading-relaxed">
+        <div className="text-sm font-serif text-text-dim italic leading-relaxed">
           &ldquo;{project.epitaph}&rdquo;
         </div>
         {project.causeOfDeath && (
@@ -35,11 +35,11 @@ export function TombstoneCard({
           </div>
         )}
         <div className="mt-3 text-[0.6rem] text-text-muted">
-          🌸 {project.flowersCount}
+          🌸 <span className="text-accent">{project.flowersCount}</span>
         </div>
       </Link>
       {/* Tombstone base */}
-      <div className="mx-[10%] h-2 bg-bg-subtle border border-border border-t-0 rounded-b" />
+      <div className="tombstone-base mx-[10%] h-2 bg-bg border border-border border-t-0 rounded-b" />
 
       {showEdit && (
         <Link

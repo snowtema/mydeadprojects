@@ -133,8 +133,8 @@ export default async function Home() {
             <div className="flex justify-center gap-8 flex-wrap">
               {tombstones.map((t) => (
                 <div key={t.name} className="w-40">
-                  <div className="p-6 bg-bg-card border border-border rounded-t-md text-center hover:border-border-hover transition-colors">
-                    <div className="text-lg text-text-muted mb-3">
+                  <div className="tombstone-card p-6 border border-border rounded-t-md text-center hover:border-border-hover transition-all duration-300">
+                    <div className="tombstone-cross text-lg text-text-muted mb-3">
                       &#10013;
                     </div>
                     <div className="text-xs font-medium text-text-dim mb-1">
@@ -143,11 +143,11 @@ export default async function Home() {
                     <div className="text-[0.6rem] text-text-muted font-light">
                       {t.dates}
                     </div>
-                    <div className="text-[0.6rem] text-text-muted italic mt-2 leading-relaxed">
+                    <div className="text-sm font-serif text-text-dim italic mt-2 leading-relaxed">
                       &ldquo;{t.epitaph}&rdquo;
                     </div>
                   </div>
-                  <div className="mx-[10%] h-2 bg-bg-subtle border border-border border-t-0 rounded-b" />
+                  <div className="tombstone-base mx-[10%] h-2 bg-bg border border-border border-t-0 rounded-b" />
                 </div>
               ))}
             </div>
@@ -169,7 +169,7 @@ export default async function Home() {
             </p>
             <Link
               href="/login"
-              className="inline-block px-8 py-3 bg-white text-bg rounded-md text-sm font-medium hover:opacity-90 transition-opacity active:scale-[0.98]"
+              className="inline-block px-8 py-3 bg-accent text-bg rounded-md text-sm font-medium hover:opacity-90 transition-opacity active:scale-[0.98]"
             >
               Start Burying
             </Link>

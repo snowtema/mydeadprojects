@@ -21,7 +21,7 @@ export function Navbar({ user }: NavbarProps) {
             <>
               <Link
                 href="/bury"
-                className="text-xs px-3 py-1.5 bg-white text-bg rounded font-medium hover:opacity-90 transition-opacity"
+                className="text-xs px-3 py-1.5 bg-accent text-bg rounded font-medium hover:opacity-90 transition-opacity"
               >
                 + Bury Project
               </Link>
@@ -47,7 +47,7 @@ export function Navbar({ user }: NavbarProps) {
           ) : (
             <Link
               href="/login"
-              className="text-xs px-3 py-1.5 bg-white text-bg rounded font-medium hover:opacity-90 transition-opacity"
+              className="text-xs px-3 py-1.5 bg-accent text-bg rounded font-medium hover:opacity-90 transition-opacity"
             >
               Start Burying
             </Link>

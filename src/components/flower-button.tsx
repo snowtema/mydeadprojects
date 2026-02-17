@@ -56,7 +56,7 @@ export function FlowerButton({ projectId, initialCount }: FlowerButtonProps) {
           </span>
         )}
       </span>
-      <span>{count}</span>
+      <span className="text-accent">{count}</span>
     </button>
   );
 }

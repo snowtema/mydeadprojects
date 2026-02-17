@@ -38,7 +38,7 @@ export default async function DashboardPage() {
           <ShareMenu url={graveyardUrl} title={`@${user.username}'s graveyard`} />
           <Link
             href="/bury"
-            className="text-xs px-4 py-2 bg-white text-bg rounded-md font-medium hover:opacity-90 transition-opacity"
+            className="text-xs px-4 py-2 bg-accent text-bg rounded-md font-medium hover:opacity-90 transition-opacity"
           >
             + Bury Project
           </Link>

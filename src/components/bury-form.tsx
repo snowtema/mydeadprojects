@@ -216,7 +216,7 @@ export function BuryForm({ existingProject }: BuryFormProps) {
           required
           maxLength={140}
         />
-        <p className="text-[0.6rem] text-text-muted italic">
+        <p className="text-[0.6rem] font-serif text-text-muted italic">
           e.g. &ldquo;
           {EPITAPH_EXAMPLES[Math.floor(Date.now() / 10000) % EPITAPH_EXAMPLES.length]}
           &rdquo;
@@ -288,8 +288,8 @@ export function BuryForm({ existingProject }: BuryFormProps) {
             Preview
           </div>
           <div className="w-40 mx-auto">
-            <div className="p-6 bg-bg-card border border-border rounded-t-md text-center">
-              <div className="text-text-muted text-lg mb-3">&#10013;</div>
+            <div className="tombstone-card p-6 border border-border rounded-t-md text-center">
+              <div className="tombstone-cross text-text-muted text-lg mb-3">&#10013;</div>
               <div className="text-sm font-medium text-text-dim mb-1">
                 {name}
               </div>
@@ -299,7 +299,7 @@ export function BuryForm({ existingProject }: BuryFormProps) {
                 </div>
               )}
               {epitaph && (
-                <div className="text-[0.6rem] text-text-muted italic">
+                <div className="text-sm font-serif text-text-dim italic">
                   &ldquo;{epitaph}&rdquo;
                 </div>
               )}
@@ -309,7 +309,7 @@ export function BuryForm({ existingProject }: BuryFormProps) {
                 </div>
               )}
             </div>
-            <div className="mx-[10%] h-2 bg-bg-subtle border border-border border-t-0 rounded-b" />
+            <div className="tombstone-base mx-[10%] h-2 bg-bg border border-border border-t-0 rounded-b" />
           </div>
         </div>
       )}
@@ -319,7 +319,7 @@ export function BuryForm({ existingProject }: BuryFormProps) {
       <button
         type="submit"
         disabled={submitting}
-        className="w-full py-3 px-4 bg-white text-bg rounded-md text-sm font-medium hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50"
+        className="w-full py-3 px-4 bg-accent text-bg rounded-md text-sm font-medium hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50"
       >
         {submitting
           ? "Burying..."
