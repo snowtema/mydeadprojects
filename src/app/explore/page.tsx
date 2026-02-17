@@ -65,7 +65,7 @@ export default async function ExplorePage({ searchParams }: Props) {
 
   const sortTabs: { key: SortOption; label: string }[] = [
     { key: "recent", label: "Recent" },
-    { key: "flowers", label: "Most Flowers" },
+    { key: "flowers", label: "Most Respected" },
   ];
 
   return (

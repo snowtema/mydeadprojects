@@ -103,7 +103,7 @@ export default function UsernamePage() {
         <button
           type="submit"
           disabled={status !== "available" || submitting}
-          className="w-full py-3 px-4 bg-accent text-bg rounded-md text-sm font-medium hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+          className="w-full py-3 px-4 bg-cta text-bg rounded-md text-sm font-medium hover:bg-cta-hover transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
         >
           {submitting ? "Claiming..." : "Claim My Graveyard"}
         </button>

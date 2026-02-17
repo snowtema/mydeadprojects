@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { GraveyardGrid } from "@/components/graveyard-grid";
 import { ShareMenu } from "@/components/share-menu";
+import { TombstoneIcon } from "@/components/icons";
 
 export default async function GraveyardPage({
   params,
@@ -40,8 +41,8 @@ export default async function GraveyardPage({
             className="rounded-full mx-auto border border-border"
           />
         ) : (
-          <div className="w-16 h-16 rounded-full bg-bg-card border border-border flex items-center justify-center text-2xl mx-auto">
-            🪦
+          <div className="w-16 h-16 rounded-full bg-bg-card border border-border flex items-center justify-center mx-auto">
+            <TombstoneIcon className="w-7 h-7 text-text-muted" />
           </div>
         )}
         <div>
@@ -58,7 +59,7 @@ export default async function GraveyardPage({
       <div className="flex items-center justify-center gap-4 text-xs text-text-muted py-3 border-y border-border">
         <span>{profile.projectsCount} buried</span>
         <span>·</span>
-        <span>{profile.flowersReceived} 🌸</span>
+        <span className="inline-flex items-center gap-1">{profile.flowersReceived} <kbd className="inline-flex items-center justify-center w-4 h-4 bg-gradient-to-b from-white/[0.07] to-white/[0.02] border border-border-hover border-b-2 rounded text-[0.5rem] text-text-dim font-mono">F</kbd></span>
         <span>·</span>
         <span>
           member since {profile.createdAt.getFullYear()}
@@ -70,7 +71,7 @@ export default async function GraveyardPage({
         <ShareMenu
           url={graveyardUrl}
           title={`@${profile.username}'s graveyard`}
-          text={`Check out @${profile.username}'s graveyard of dead projects on My Dead Projects`}
+          text={`@${profile.username} has buried ${profile.projectsCount} dead projects. Come pay your respects at their developer graveyard.`}
         />
       </div>
 

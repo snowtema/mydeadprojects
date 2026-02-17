@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Link2, Twitter, Linkedin } from "lucide-react";
 
 interface ShareMenuProps {
   url: string;
@@ -29,7 +30,7 @@ export function ShareMenu({ url, title, text }: ShareMenuProps) {
         className="text-[0.6rem] px-2 py-1 bg-bg-card border border-border rounded text-text-muted hover:border-border-hover hover:text-text-dim transition-colors cursor-pointer"
         title="Copy link"
       >
-        {copied ? "Copied!" : "🔗 Copy"}
+        {copied ? "Copied!" : <><Link2 className="w-3 h-3 inline" /> Copy</>}
       </button>
       <a
         href={twitterUrl}
@@ -38,7 +39,7 @@ export function ShareMenu({ url, title, text }: ShareMenuProps) {
         className="text-[0.6rem] px-2 py-1 bg-bg-card border border-border rounded text-text-muted hover:border-border-hover hover:text-text-dim transition-colors"
         title="Share on Twitter"
       >
-        𝕏
+        <Twitter className="w-3 h-3" />
       </a>
       <a
         href={linkedinUrl}
@@ -47,7 +48,7 @@ export function ShareMenu({ url, title, text }: ShareMenuProps) {
         className="text-[0.6rem] px-2 py-1 bg-bg-card border border-border rounded text-text-muted hover:border-border-hover hover:text-text-dim transition-colors"
         title="Share on LinkedIn"
       >
-        in
+        <Linkedin className="w-3 h-3" />
       </a>
     </div>
   );

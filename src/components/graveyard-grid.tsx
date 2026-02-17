@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { type Project } from "@/lib/db/schema";
 import { TombstoneCard } from "./tombstone-card";
+import { useReducedMotion } from "@/hooks/use-reduced-motion";
 
 interface GraveyardGridProps {
   projects: Project[];
@@ -15,6 +16,7 @@ export function GraveyardGrid({
   username,
   showEdit,
 }: GraveyardGridProps) {
+  const reducedMotion = useReducedMotion();
   const gridRef = useRef<HTMLDivElement>(null);
   const [visibleSet, setVisibleSet] = useState<Set<number>>(new Set());
   const observedRef = useRef<Set<number>>(new Set());
@@ -56,15 +58,19 @@ export function GraveyardGrid({
         <div
           key={project.id}
           data-index={index}
-          style={{
-            opacity: visibleSet.has(index) ? 1 : 0,
-            transform: visibleSet.has(index)
-              ? "translateY(0)"
-              : "translateY(16px)",
-            animation: visibleSet.has(index)
-              ? `fade-in 0.4s ease ${index * 80}ms both`
-              : "none",
-          }}
+          style={
+            reducedMotion
+              ? { opacity: 1 }
+              : {
+                  opacity: visibleSet.has(index) ? 1 : 0,
+                  transform: visibleSet.has(index)
+                    ? "translateY(0)"
+                    : "translateY(16px)",
+                  animation: visibleSet.has(index)
+                    ? `fade-in 0.4s ease ${index * 80}ms both`
+                    : "none",
+                }
+          }
         >
           <TombstoneCard
             project={project}

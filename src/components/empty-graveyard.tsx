@@ -11,7 +11,7 @@ export function EmptyGraveyard() {
       </p>
       <Link
         href="/bury"
-        className="inline-block px-6 py-3 bg-accent text-bg rounded-md text-sm font-medium hover:opacity-90 transition-opacity"
+        className="inline-block px-6 py-3 bg-cta text-bg rounded-md text-sm font-medium hover:bg-cta-hover transition-colors"
       >
         Bury Your First Project
       </Link>

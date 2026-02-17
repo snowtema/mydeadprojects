@@ -117,7 +117,7 @@ export default async function ProjectPage({ params }: Props) {
           <ShareMenu
             url={projectUrl}
             title={`${project.name} — RIP`}
-            text={`"${project.epitaph}" — ${project.name} (${project.startDate}\u2013${project.endDate}). Cause of death: ${project.causeOfDeath}. Rest in peace.`}
+            text={`RIP ${project.name} (${project.startDate}\u2013${project.endDate}). Cause of death: ${project.causeOfDeath}. Press F to pay respects.`}
           />
         </div>
 

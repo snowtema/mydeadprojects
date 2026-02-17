@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { createProject, updateProject } from "@/actions/projects";
 import { type Project } from "@/lib/db/schema";
 import { cn, formatDateRange } from "@/lib/utils";
+import { TombstoneIcon } from "@/components/icons";
+import { FuneralAnimation } from "@/components/funeral-animation";
 
 const CAUSES_OF_DEATH = [
   { label: "Lost motivation", emoji: "😴" },
@@ -28,9 +30,10 @@ const EPITAPH_EXAMPLES = [
 
 interface BuryFormProps {
   existingProject?: Project;
+  username?: string;
 }
 
-export function BuryForm({ existingProject }: BuryFormProps) {
+export function BuryForm({ existingProject, username }: BuryFormProps) {
   const router = useRouter();
   const [name, setName] = useState(existingProject?.name ?? "");
   const [startDate, setStartDate] = useState(
@@ -55,6 +58,8 @@ export function BuryForm({ existingProject }: BuryFormProps) {
   const [showDetails, setShowDetails] = useState(false);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [showFuneral, setShowFuneral] = useState(false);
+  const [createdSlug, setCreatedSlug] = useState("");
 
   const isCustomCause =
     causeOfDeath !== "" &&
@@ -84,17 +89,34 @@ export function BuryForm({ existingProject }: BuryFormProps) {
       techStack: techStack.length > 0 ? techStack : undefined,
     };
 
-    const result = existingProject
-      ? await updateProject(existingProject.id, input)
-      : await createProject(input);
-
-    if (result.error) {
-      setError(result.error);
-      setSubmitting(false);
-      return;
+    if (existingProject) {
+      const result = await updateProject(existingProject.id, input);
+      if (result.error) {
+        setError(result.error);
+        setSubmitting(false);
+        return;
+      }
+      router.push("/dashboard");
+    } else {
+      const result = await createProject(input);
+      if (result.error) {
+        setError(result.error);
+        setSubmitting(false);
+        return;
+      }
+      setCreatedSlug(result.slug ?? "");
+      setShowFuneral(true);
     }
+  }
 
-    router.push("/dashboard");
+  if (showFuneral && username) {
+    return (
+      <FuneralAnimation
+        projectName={name}
+        username={username}
+        slug={createdSlug}
+      />
+    );
   }
 
   return (
@@ -319,13 +341,13 @@ export function BuryForm({ existingProject }: BuryFormProps) {
       <button
         type="submit"
         disabled={submitting}
-        className="w-full py-3 px-4 bg-accent text-bg rounded-md text-sm font-medium hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50"
+        className="w-full py-3 px-4 bg-cta text-bg rounded-md text-sm font-medium hover:bg-cta-hover transition-colors cursor-pointer disabled:opacity-50"
       >
         {submitting
           ? "Burying..."
           : existingProject
             ? "Update Tombstone"
-            : "🪦 Bury It"}
+            : <><TombstoneIcon className="w-4 h-4 inline" /> Bury It</>}
       </button>
     </form>
   );

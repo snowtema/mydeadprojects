@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
+import { TombstoneIcon } from "@/components/icons";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -55,7 +56,7 @@ export default function LoginPage() {
   return (
     <div className="space-y-8">
       <div className="text-center space-y-3">
-        <span className="text-4xl block">🪦</span>
+        <TombstoneIcon className="w-10 h-10 text-accent mx-auto" />
         <h1 className="text-xl font-bold">
           my<span className="text-text-dim font-light">dead</span>projects
         </h1>
@@ -63,7 +64,7 @@ export default function LoginPage() {
 
       <button
         onClick={handleGitHub}
-        className="w-full py-3 px-4 bg-accent text-bg rounded-md text-sm font-medium hover:opacity-90 transition-opacity cursor-pointer"
+        className="w-full py-3 px-4 bg-cta text-bg rounded-md text-sm font-medium hover:bg-cta-hover transition-colors cursor-pointer"
       >
         Continue with GitHub
       </button>

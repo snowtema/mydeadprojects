@@ -4,27 +4,31 @@ import { StatsCounter } from "@/components/landing/stats-counter";
 import { db } from "@/lib/db";
 import { projects, users, flowers } from "@/lib/db/schema";
 import { count } from "drizzle-orm";
+import { Skull, Sparkles, Github } from "lucide-react";
+import { TombstoneIcon } from "@/components/icons";
+import { type ReactNode } from "react";
 
+export const dynamic = "force-dynamic";
 export const revalidate = 3600;
 
-const features = [
+const features: { icon: ReactNode; title: string; desc: string }[] = [
   {
-    icon: "\u2620",
+    icon: <Skull className="w-5 h-5 text-text-muted" />,
     title: "Project Obituaries",
     desc: "Write a short epitaph for each project. What it was, why it died, and what you learned from the experience.",
   },
   {
-    icon: "🪦",
+    icon: <TombstoneIcon className="w-5 h-5 text-text-muted" />,
     title: "Your Personal Graveyard",
     desc: "A public page showcasing all your abandoned projects. Wear your failures like badges of honor.",
   },
   {
-    icon: "\u2606",
+    icon: <Sparkles className="w-5 h-5 text-text-muted" />,
     title: "Resurrect or Adopt",
     desc: "Someone might want to continue where you stopped. Let others adopt your dead projects and bring them back to life.",
   },
   {
-    icon: "\u2318",
+    icon: <Github className="w-5 h-5 text-text-muted" />,
     title: "GitHub Integration",
     desc: "Connect your GitHub. We'll find the repos that haven't been touched in months and suggest them for burial.",
   },
@@ -58,14 +62,14 @@ export default async function Home() {
   const stats = {
     projectsBuried: projectsResult[0]?.value ?? 0,
     developers: usersResult[0]?.value ?? 0,
-    flowersLeft: flowersResult[0]?.value ?? 0,
+    respectsPaid: flowersResult[0]?.value ?? 0,
   };
   return (
     <div className="min-h-screen">
       {/* Header */}
       <header className="pt-12 text-center">
-        <span className="text-5xl block mb-6" aria-hidden="true">
-          🪦
+        <span className="block mb-6" aria-hidden="true">
+          <TombstoneIcon className="w-12 h-12 text-accent mx-auto" />
         </span>
         <h1 className="text-[clamp(1.5rem,4vw,2.2rem)] font-bold tracking-tight mb-2">
           my<span className="text-text-dim font-light">dead</span>projects
@@ -77,7 +81,7 @@ export default async function Home() {
 
       <main>
         {/* Hero */}
-        <section className="py-20 text-center">
+        <section className="py-24 text-center">
           <div className="max-w-[720px] mx-auto px-6">
             <p className="text-[clamp(1.1rem,2.5vw,1.35rem)] font-light max-w-[540px] mx-auto mb-12 leading-relaxed">
               Every developer has a folder of{" "}
@@ -126,13 +130,13 @@ export default async function Home() {
 
         {/* Graveyard Preview */}
         <section className="py-12">
-          <div className="max-w-[720px] mx-auto px-6">
+          <div className="max-w-4xl mx-auto px-6">
             <div className="text-[0.65rem] uppercase tracking-[0.15em] text-text-muted mb-8 pb-3 border-b border-border">
               // preview: someone&apos;s graveyard
             </div>
-            <div className="flex justify-center gap-8 flex-wrap">
+            <div className="flex justify-center gap-10 flex-wrap">
               {tombstones.map((t) => (
-                <div key={t.name} className="w-40">
+                <div key={t.name} className="w-48">
                   <div className="tombstone-card p-6 border border-border rounded-t-md text-center hover:border-border-hover transition-all duration-300">
                     <div className="tombstone-cross text-lg text-text-muted mb-3">
                       &#10013;
@@ -155,8 +159,8 @@ export default async function Home() {
         </section>
 
         {/* Stats */}
-        <section className="mb-16">
-          <div className="max-w-[720px] mx-auto px-6">
+        <section className="mb-16 bg-bg-subtle border-y border-border">
+          <div className="max-w-5xl mx-auto px-6">
             <StatsCounter {...stats} />
           </div>
         </section>
@@ -169,7 +173,7 @@ export default async function Home() {
             </p>
             <Link
               href="/login"
-              className="inline-block px-8 py-3 bg-accent text-bg rounded-md text-sm font-medium hover:opacity-90 transition-opacity active:scale-[0.98]"
+              className="inline-block px-8 py-3 bg-cta text-bg rounded-md text-sm font-medium hover:bg-cta-hover transition-colors active:scale-[0.98]"
             >
               Start Burying
             </Link>

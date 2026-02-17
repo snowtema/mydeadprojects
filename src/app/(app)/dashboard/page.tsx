@@ -31,14 +31,14 @@ export default async function DashboardPage() {
           <div className="text-xs text-text-muted mt-1 flex items-center gap-3">
             <span>{user.projectsCount} projects buried</span>
             <span>·</span>
-            <span>{user.flowersReceived} flowers</span>
+            <span>{user.flowersReceived} respects</span>
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <ShareMenu url={graveyardUrl} title={`@${user.username}'s graveyard`} />
+          <ShareMenu url={graveyardUrl} title={`@${user.username}'s graveyard`} text={`I've buried ${user.projectsCount} dead projects. Come pay your respects at my developer graveyard.`} />
           <Link
             href="/bury"
-            className="text-xs px-4 py-2 bg-accent text-bg rounded-md font-medium hover:opacity-90 transition-opacity"
+            className="text-xs px-4 py-2 bg-cta text-bg rounded-md font-medium hover:bg-cta-hover transition-colors"
           >
             + Bury Project
           </Link>

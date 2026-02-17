@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useReducedMotion } from "@/hooks/use-reduced-motion";
 
 const CHAR_DELAY = 50;
 const CHAR_JITTER = 30;
@@ -56,6 +57,7 @@ const lines: TerminalLine[] = [
 ];
 
 export function Terminal() {
+  const reducedMotion = useReducedMotion();
   const [visibleGroups, setVisibleGroups] = useState<Set<number>>(new Set());
   const [typedTexts, setTypedTexts] = useState<Record<number, string>>({});
   const [showHint, setShowHint] = useState(false);
@@ -143,6 +145,19 @@ export function Terminal() {
   }, [runNext]);
 
   useEffect(() => {
+    if (reducedMotion && !startedRef.current) {
+      startedRef.current = true;
+      const allGroups = new Set(lines.map((l) => l.group));
+      setVisibleGroups(allGroups);
+      const textMap: Record<number, string> = {};
+      lines.forEach((l) => {
+        if (l.cmdText) textMap[l.group] = l.cmdText;
+      });
+      setTypedTexts(textMap);
+      setShowFinalCursor(true);
+      return;
+    }
+
     const terminal = terminalRef.current;
     if (!terminal || startedRef.current) return;
 
@@ -161,7 +176,7 @@ export function Terminal() {
 
     observer.observe(terminal);
     return () => observer.disconnect();
-  }, [runNext]);
+  }, [runNext, reducedMotion]);
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {

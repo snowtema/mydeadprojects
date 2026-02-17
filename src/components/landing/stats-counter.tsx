@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useReducedMotion } from "@/hooks/use-reduced-motion";
 
 interface StatProps {
   target: number;
@@ -8,11 +9,17 @@ interface StatProps {
 }
 
 function AnimatedStat({ target, label }: StatProps) {
+  const reducedMotion = useReducedMotion();
   const [value, setValue] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
   const animatedRef = useRef(false);
 
   useEffect(() => {
+    if (reducedMotion) {
+      setValue(target);
+      return;
+    }
+
     const el = ref.current;
     if (!el) return;
 
@@ -42,7 +49,7 @@ function AnimatedStat({ target, label }: StatProps) {
 
     observer.observe(el);
     return () => observer.disconnect();
-  }, [target]);
+  }, [target, reducedMotion]);
 
   return (
     <div ref={ref} className="text-center">
@@ -59,19 +66,19 @@ function AnimatedStat({ target, label }: StatProps) {
 interface StatsCounterProps {
   projectsBuried: number;
   developers: number;
-  flowersLeft: number;
+  respectsPaid: number;
 }
 
 export function StatsCounter({
   projectsBuried,
   developers,
-  flowersLeft,
+  respectsPaid,
 }: StatsCounterProps) {
   return (
-    <div className="flex justify-center gap-12 py-12 border-y border-border flex-wrap">
+    <div className="flex justify-center gap-12 py-12 flex-wrap">
       <AnimatedStat target={projectsBuried} label="projects buried" />
       <AnimatedStat target={developers} label="developers" />
-      <AnimatedStat target={flowersLeft} label="flowers left" />
+      <AnimatedStat target={respectsPaid} label="respects paid" />
     </div>
   );
 }

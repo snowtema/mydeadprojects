@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { type User } from "@/lib/db/schema";
 import { cn } from "@/lib/utils";
+import { TombstoneIcon } from "@/components/icons";
 
 interface NavbarProps {
   user?: User | null;
@@ -48,7 +49,7 @@ export function Navbar({ user }: NavbarProps) {
       <nav className="border-b border-border px-6 py-4 relative z-50">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <span className="text-lg">🪦</span>
+            <TombstoneIcon className="w-5 h-5 text-accent" />
             <span className="text-sm font-bold">
               my<span className="text-text-dim font-light">dead</span>projects
             </span>
@@ -63,7 +64,7 @@ export function Navbar({ user }: NavbarProps) {
                 className={cn(
                   "text-xs transition-colors",
                   link.accent
-                    ? "px-3 py-1.5 bg-accent text-bg rounded font-medium hover:opacity-90 transition-opacity"
+                    ? "px-3 py-1.5 bg-cta text-bg rounded font-medium hover:bg-cta-hover transition-colors"
                     : "text-text-muted hover:text-text-dim"
                 )}
               >
@@ -114,7 +115,7 @@ export function Navbar({ user }: NavbarProps) {
                 className={cn(
                   "text-sm transition-colors py-1",
                   link.accent
-                    ? "text-accent font-medium"
+                    ? "text-cta font-medium"
                     : "text-text-muted hover:text-text-dim"
                 )}
               >
