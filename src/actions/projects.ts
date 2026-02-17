@@ -109,6 +109,34 @@ export async function updateProject(
   return {};
 }
 
+export async function updateProjectPosition(
+  projectId: string,
+  positionX: number,
+  positionY: number
+): Promise<{ error?: string }> {
+  const userId = await getAuthenticatedUserId();
+  if (!userId) return { error: "Not authenticated" };
+
+  const existing = await db.query.projects.findFirst({
+    where: and(eq(projects.id, projectId), eq(projects.userId, userId)),
+  });
+
+  if (!existing) return { error: "Project not found" };
+
+  // Clamp to 0..1
+  const x = Math.max(0, Math.min(1, positionX));
+  const y = Math.max(0, Math.min(1, positionY));
+
+  await db
+    .update(projects)
+    .set({ positionX: x, positionY: y, updatedAt: new Date() })
+    .where(eq(projects.id, projectId));
+
+  revalidatePath("/graveyard");
+
+  return {};
+}
+
 export async function deleteProject(
   projectId: string
 ): Promise<{ error?: string }> {

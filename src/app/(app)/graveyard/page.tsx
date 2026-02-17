@@ -4,9 +4,9 @@ import { db } from "@/lib/db";
 import { projects } from "@/lib/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { redirect } from "next/navigation";
-import { GraveyardGrid } from "@/components/graveyard-grid";
 import { EmptyGraveyard } from "@/components/empty-graveyard";
 import { ShareMenu } from "@/components/share-menu";
+import { GraveyardViewToggle } from "@/components/graveyard-view-toggle";
 
 export const metadata = {
   title: "Graveyard",
@@ -48,7 +48,7 @@ export default async function DashboardPage() {
       <div className="h-px bg-border" />
 
       {userProjects.length > 0 ? (
-        <GraveyardGrid
+        <GraveyardViewToggle
           projects={userProjects}
           username={user.username}
           showEdit

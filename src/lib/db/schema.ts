@@ -4,6 +4,7 @@ import {
   varchar,
   text,
   integer,
+  real,
   timestamp,
   uniqueIndex,
   index,
@@ -55,6 +56,8 @@ export const projects = pgTable(
     repoUrl: text("repo_url"),
     techStack: text("tech_stack").array(),
     flowersCount: integer("flowers_count").default(0).notNull(),
+    positionX: real("position_x"),
+    positionY: real("position_y"),
     ogImageUrl: text("og_image_url"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
