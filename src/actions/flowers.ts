@@ -2,29 +2,78 @@
 
 import { db } from "@/lib/db";
 import { flowers, projects, users } from "@/lib/db/schema";
-import { eq, sql } from "drizzle-orm";
+import { eq, and, sql } from "drizzle-orm";
 import { headers } from "next/headers";
 import { createHash } from "crypto";
+
+const VALID_TYPES = ["flower", "candle", "rip", "lol"] as const;
 
 function hashVisitor(ip: string): string {
   return createHash("sha256").update(ip + "mdp-salt").digest("hex");
 }
 
-export async function addFlower(
-  projectId: string
-): Promise<{ error?: string }> {
+async function getVisitorHash(): Promise<string> {
   const headersList = await headers();
   const ip =
     headersList.get("x-forwarded-for")?.split(",")[0]?.trim() ||
     headersList.get("x-real-ip") ||
     "unknown";
+  return hashVisitor(ip);
+}
 
-  const visitorHash = hashVisitor(ip);
+export async function getVisitorReaction(
+  projectId: string
+): Promise<string | null> {
+  const visitorHash = await getVisitorHash();
 
+  const existing = await db.query.flowers.findFirst({
+    where: and(
+      eq(flowers.projectId, projectId),
+      eq(flowers.visitorHash, visitorHash)
+    ),
+    columns: { flowerType: true },
+  });
+
+  return existing?.flowerType ?? null;
+}
+
+export async function addFlower(
+  projectId: string,
+  flowerType: string = "flower"
+): Promise<{ error?: string; isNew?: boolean }> {
+  if (!VALID_TYPES.includes(flowerType as (typeof VALID_TYPES)[number])) {
+    return { error: "Invalid reaction type" };
+  }
+
+  const visitorHash = await getVisitorHash();
+
+  // Check if visitor already reacted
+  const existing = await db.query.flowers.findFirst({
+    where: and(
+      eq(flowers.projectId, projectId),
+      eq(flowers.visitorHash, visitorHash)
+    ),
+    columns: { id: true, flowerType: true },
+  });
+
+  if (existing) {
+    if (existing.flowerType === flowerType) {
+      return { error: "same_type", isNew: false };
+    }
+    // Change reaction type (total count stays the same)
+    await db
+      .update(flowers)
+      .set({ flowerType })
+      .where(eq(flowers.id, existing.id));
+    return { isNew: false };
+  }
+
+  // New reaction
   try {
     await db.insert(flowers).values({
       projectId,
       visitorHash,
+      flowerType,
     });
 
     // Increment flowers count on project
@@ -46,9 +95,8 @@ export async function addFlower(
         .where(eq(users.id, project.userId));
     }
 
-    return {};
+    return { isNew: true };
   } catch {
-    // Unique constraint violation = already left a flower
-    return { error: "You already left a flower on this project" };
+    return { error: "Failed to add reaction" };
   }
 }
