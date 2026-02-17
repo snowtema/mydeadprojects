@@ -92,6 +92,109 @@ body::after {
     0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
+/* Reaction buttons */
+.reaction-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border-radius: 0.375rem;
+  font-size: 0.65rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.reaction-btn:active {
+  transform: scale(0.93);
+}
+
+.reaction-btn:disabled {
+  cursor: not-allowed;
+}
+
+.reaction-btn-primary {
+  padding: 0.375rem 0.625rem;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+}
+
+.reaction-btn-primary:hover:not(:disabled) {
+  border-color: var(--color-border-hover);
+  color: var(--color-text-dim);
+}
+
+.reaction-btn-secondary {
+  padding: 0.3rem 0.5rem;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--color-text-muted);
+  opacity: 0.45;
+}
+
+.reaction-btn-secondary:hover:not(:disabled) {
+  opacity: 1;
+  background: var(--color-bg-card);
+  border-color: var(--color-border);
+}
+
+/* Keyboard key */
+.reaction-kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.07), rgba(255,255,255,0.02));
+  border: 1px solid var(--color-border-hover);
+  border-bottom-width: 2px;
+  border-radius: 0.25rem;
+  font-size: 0.6rem;
+  font-family: var(--font-mono);
+  color: var(--color-text-dim);
+  transition: all 0.2s ease;
+}
+
+/* Active states per type */
+.reaction-flower-active {
+  border-color: rgba(155, 126, 126, 0.4);
+  color: var(--color-accent);
+  box-shadow: 0 0 12px rgba(155, 126, 126, 0.1);
+}
+
+.reaction-flower-active .reaction-kbd,
+.reaction-kbd-active {
+  border-color: rgba(155, 126, 126, 0.35);
+  color: var(--color-accent);
+  background: linear-gradient(to bottom, rgba(155, 126, 126, 0.12), rgba(155, 126, 126, 0.04));
+}
+
+.reaction-candle-active {
+  opacity: 1;
+  border-color: rgba(196, 160, 124, 0.35);
+  color: var(--color-cta);
+  background: var(--color-bg-card);
+  box-shadow: 0 0 12px rgba(196, 160, 124, 0.08);
+}
+
+.reaction-rip-active {
+  opacity: 1;
+  border-color: rgba(128, 128, 128, 0.35);
+  color: var(--color-text-dim);
+  background: var(--color-bg-card);
+  box-shadow: 0 0 12px rgba(128, 128, 128, 0.06);
+}
+
+.reaction-lol-active {
+  opacity: 1;
+  border-color: rgba(90, 154, 90, 0.35);
+  color: var(--color-green);
+  background: var(--color-bg-card);
+  box-shadow: 0 0 12px rgba(90, 154, 90, 0.08);
+}
+
 /* Animations */
 @keyframes fade-in {
   from {

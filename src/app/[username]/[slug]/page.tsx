@@ -1,10 +1,10 @@
 import { db } from "@/lib/db";
-import { users, projects } from "@/lib/db/schema";
-import { eq, and } from "drizzle-orm";
+import { users, projects, flowers } from "@/lib/db/schema";
+import { eq, and, sql } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { formatDateRange } from "@/lib/utils";
-import { FlowerButton } from "@/components/flower-button";
+import { FlowerButton, type ReactionCounts } from "@/components/flower-button";
 import { ShareMenu } from "@/components/share-menu";
 import type { Metadata } from "next";
 
@@ -50,6 +50,29 @@ export default async function ProjectPage({ params }: Props) {
     where: and(eq(projects.userId, profile.id), eq(projects.slug, slug)),
   });
   if (!project) notFound();
+
+  // Query per-type reaction counts
+  const reactionRows = await db
+    .select({
+      flowerType: flowers.flowerType,
+      count: sql<number>`count(*)::int`,
+    })
+    .from(flowers)
+    .where(eq(flowers.projectId, project.id))
+    .groupBy(flowers.flowerType);
+
+  const reactionCounts: ReactionCounts = {
+    flower: 0,
+    candle: 0,
+    rip: 0,
+    lol: 0,
+  };
+  for (const row of reactionRows) {
+    const key = row.flowerType as keyof ReactionCounts;
+    if (key in reactionCounts) {
+      reactionCounts[key] = row.count;
+    }
+  }
 
   const projectUrl = `${process.env.NEXT_PUBLIC_APP_URL}/${username}/${slug}`;
 
@@ -112,7 +135,7 @@ export default async function ProjectPage({ params }: Props) {
         <div className="flex items-center justify-center gap-4 pt-4">
           <FlowerButton
             projectId={project.id}
-            initialCount={project.flowersCount}
+            reactionCounts={reactionCounts}
           />
           <ShareMenu
             url={projectUrl}
