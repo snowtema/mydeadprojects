@@ -42,7 +42,7 @@ export async function GET(
         {/* Left accent bar */}
         <div
           style={{
-            width: "6px",
+            width: "8px",
             height: "100%",
             background: "linear-gradient(180deg, #C4A07C 0%, #8a6a4a 100%)",
             flexShrink: 0,
@@ -56,13 +56,13 @@ export async function GET(
             flexDirection: "column",
             justifyContent: "space-between",
             flex: 1,
-            padding: "52px 64px",
+            padding: "48px 72px",
           }}
         >
           {/* Top: label */}
           <div
             style={{
-              fontSize: "18px",
+              fontSize: "28px",
               color: "#C4A07C",
               letterSpacing: "0.3em",
             }}
@@ -75,7 +75,7 @@ export async function GET(
             style={{
               display: "flex",
               flexDirection: "column",
-              gap: "8px",
+              gap: "12px",
             }}
           >
             {/* Cross + project name row */}
@@ -83,12 +83,12 @@ export async function GET(
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: "24px",
+                gap: "28px",
               }}
             >
               <div
                 style={{
-                  fontSize: "72px",
+                  fontSize: "108px",
                   color: "#C4A07C",
                   lineHeight: 1,
                 }}
@@ -97,7 +97,7 @@ export async function GET(
               </div>
               <div
                 style={{
-                  fontSize: "54px",
+                  fontSize: "80px",
                   fontWeight: 700,
                   color: "#e8e8e8",
                   lineHeight: 1.1,
@@ -112,26 +112,26 @@ export async function GET(
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: "16px",
-                paddingLeft: "96px",
-                fontSize: "22px",
+                gap: "20px",
+                paddingLeft: "136px",
+                fontSize: "32px",
                 color: "#808080",
               }}
             >
               <div style={{ display: "flex" }}>{dateRange}</div>
-              <div style={{ display: "flex", color: "#333" }}>{"\u00B7"}</div>
+              <div style={{ display: "flex", color: "#444" }}>{"\u00B7"}</div>
               <div style={{ display: "flex" }}>{project.causeOfDeath}</div>
             </div>
 
             {/* Epitaph */}
             <div
               style={{
-                fontSize: "30px",
+                fontSize: "40px",
                 fontStyle: "italic",
                 color: "#b0b0b0",
-                lineHeight: 1.5,
-                paddingLeft: "96px",
-                marginTop: "16px",
+                lineHeight: 1.4,
+                paddingLeft: "136px",
+                marginTop: "12px",
               }}
             >
               {`\u201C${project.epitaph}\u201D`}
@@ -148,10 +148,10 @@ export async function GET(
               paddingTop: "20px",
             }}
           >
-            <div style={{ fontSize: "20px", color: "#808080" }}>
+            <div style={{ fontSize: "28px", color: "#808080" }}>
               {`Buried by @${username}`}
             </div>
-            <div style={{ fontSize: "20px", color: "#555" }}>
+            <div style={{ fontSize: "28px", color: "#555" }}>
               mydeadprojects.com
             </div>
           </div>
