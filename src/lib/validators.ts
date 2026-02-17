@@ -63,6 +63,7 @@ export const projectSchema = z.object({
     .min(1, "Epitaph is required")
     .max(140, "Epitaph must be 140 characters or less"),
   description: z.string().max(2000).optional(),
+  lessonsLearned: z.string().max(1000).optional(),
   websiteUrl: z.string().url().optional().or(z.literal("")),
   repoUrl: z.string().url().optional().or(z.literal("")),
   techStack: z.array(z.string()).max(10).optional(),

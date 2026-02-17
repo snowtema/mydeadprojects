@@ -52,6 +52,7 @@ export const projects = pgTable(
     causeOfDeath: varchar("cause_of_death", { length: 100 }).notNull(),
     epitaph: varchar("epitaph", { length: 140 }).notNull(),
     description: text("description"),
+    lessonsLearned: text("lessons_learned"),
     websiteUrl: text("website_url"),
     repoUrl: text("repo_url"),
     techStack: text("tech_stack").array(),
@@ -77,6 +78,7 @@ export const projects = pgTable(
 export const projectsRelations = relations(projects, ({ one, many }) => ({
   user: one(users, { fields: [projects.userId], references: [users.id] }),
   flowers: many(flowers),
+  condolences: many(condolences),
 }));
 
 export const flowers = pgTable(
@@ -107,6 +109,31 @@ export const flowersRelations = relations(flowers, ({ one }) => ({
   }),
 }));
 
+export const condolences = pgTable(
+  "condolences",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    projectId: uuid("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    visitorHash: varchar("visitor_hash", { length: 64 }).notNull(),
+    message: varchar("message", { length: 280 }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("idx_condolences_project").on(table.projectId),
+  ]
+);
+
+export const condolencesRelations = relations(condolences, ({ one }) => ({
+  project: one(projects, {
+    fields: [condolences.projectId],
+    references: [projects.id],
+  }),
+}));
+
 export const causesOfDeath = pgTable("causes_of_death", {
   id: serial("id").primaryKey(),
   label: varchar("label", { length: 100 }).notNull(),
@@ -119,4 +146,5 @@ export type NewUser = typeof users.$inferInsert;
 export type Project = typeof projects.$inferSelect;
 export type NewProject = typeof projects.$inferInsert;
 export type Flower = typeof flowers.$inferSelect;
+export type Condolence = typeof condolences.$inferSelect;
 export type CauseOfDeath = typeof causesOfDeath.$inferSelect;

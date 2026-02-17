@@ -10,7 +10,7 @@ import { type ReactNode } from "react";
 export const dynamic = "force-dynamic";
 export const revalidate = 3600;
 
-const features: { icon: ReactNode; title: string; desc: string }[] = [
+const features: { icon: ReactNode; title: string; desc: string; comingSoon?: boolean }[] = [
   {
     icon: <Skull className="w-5 h-5 text-text-muted" />,
     title: "Project Obituaries",
@@ -25,11 +25,13 @@ const features: { icon: ReactNode; title: string; desc: string }[] = [
     icon: <Sparkles className="w-5 h-5 text-text-muted" />,
     title: "Resurrect or Adopt",
     desc: "Someone might want to continue where you stopped. Let others adopt your dead projects and bring them back to life.",
+    comingSoon: true,
   },
   {
     icon: <Github className="w-5 h-5 text-text-muted" />,
     title: "GitHub Integration",
     desc: "Connect your GitHub. We'll find the repos that haven't been touched in months and suggest them for burial.",
+    comingSoon: true,
   },
 ];
 
@@ -116,6 +118,11 @@ export default async function Home() {
                   <div>
                     <div className="text-sm font-medium mb-1">
                       {feature.title}
+                      {feature.comingSoon && (
+                        <span className="ml-2 text-[0.6rem] font-normal text-text-muted bg-bg-subtle border border-border rounded px-1.5 py-0.5 align-middle">
+                          Coming soon
+                        </span>
+                      )}
                     </div>
                     <div className="text-xs text-text-dim font-light leading-relaxed">
                       {feature.desc}

@@ -47,6 +47,9 @@ export function BuryForm({ existingProject, username }: BuryFormProps) {
   const [description, setDescription] = useState(
     existingProject?.description ?? ""
   );
+  const [lessonsLearned, setLessonsLearned] = useState(
+    existingProject?.lessonsLearned ?? ""
+  );
   const [websiteUrl, setWebsiteUrl] = useState(
     existingProject?.websiteUrl ?? ""
   );
@@ -83,6 +86,7 @@ export function BuryForm({ existingProject, username }: BuryFormProps) {
       causeOfDeath: finalCause || causeOfDeath,
       epitaph,
       description: description || undefined,
+      lessonsLearned: lessonsLearned || undefined,
       websiteUrl: websiteUrl || undefined,
       repoUrl: repoUrl || undefined,
       techStack: techStack.length > 0 ? techStack : undefined,
@@ -242,6 +246,28 @@ export function BuryForm({ existingProject, username }: BuryFormProps) {
           {EPITAPH_EXAMPLES[Math.floor(Date.now() / 10000) % EPITAPH_EXAMPLES.length]}
           &rdquo;
         </p>
+      </div>
+
+      {/* Lessons Learned */}
+      <div className="space-y-2">
+        <div className="flex justify-between items-center">
+          <label className="text-xs text-text-dim">Lessons Learned</label>
+          <span
+            className={cn(
+              "text-[0.6rem]",
+              lessonsLearned.length > 950 ? "text-red" : "text-text-muted"
+            )}
+          >
+            {lessonsLearned.length}/1000
+          </span>
+        </div>
+        <textarea
+          placeholder="What did you learn from this project?"
+          value={lessonsLearned}
+          onChange={(e) => setLessonsLearned(e.target.value)}
+          className="w-full py-3 px-4 bg-bg-card border border-border rounded-md text-sm text-text placeholder:text-text-muted outline-none focus:border-accent transition-colors resize-none h-20"
+          maxLength={1000}
+        />
       </div>
 
       {/* Optional Details */}
