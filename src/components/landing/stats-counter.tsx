@@ -56,12 +56,22 @@ function AnimatedStat({ target, label }: StatProps) {
   );
 }
 
-export function StatsCounter() {
+interface StatsCounterProps {
+  projectsBuried: number;
+  developers: number;
+  flowersLeft: number;
+}
+
+export function StatsCounter({
+  projectsBuried,
+  developers,
+  flowersLeft,
+}: StatsCounterProps) {
   return (
     <div className="flex justify-center gap-12 py-12 border-y border-border flex-wrap">
-      <AnimatedStat target={12847} label="projects buried" />
-      <AnimatedStat target={3201} label="developers" />
-      <AnimatedStat target={42} label="resurrected" />
+      <AnimatedStat target={projectsBuried} label="projects buried" />
+      <AnimatedStat target={developers} label="developers" />
+      <AnimatedStat target={flowersLeft} label="flowers left" />
     </div>
   );
 }

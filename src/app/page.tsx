@@ -1,6 +1,11 @@
 import Link from "next/link";
 import { Terminal } from "@/components/landing/terminal";
 import { StatsCounter } from "@/components/landing/stats-counter";
+import { db } from "@/lib/db";
+import { projects, users, flowers } from "@/lib/db/schema";
+import { count } from "drizzle-orm";
+
+export const revalidate = 3600;
 
 const features = [
   {
@@ -43,7 +48,18 @@ const tombstones = [
   },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const [projectsResult, usersResult, flowersResult] = await Promise.all([
+    db.select({ value: count() }).from(projects),
+    db.select({ value: count() }).from(users),
+    db.select({ value: count() }).from(flowers),
+  ]);
+
+  const stats = {
+    projectsBuried: projectsResult[0]?.value ?? 0,
+    developers: usersResult[0]?.value ?? 0,
+    flowersLeft: flowersResult[0]?.value ?? 0,
+  };
   return (
     <div className="min-h-screen">
       {/* Header */}
@@ -141,7 +157,7 @@ export default function Home() {
         {/* Stats */}
         <section className="mb-16">
           <div className="max-w-[720px] mx-auto px-6">
-            <StatsCounter />
+            <StatsCounter {...stats} />
           </div>
         </section>
 
