@@ -9,7 +9,7 @@ import { EmptyGraveyard } from "@/components/empty-graveyard";
 import { ShareMenu } from "@/components/share-menu";
 
 export const metadata = {
-  title: "Dashboard",
+  title: "Graveyard",
 };
 
 export default async function DashboardPage() {

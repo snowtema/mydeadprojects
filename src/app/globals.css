@@ -6,9 +6,9 @@
   --color-bg-card: #141414;
   --color-border: #1e1e1e;
   --color-border-hover: #2a2a2a;
-  --color-text: #e0e0e0;
-  --color-text-dim: #999999;
-  --color-text-muted: #6a6a6a;
+  --color-text: #e8e8e8;
+  --color-text-dim: #b0b0b0;
+  --color-text-muted: #808080;
   --color-accent: #9B7E7E;
   --color-accent-dim: #1f1a1a;
   --color-cta: #C4A07C;
@@ -53,7 +53,7 @@ body::after {
 
 /* Tombstone stone effect */
 .tombstone-card {
-  background: linear-gradient(175deg, #181818 0%, #141414 40%, #121212 100%);
+  background: linear-gradient(175deg, #1c1c1c 0%, #181818 40%, #151515 100%);
   box-shadow:
     inset 0 1px 0 0 rgba(255, 255, 255, 0.03),
     inset 0 -1px 0 0 rgba(0, 0, 0, 0.2),

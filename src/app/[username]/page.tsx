@@ -6,7 +6,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { GraveyardGrid } from "@/components/graveyard-grid";
 import { ShareMenu } from "@/components/share-menu";
-import { TombstoneIcon } from "@/components/icons";
 
 export default async function GraveyardPage({
   params,
@@ -41,8 +40,8 @@ export default async function GraveyardPage({
             className="rounded-full mx-auto border border-border"
           />
         ) : (
-          <div className="w-16 h-16 rounded-full bg-bg-card border border-border flex items-center justify-center mx-auto">
-            <TombstoneIcon className="w-7 h-7 text-text-muted" />
+          <div className="w-16 h-16 rounded-full bg-bg-card border border-border flex items-center justify-center text-2xl mx-auto">
+            🪦
           </div>
         )}
         <div>

@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { createProject, updateProject } from "@/actions/projects";
 import { type Project } from "@/lib/db/schema";
 import { cn, formatDateRange } from "@/lib/utils";
-import { TombstoneIcon } from "@/components/icons";
 import { FuneralAnimation } from "@/components/funeral-animation";
 
 const CAUSES_OF_DEATH = [
@@ -96,7 +95,7 @@ export function BuryForm({ existingProject, username }: BuryFormProps) {
         setSubmitting(false);
         return;
       }
-      router.push("/dashboard");
+      router.push("/graveyard");
     } else {
       const result = await createProject(input);
       if (result.error) {
@@ -347,7 +346,7 @@ export function BuryForm({ existingProject, username }: BuryFormProps) {
           ? "Burying..."
           : existingProject
             ? "Update Tombstone"
-            : <><TombstoneIcon className="w-4 h-4 inline" /> Bury It</>}
+            : "🪦 Bury It"}
       </button>
     </form>
   );

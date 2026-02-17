@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { TombstoneIcon } from "@/components/icons";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
+
+const REDIRECT_SECONDS = 8;
 
 interface FuneralAnimationProps {
   projectName: string;
@@ -20,24 +21,39 @@ export function FuneralAnimation({
   const reducedMotion = useReducedMotion();
   const [showText, setShowText] = useState(false);
   const [showButtons, setShowButtons] = useState(false);
+  const [countdown, setCountdown] = useState(REDIRECT_SECONDS);
 
   useEffect(() => {
     if (reducedMotion) {
       setShowText(true);
       setShowButtons(true);
-      return;
+    } else {
+      const textTimer = setTimeout(() => setShowText(true), 1200);
+      const buttonTimer = setTimeout(() => setShowButtons(true), 2400);
+      return () => {
+        clearTimeout(textTimer);
+        clearTimeout(buttonTimer);
+      };
     }
+  }, [reducedMotion]);
 
-    const textTimer = setTimeout(() => setShowText(true), 1200);
-    const buttonTimer = setTimeout(() => setShowButtons(true), 2400);
-    const redirectTimer = setTimeout(() => router.push("/dashboard"), 8000);
+  // Countdown + redirect
+  useEffect(() => {
+    if (!showButtons) return;
 
-    return () => {
-      clearTimeout(textTimer);
-      clearTimeout(buttonTimer);
-      clearTimeout(redirectTimer);
-    };
-  }, [reducedMotion, router]);
+    const interval = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          router.push("/graveyard");
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [showButtons, router]);
 
   const twitterText = `RIP ${projectName}. Press F to pay respects.`;
   const projectUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/${username}/${slug}`;
@@ -62,16 +78,16 @@ export function FuneralAnimation({
         </div>
       )}
 
-      {/* Tombstone */}
+      {/* Tombstone emoji */}
       <div
-        className="mb-8"
+        className="mb-8 text-7xl"
         style={
           reducedMotion
             ? undefined
             : { animation: "descend 1s ease both" }
         }
       >
-        <TombstoneIcon className="w-20 h-20 text-accent" />
+        🪦
       </div>
 
       {/* Text */}
@@ -88,21 +104,28 @@ export function FuneralAnimation({
 
       {/* Buttons */}
       {showButtons && (
-        <div className="flex items-center gap-4">
-          <a
-            href={twitterUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-6 py-3 bg-cta text-bg rounded-md text-sm font-medium hover:bg-cta-hover transition-colors"
-          >
-            Share Funeral
-          </a>
-          <button
-            onClick={() => router.push("/dashboard")}
-            className="px-6 py-3 bg-bg-card border border-border rounded-md text-sm text-text-dim hover:border-border-hover transition-colors cursor-pointer"
-          >
-            Visit Graveyard
-          </button>
+        <div className="flex flex-col items-center gap-4">
+          <div className="flex items-center gap-4">
+            <a
+              href={twitterUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-6 py-3 bg-cta text-bg rounded-md text-sm font-medium hover:bg-cta-hover transition-colors"
+            >
+              Share Funeral
+            </a>
+            <button
+              onClick={() => router.push("/graveyard")}
+              className="px-6 py-3 bg-bg-card border border-border rounded-md text-sm text-text-dim hover:border-border-hover transition-colors cursor-pointer"
+            >
+              Visit Graveyard
+            </button>
+          </div>
+          {countdown > 0 && (
+            <p className="text-xs text-text-muted font-light">
+              Opening graveyard in {countdown}s...
+            </p>
+          )}
         </div>
       )}
     </div>

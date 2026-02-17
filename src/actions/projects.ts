@@ -61,7 +61,7 @@ export async function createProject(
     .set({ projectsCount: sql`${users.projectsCount} + 1` })
     .where(eq(users.id, userId));
 
-  revalidatePath("/dashboard");
+  revalidatePath("/graveyard");
 
   return { slug };
 }
@@ -104,7 +104,7 @@ export async function updateProject(
     })
     .where(eq(projects.id, projectId));
 
-  revalidatePath("/dashboard");
+  revalidatePath("/graveyard");
 
   return {};
 }
@@ -129,7 +129,7 @@ export async function deleteProject(
     .set({ projectsCount: sql`GREATEST(${users.projectsCount} - 1, 0)` })
     .where(eq(users.id, userId));
 
-  revalidatePath("/dashboard");
+  revalidatePath("/graveyard");
 
   return {};
 }

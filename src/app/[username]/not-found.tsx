@@ -1,11 +1,9 @@
 import Link from "next/link";
-import { TombstoneIcon } from "@/components/icons";
-
 export default function NotFound() {
   return (
     <div className="min-h-[60vh] flex items-center justify-center">
       <div className="text-center space-y-4">
-        <TombstoneIcon className="w-10 h-10 text-accent mx-auto" />
+        <span className="text-4xl block">🪦</span>
         <h1 className="text-lg font-medium">Graveyard Not Found</h1>
         <p className="text-xs text-text-muted font-light">
           This graveyard doesn&apos;t exist yet.

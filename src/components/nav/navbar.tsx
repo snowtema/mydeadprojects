@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { type User } from "@/lib/db/schema";
 import { cn } from "@/lib/utils";
-import { TombstoneIcon } from "@/components/icons";
 
 interface NavbarProps {
   user?: User | null;
@@ -35,7 +34,7 @@ export function Navbar({ user }: NavbarProps) {
     ...(user
       ? [
           { href: "/bury", label: "+ Bury Project", always: false, accent: true },
-          { href: "/dashboard", label: "Dashboard", always: false },
+          { href: "/graveyard", label: "Graveyard", always: false },
           { href: `/${user.username}`, label: `@${user.username}`, always: false },
           { href: "/settings", label: "Settings", always: false },
         ]
@@ -49,7 +48,7 @@ export function Navbar({ user }: NavbarProps) {
       <nav className="border-b border-border px-6 py-4 relative z-50">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <TombstoneIcon className="w-5 h-5 text-accent" />
+            <span className="text-lg">🪦</span>
             <span className="text-sm font-bold">
               my<span className="text-text-dim font-light">dead</span>projects
             </span>

@@ -60,7 +60,7 @@ export default function UsernamePage() {
       return;
     }
 
-    router.push("/dashboard");
+    router.push("/graveyard");
   }
 
   return (

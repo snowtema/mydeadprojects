@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
-import { TombstoneIcon } from "@/components/icons";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -44,7 +43,7 @@ export default function LoginPage() {
           password,
         });
         if (error) throw error;
-        window.location.href = "/dashboard";
+        window.location.href = "/graveyard";
       }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Something went wrong");
@@ -56,7 +55,7 @@ export default function LoginPage() {
   return (
     <div className="space-y-8">
       <div className="text-center space-y-3">
-        <TombstoneIcon className="w-10 h-10 text-accent mx-auto" />
+        <span className="text-4xl block">🪦</span>
         <h1 className="text-xl font-bold">
           my<span className="text-text-dim font-light">dead</span>projects
         </h1>
