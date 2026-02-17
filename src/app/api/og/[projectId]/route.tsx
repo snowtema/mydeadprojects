@@ -25,6 +25,9 @@ export async function GET(
     where: eq(users.id, project.userId),
   });
 
+  const dateRange = formatDateRange(project.startDate, project.endDate);
+  const username = user?.username || "unknown";
+
   return new ImageResponse(
     (
       <div
@@ -32,105 +35,125 @@ export async function GET(
           width: "100%",
           height: "100%",
           display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
           backgroundColor: "#0a0a0a",
           fontFamily: "monospace",
-          padding: "60px",
-          border: "1px solid #1e1e1e",
         }}
       >
+        {/* Left accent bar */}
+        <div
+          style={{
+            width: "6px",
+            height: "100%",
+            background: "linear-gradient(180deg, #C4A07C 0%, #8a6a4a 100%)",
+            flexShrink: 0,
+          }}
+        />
+
+        {/* Main content */}
         <div
           style={{
             display: "flex",
             flexDirection: "column",
-            alignItems: "center",
-            gap: "20px",
-            maxWidth: "900px",
+            justifyContent: "space-between",
+            flex: 1,
+            padding: "52px 64px",
           }}
         >
+          {/* Top: label */}
           <div
             style={{
-              fontSize: "14px",
-              color: "#6a6a6a",
-              letterSpacing: "0.2em",
-              textTransform: "uppercase",
+              fontSize: "18px",
+              color: "#C4A07C",
+              letterSpacing: "0.3em",
             }}
           >
             DEATH CERTIFICATE
           </div>
 
+          {/* Middle: cross + name + meta + epitaph */}
           <div
             style={{
-              width: "100%",
-              height: "1px",
-              backgroundColor: "#1e1e1e",
-            }}
-          />
-
-          <div
-            style={{
-              fontSize: "36px",
-              fontWeight: 700,
-              color: "#e0e0e0",
+              display: "flex",
+              flexDirection: "column",
+              gap: "8px",
             }}
           >
-            {project.name}
+            {/* Cross + project name row */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "24px",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "72px",
+                  color: "#C4A07C",
+                  lineHeight: 1,
+                }}
+              >
+                {"\u2020"}
+              </div>
+              <div
+                style={{
+                  fontSize: "54px",
+                  fontWeight: 700,
+                  color: "#e8e8e8",
+                  lineHeight: 1.1,
+                }}
+              >
+                {project.name}
+              </div>
+            </div>
+
+            {/* Date + cause */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "16px",
+                paddingLeft: "96px",
+                fontSize: "22px",
+                color: "#808080",
+              }}
+            >
+              <div style={{ display: "flex" }}>{dateRange}</div>
+              <div style={{ display: "flex", color: "#333" }}>{"\u00B7"}</div>
+              <div style={{ display: "flex" }}>{project.causeOfDeath}</div>
+            </div>
+
+            {/* Epitaph */}
+            <div
+              style={{
+                fontSize: "30px",
+                fontStyle: "italic",
+                color: "#b0b0b0",
+                lineHeight: 1.5,
+                paddingLeft: "96px",
+                marginTop: "16px",
+              }}
+            >
+              {`\u201C${project.epitaph}\u201D`}
+            </div>
           </div>
 
-          <div style={{ fontSize: "16px", color: "#999999" }}>
-            {formatDateRange(project.startDate, project.endDate)}
-          </div>
-
+          {/* Bottom bar */}
           <div
             style={{
-              fontSize: "14px",
-              color: "#6a6a6a",
-              marginTop: "4px",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              borderTop: "1px solid #1e1e1e",
+              paddingTop: "20px",
             }}
           >
-            {`Cause of death: ${project.causeOfDeath}`}
-          </div>
-
-          <div
-            style={{
-              width: "60%",
-              height: "1px",
-              backgroundColor: "#1e1e1e",
-              margin: "8px 0",
-            }}
-          />
-
-          <div
-            style={{
-              fontSize: "20px",
-              color: "#999999",
-              fontStyle: "italic",
-              textAlign: "center",
-              lineHeight: "1.6",
-            }}
-          >
-            {`\u201C${project.epitaph}\u201D`}
-          </div>
-
-          <div
-            style={{
-              width: "60%",
-              height: "1px",
-              backgroundColor: "#1e1e1e",
-              margin: "8px 0",
-            }}
-          />
-
-          <div style={{ fontSize: "14px", color: "#6a6a6a" }}>
-            {`Buried by @${user?.username || "unknown"}`}
-          </div>
-
-          <div
-            style={{ fontSize: "12px", color: "#6a6a6a", marginTop: "16px" }}
-          >
-            🪦 mydeadprojects.com
+            <div style={{ fontSize: "20px", color: "#808080" }}>
+              {`Buried by @${username}`}
+            </div>
+            <div style={{ fontSize: "20px", color: "#555" }}>
+              mydeadprojects.com
+            </div>
           </div>
         </div>
       </div>
