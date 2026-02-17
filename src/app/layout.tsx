@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono, Cormorant_Garamond } from "next/font/google";
+
+export const dynamic = "force-dynamic";
 import "./globals.css";
 
 const jetbrainsMono = JetBrains_Mono({

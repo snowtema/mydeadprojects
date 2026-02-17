@@ -4,8 +4,7 @@ import { StatsCounter } from "@/components/landing/stats-counter";
 import { db } from "@/lib/db";
 import { projects, users, flowers } from "@/lib/db/schema";
 import { count } from "drizzle-orm";
-import { Skull, Sparkles, Github } from "lucide-react";
-import { TombstoneIcon } from "@/components/icons";
+import { Skull, Sparkles, Github, Cross } from "lucide-react";
 import { type ReactNode } from "react";
 
 export const dynamic = "force-dynamic";
@@ -18,7 +17,7 @@ const features: { icon: ReactNode; title: string; desc: string }[] = [
     desc: "Write a short epitaph for each project. What it was, why it died, and what you learned from the experience.",
   },
   {
-    icon: <TombstoneIcon className="w-5 h-5 text-text-muted" />,
+    icon: <Cross className="w-5 h-5 text-text-muted" />,
     title: "Your Personal Graveyard",
     desc: "A public page showcasing all your abandoned projects. Wear your failures like badges of honor.",
   },
@@ -68,8 +67,8 @@ export default async function Home() {
     <div className="min-h-screen">
       {/* Header */}
       <header className="pt-12 text-center">
-        <span className="block mb-6" aria-hidden="true">
-          <TombstoneIcon className="w-12 h-12 text-accent mx-auto" />
+        <span className="text-5xl block mb-6" aria-hidden="true">
+          🪦
         </span>
         <h1 className="text-[clamp(1.5rem,4vw,2.2rem)] font-bold tracking-tight mb-2">
           my<span className="text-text-dim font-light">dead</span>projects
