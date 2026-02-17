@@ -5,7 +5,7 @@ SERVER="root@YOUR_SERVER_IP"
 REMOTE_DIR="/opt/mydeadprojects"
 
 echo "==> Syncing files to server..."
-rsync -az --delete \
+rsync -az --delete --checksum \
   --exclude='node_modules' \
   --exclude='.next' \
   --exclude='.git' \
