@@ -1,11 +1,14 @@
 import { db } from "@/lib/db";
 import { users, projects, flowers } from "@/lib/db/schema";
-import { eq, and, sql } from "drizzle-orm";
+import { eq, and, ne, lt, gt, sql, asc, desc } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { formatDateRange } from "@/lib/utils";
+import { formatDateRange, timeSinceDeath } from "@/lib/utils";
 import { FlowerButton, type ReactionCounts } from "@/components/flower-button";
 import { ShareMenu } from "@/components/share-menu";
+import { TombstoneCard } from "@/components/tombstone-card";
+import { CondolenceBook } from "@/components/condolence-book";
+import { getCondolences } from "@/actions/condolences";
 import type { Metadata } from "next";
 
 interface Props {
@@ -25,15 +28,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   });
   if (!project) return {};
 
+  const ogImage = project.ogImageUrl || `${process.env.NEXT_PUBLIC_APP_URL}/api/og/${project.id}`;
+
   return {
     title: `${project.name} — RIP`,
     description: project.epitaph,
     openGraph: {
       title: `${project.name} (${project.startDate}\u2013${project.endDate}) — RIP`,
       description: `"${project.epitaph}" — Cause of death: ${project.causeOfDeath}. Buried by @${username}.`,
-      ...(project.ogImageUrl && {
-        images: [{ url: project.ogImageUrl, width: 1200, height: 630 }],
-      }),
+      images: [{ url: ogImage, width: 1200, height: 630 }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      images: [ogImage],
     },
   };
 }
@@ -74,6 +81,42 @@ export default async function ProjectPage({ params }: Props) {
     }
   }
 
+  // Condolences
+  const initialCondolences = await getCondolences(project.id);
+
+  // Similar graves: same cause of death, excluding current
+  const similarProjects = await db.query.projects.findMany({
+    where: and(
+      eq(projects.causeOfDeath, project.causeOfDeath),
+      ne(projects.id, project.id)
+    ),
+    orderBy: sql`RANDOM()`,
+    limit: 3,
+    with: { user: true },
+  });
+
+  // Prev/next projects by this author
+  const [prevProject, nextProject] = await Promise.all([
+    db.query.projects.findFirst({
+      where: and(
+        eq(projects.userId, profile.id),
+        ne(projects.id, project.id),
+        lt(projects.createdAt, project.createdAt)
+      ),
+      orderBy: [desc(projects.createdAt)],
+      columns: { name: true, slug: true },
+    }),
+    db.query.projects.findFirst({
+      where: and(
+        eq(projects.userId, profile.id),
+        ne(projects.id, project.id),
+        gt(projects.createdAt, project.createdAt)
+      ),
+      orderBy: [asc(projects.createdAt)],
+      columns: { name: true, slug: true },
+    }),
+  ]);
+
   const projectUrl = `${process.env.NEXT_PUBLIC_APP_URL}/${username}/${slug}`;
 
   return (
@@ -93,6 +136,8 @@ export default async function ProjectPage({ params }: Props) {
           <h1 className="text-lg font-medium text-text-dim">{project.name}</h1>
           <div className="text-xs text-text-muted font-light">
             {formatDateRange(project.startDate, project.endDate)}
+            <span className="mx-1">&middot;</span>
+            Dead for {timeSinceDeath(project.endDate)}
           </div>
           <div className="text-lg font-serif text-text-dim italic leading-relaxed">
             &ldquo;{project.epitaph}&rdquo;
@@ -110,6 +155,24 @@ export default async function ProjectPage({ params }: Props) {
           </div>
         </div>
 
+        {project.description && (
+          <div className="border-t border-border pt-4">
+            <h2 className="text-text-dim mb-2">Description</h2>
+            <p className="text-text-muted font-light leading-relaxed whitespace-pre-wrap">
+              {project.description}
+            </p>
+          </div>
+        )}
+
+        {project.lessonsLearned && (
+          <div className="border-t border-border pt-4">
+            <h2 className="text-text-dim mb-2">Lessons Learned</h2>
+            <p className="text-text-muted font-light leading-relaxed whitespace-pre-wrap">
+              {project.lessonsLearned}
+            </p>
+          </div>
+        )}
+
         {project.techStack && project.techStack.length > 0 && (
           <div className="flex flex-wrap gap-2 justify-center">
             {project.techStack.map((tech) => (
@@ -120,15 +183,6 @@ export default async function ProjectPage({ params }: Props) {
                 {tech}
               </span>
             ))}
-          </div>
-        )}
-
-        {project.description && (
-          <div className="border-t border-border pt-4">
-            <h2 className="text-text-dim mb-2">Description</h2>
-            <p className="text-text-muted font-light leading-relaxed whitespace-pre-wrap">
-              {project.description}
-            </p>
           </div>
         )}
 
@@ -143,6 +197,11 @@ export default async function ProjectPage({ params }: Props) {
             text={`RIP ${project.name} (${project.startDate}\u2013${project.endDate}). Cause of death: ${project.causeOfDeath}. Press F to pay respects.`}
           />
         </div>
+
+        <CondolenceBook
+          projectId={project.id}
+          initialCondolences={initialCondolences}
+        />
 
         {(project.websiteUrl || project.repoUrl) && (
           <div className="flex items-center justify-center gap-4 text-text-muted">
@@ -170,6 +229,24 @@ export default async function ProjectPage({ params }: Props) {
         )}
       </div>
 
+      {/* Similar graves */}
+      {similarProjects.length > 0 && (
+        <div className="space-y-4">
+          <div className="text-[0.65rem] uppercase tracking-[0.15em] text-text-muted pb-3 border-b border-border">
+            // similar graves
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
+            {similarProjects.map((p) => (
+              <TombstoneCard
+                key={p.id}
+                project={p}
+                username={p.user.username}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Footer link to graveyard */}
       <div className="border-t border-border pt-6 text-center">
         <p className="text-text-muted text-xs mb-2">
@@ -180,6 +257,45 @@ export default async function ProjectPage({ params }: Props) {
           className="text-xs text-text-dim hover:text-text transition-colors border-b border-border hover:border-text-dim"
         >
           {profile.projectsCount} projects buried &middot; View full graveyard
+        </Link>
+      </div>
+
+      {/* Prev/next navigation */}
+      {(prevProject || nextProject) && (
+        <div className="flex justify-between items-center text-xs text-text-muted border-t border-border pt-4">
+          {prevProject ? (
+            <Link
+              href={`/${username}/${prevProject.slug}`}
+              className="hover:text-text-dim transition-colors"
+            >
+              &larr; {prevProject.name}
+            </Link>
+          ) : (
+            <span />
+          )}
+          {nextProject ? (
+            <Link
+              href={`/${username}/${nextProject.slug}`}
+              className="hover:text-text-dim transition-colors"
+            >
+              {nextProject.name} &rarr;
+            </Link>
+          ) : (
+            <span />
+          )}
+        </div>
+      )}
+
+      {/* CTA */}
+      <div className="border-t border-border pt-8 text-center space-y-3">
+        <p className="text-text-muted text-xs">
+          Have dead projects of your own?
+        </p>
+        <Link
+          href="/login"
+          className="inline-block px-6 py-3 bg-bg-card border border-border rounded-md text-sm text-text-dim hover:border-border-hover transition-colors"
+        >
+          Start Burying
         </Link>
       </div>
     </div>

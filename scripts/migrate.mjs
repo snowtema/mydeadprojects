@@ -28,9 +28,17 @@ if (!url) {
 const sql = postgres(url);
 
 try {
-  console.log("Adding position_x and position_y to projects...");
-  await sql`ALTER TABLE projects ADD COLUMN IF NOT EXISTS position_x REAL`;
-  await sql`ALTER TABLE projects ADD COLUMN IF NOT EXISTS position_y REAL`;
+  console.log("Creating condolences table...");
+  await sql`
+    CREATE TABLE IF NOT EXISTS condolences (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+      visitor_hash VARCHAR(64) NOT NULL,
+      message VARCHAR(280) NOT NULL,
+      created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS idx_condolences_project ON condolences(project_id)`;
   console.log("Done.");
 } catch (e) {
   console.error("Migration failed:", e.message);
