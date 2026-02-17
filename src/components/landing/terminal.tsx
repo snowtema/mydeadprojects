@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, Fragment } from "react";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
 
 const CHAR_DELAY = 50;
@@ -206,70 +206,83 @@ export function Terminal() {
 
       {/* Body */}
       <div className="p-5 text-[0.8rem] leading-[1.8]">
-        {lines.map((line, i) => {
-          const isVisible = visibleGroups.has(line.group);
-          if (!isVisible) return null;
+        {(() => {
+          const lastVisibleIdx = lines.reduce((acc, line, i) =>
+            visibleGroups.has(line.group) ? i : acc, -1);
 
-          if (line.type === "cmd") {
-            const typed = typedTexts[line.group] ?? "";
-            const isTyping = typingGroup === line.group;
-            return (
-              <div
-                key={i}
-                className="animate-[fade-in_0.3s_ease_forwards]"
-              >
-                <span className="text-text-dim select-none">~ $ </span>
-                <span className="text-text">{typed}</span>
-                {isTyping && (
-                  <span className="text-text animate-[cursor-blink_1s_step-end_infinite]">
-                    {"\u2588"}
-                  </span>
-                )}
-              </div>
-            );
-          }
+          return lines.map((line, i) => {
+            const isVisible = visibleGroups.has(line.group);
+            const hintAfter = showHint && i === lastVisibleIdx;
 
-          const colorClass =
-            line.type === "success"
-              ? "text-green"
-              : line.type === "comment"
-                ? "text-text-muted italic"
-                : "text-text-muted";
+            let lineEl: React.ReactNode;
 
-          return (
-            <div
-              key={i}
-              className={`${colorClass} animate-[fade-in_0.3s_ease_forwards]`}
-            >
-              {line.text}
-            </div>
-          );
-        })}
+            if (line.type === "cmd") {
+              const typed = isVisible ? (typedTexts[line.group] ?? "") : "";
+              const isTyping = typingGroup === line.group;
+              lineEl = (
+                <div
+                  className={isVisible ? "animate-[fade-in_0.3s_ease_forwards]" : "opacity-0"}
+                >
+                  <span className="text-text-dim select-none">~ $ </span>
+                  <span className="text-text">{isVisible ? typed : line.cmdText}</span>
+                  {isTyping && (
+                    <span className="text-text animate-[cursor-blink_1s_step-end_infinite]">
+                      {"\u2588"}
+                    </span>
+                  )}
+                </div>
+              );
+            } else {
+              const colorClass =
+                line.type === "success"
+                  ? "text-green"
+                  : line.type === "comment"
+                    ? "text-text-muted italic"
+                    : "text-text-muted";
 
-        {/* Enter hint */}
-        {showHint && (
-          <div
-            className="flex items-center gap-2.5 pt-3 pb-0.5 animate-[fade-in_0.4s_ease_forwards] cursor-pointer"
-            onClick={handleInteract}
-          >
-            <span className="inline-flex items-center px-3 py-1 bg-gradient-to-b from-white/[0.07] to-white/[0.02] border border-border-hover border-b-2 rounded text-text-dim text-[0.7rem] tracking-wide animate-[cursor-blink_2s_ease-in-out_infinite] hover:bg-white/10 hover:border-text-muted transition-colors">
-              &crarr; Enter
-            </span>
-            <span className="text-text-muted text-[0.65rem] tracking-wide">
-              to run
-            </span>
-          </div>
-        )}
+              lineEl = (
+                <div
+                  className={`${colorClass} ${isVisible ? "animate-[fade-in_0.3s_ease_forwards]" : "opacity-0"}`}
+                >
+                  {line.text}
+                </div>
+              );
+            }
 
-        {/* Final cursor */}
-        {showFinalCursor && (
-          <div className="animate-[fade-in_0.3s_ease_forwards]">
-            <span className="text-text-dim select-none">~ $ </span>
+            if (hintAfter) {
+              return (
+                <Fragment key={i}>
+                  {lineEl}
+                  <div className="h-0">
+                    <div
+                      className="flex items-center gap-2.5 pt-3 pb-0.5 animate-[fade-in_0.4s_ease_forwards] cursor-pointer"
+                      onClick={handleInteract}
+                    >
+                      <span className="inline-flex items-center px-3 py-1 bg-gradient-to-b from-white/[0.07] to-white/[0.02] border border-border-hover border-b-2 rounded text-text-dim text-[0.7rem] tracking-wide animate-[cursor-blink_2s_ease-in-out_infinite] hover:bg-white/10 hover:border-text-muted transition-colors">
+                        &crarr; Enter
+                      </span>
+                      <span className="text-text-muted text-[0.65rem] tracking-wide">
+                        to run
+                      </span>
+                    </div>
+                  </div>
+                </Fragment>
+              );
+            }
+
+            return <Fragment key={i}>{lineEl}</Fragment>;
+          });
+        })()}
+
+        {/* Final cursor — always rendered to reserve space */}
+        <div className={showFinalCursor ? "animate-[fade-in_0.3s_ease_forwards]" : "opacity-0"}>
+          <span className="text-text-dim select-none">~ $ </span>
+          {showFinalCursor && (
             <span className="text-text animate-[cursor-blink_1s_step-end_infinite]">
               {"\u2588"}
             </span>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );
