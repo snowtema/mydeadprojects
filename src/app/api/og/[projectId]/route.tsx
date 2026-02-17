@@ -10,6 +10,7 @@ export async function GET(
   _request: Request,
   { params }: { params: Promise<{ projectId: string }> }
 ) {
+  try {
   const { projectId } = await params;
 
   const project = await db.query.projects.findFirst({
@@ -89,7 +90,7 @@ export async function GET(
               marginTop: "4px",
             }}
           >
-            Cause of death: {project.causeOfDeath}
+            {`Cause of death: ${project.causeOfDeath}`}
           </div>
 
           <div
@@ -110,7 +111,7 @@ export async function GET(
               lineHeight: "1.6",
             }}
           >
-            &ldquo;{project.epitaph}&rdquo;
+            {`\u201C${project.epitaph}\u201D`}
           </div>
 
           <div
@@ -123,7 +124,7 @@ export async function GET(
           />
 
           <div style={{ fontSize: "14px", color: "#6a6a6a" }}>
-            Buried by @{user?.username || "unknown"}
+            {`Buried by @${user?.username || "unknown"}`}
           </div>
 
           <div
@@ -139,4 +140,11 @@ export async function GET(
       height: 630,
     }
   );
+  } catch (e) {
+    console.error("OG image error:", e);
+    return new Response(
+      `OG error: ${e instanceof Error ? e.message : String(e)}`,
+      { status: 500 }
+    );
+  }
 }
