@@ -14,7 +14,7 @@ export const metadata = {
 
 export default async function DashboardPage() {
   const user = await getCurrentUser();
-  if (!user) redirect("/login");
+  if (!user) redirect("/login"); // layout handles auth-without-profile
 
   const userProjects = await db.query.projects.findMany({
     where: eq(projects.userId, user.id),

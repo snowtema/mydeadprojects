@@ -55,10 +55,13 @@ export async function updateSession(request: NextRequest) {
   }
 
   // Redirect logged-in users away from auth pages
-  const authPaths = ["/login", "/signup"];
-  const isAuthPage = authPaths.some((path) =>
-    request.nextUrl.pathname.startsWith(path)
-  );
+  // Allow /signup/username — authenticated users without a profile need it
+  const authPaths = ["/login"];
+  const isAuthPage =
+    authPaths.some((path) =>
+      request.nextUrl.pathname.startsWith(path)
+    ) ||
+    (request.nextUrl.pathname === "/signup");
 
   if (isAuthPage && user) {
     const url = request.nextUrl.clone();
