@@ -56,6 +56,7 @@ export const projects = pgTable(
     websiteUrl: text("website_url"),
     repoUrl: text("repo_url"),
     techStack: text("tech_stack").array(),
+    screenshots: text("screenshots").array(),
     flowersCount: integer("flowers_count").default(0).notNull(),
     positionX: real("position_x"),
     positionY: real("position_y"),

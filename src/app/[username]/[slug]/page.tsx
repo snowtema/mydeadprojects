@@ -9,6 +9,7 @@ import { ShareMenu } from "@/components/share-menu";
 import { TombstoneCard } from "@/components/tombstone-card";
 import { CondolenceBook } from "@/components/condolence-book";
 import { getCondolences } from "@/actions/condolences";
+import { ScreenshotGallery } from "@/components/screenshot-gallery";
 import type { Metadata } from "next";
 
 interface Props {
@@ -183,6 +184,13 @@ export default async function ProjectPage({ params }: Props) {
                 {tech}
               </span>
             ))}
+          </div>
+        )}
+
+        {project.screenshots && project.screenshots.length > 0 && (
+          <div className="border-t border-border pt-4">
+            <h2 className="text-text-dim mb-2">Screenshots</h2>
+            <ScreenshotGallery urls={project.screenshots} />
           </div>
         )}
 

@@ -6,6 +6,7 @@ import { createProject, updateProject } from "@/actions/projects";
 import { type Project } from "@/lib/db/schema";
 import { cn, formatDateRange } from "@/lib/utils";
 import { FuneralAnimation } from "@/components/funeral-animation";
+import { ScreenshotUploader } from "@/components/screenshot-uploader";
 
 const CAUSES_OF_DEATH = [
   { label: "Lost motivation", emoji: "😴" },
@@ -57,6 +58,9 @@ export function BuryForm({ existingProject, username }: BuryFormProps) {
   const [techStackInput, setTechStackInput] = useState(
     existingProject?.techStack?.join(", ") ?? ""
   );
+  const [screenshots, setScreenshots] = useState<string[]>(
+    existingProject?.screenshots ?? []
+  );
   const [showDetails, setShowDetails] = useState(false);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -90,6 +94,7 @@ export function BuryForm({ existingProject, username }: BuryFormProps) {
       websiteUrl: websiteUrl || undefined,
       repoUrl: repoUrl || undefined,
       techStack: techStack.length > 0 ? techStack : undefined,
+      screenshots: screenshots.length > 0 ? screenshots : undefined,
     };
 
     if (existingProject) {
@@ -324,6 +329,11 @@ export function BuryForm({ existingProject, username }: BuryFormProps) {
                 className="w-full py-3 px-4 bg-bg-card border border-border rounded-md text-sm text-text placeholder:text-text-muted outline-none focus:border-accent transition-colors"
               />
             </div>
+            <ScreenshotUploader
+              urls={screenshots}
+              onChange={setScreenshots}
+              maxCount={4}
+            />
           </div>
         )}
       </div>

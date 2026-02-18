@@ -67,6 +67,7 @@ export const projectSchema = z.object({
   websiteUrl: z.string().url().optional().or(z.literal("")),
   repoUrl: z.string().url().optional().or(z.literal("")),
   techStack: z.array(z.string()).max(10).optional(),
+  screenshots: z.array(z.string().url()).max(4).optional(),
 });
 
 export type ProjectInput = z.infer<typeof projectSchema>;
