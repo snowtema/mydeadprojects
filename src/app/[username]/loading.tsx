@@ -19,7 +19,7 @@ export default function UsernameLoading() {
 
       {/* The Graveyard label */}
       <div>
-        <div className="text-[0.65rem] text-text-muted uppercase tracking-widest border-b border-border pb-3 mb-6">
+        <div className="text-xs text-text-muted uppercase tracking-widest border-b border-border pb-3 mb-6">
           The Graveyard
         </div>
         <SkeletonGrid count={6} />

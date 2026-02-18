@@ -30,7 +30,7 @@ export function GraveyardViewToggle({
     <div className="space-y-4">
       {/* Toggle */}
       <div className="flex items-center justify-between">
-        <div className="text-[0.65rem] text-text-muted uppercase tracking-widest">
+        <div className="text-xs text-text-muted uppercase tracking-widest">
           The Graveyard
         </div>
         <div className="flex items-center bg-bg-card border border-border rounded-md overflow-hidden">

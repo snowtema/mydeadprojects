@@ -72,7 +72,7 @@ export default async function ExplorePage({ searchParams }: Props) {
     <div className="space-y-8">
       <div>
         <h1 className="text-lg font-medium">Explore</h1>
-        <p className="text-xs text-text-muted mt-1">
+        <p className="text-sm text-text-muted mt-1">
           Recently buried projects from the community.
         </p>
       </div>
@@ -84,7 +84,7 @@ export default async function ExplorePage({ searchParams }: Props) {
             key={tab.key}
             href={tab.key === "recent" ? "/explore" : `/explore?sort=${tab.key}`}
             className={cn(
-              "text-xs pb-3 border-b-2 transition-colors -mb-px",
+              "text-sm pb-3 border-b-2 transition-colors -mb-px",
               sort === tab.key
                 ? "border-accent text-text-dim"
                 : "border-transparent text-text-muted hover:text-text-dim"
@@ -98,7 +98,7 @@ export default async function ExplorePage({ searchParams }: Props) {
       {items.length > 0 ? (
         <ExploreGrid projects={items} />
       ) : (
-        <p className="text-center text-text-muted text-xs py-12">
+        <p className="text-center text-text-muted text-sm py-12">
           No projects buried yet. Be the first!
         </p>
       )}
@@ -107,7 +107,7 @@ export default async function ExplorePage({ searchParams }: Props) {
         <div className="flex justify-center pt-4">
           <a
             href={`/explore?sort=${sort}&cursor=${encodeURIComponent(nextCursor)}`}
-            className="text-xs px-6 py-2.5 bg-bg-card border border-border rounded-md text-text-dim hover:border-border-hover transition-colors"
+            className="text-sm px-6 py-2.5 bg-bg-card border border-border rounded-md text-text-dim hover:border-border-hover transition-colors"
           >
             Load More
           </a>

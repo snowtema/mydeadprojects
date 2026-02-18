@@ -4,7 +4,7 @@ export function EmptyGraveyard() {
   return (
     <div className="border border-dashed border-border rounded-md p-12 text-center space-y-4">
       <p className="text-text-dim text-sm">Your graveyard is empty.</p>
-      <p className="text-text-muted text-xs font-light leading-relaxed">
+      <p className="text-text-muted text-sm font-light leading-relaxed">
         Every developer has dead code.
         <br />
         Time to give it a burial.

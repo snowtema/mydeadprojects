@@ -45,9 +45,9 @@ export default async function GraveyardPage({
           </div>
         )}
         <div>
-          <h1 className="text-sm font-medium">@{profile.username}</h1>
+          <h1 className="text-base font-medium">@{profile.username}</h1>
           {profile.bio && (
-            <p className="text-xs text-text-muted font-light mt-1">
+            <p className="text-sm text-text-muted font-light mt-1">
               {profile.bio}
             </p>
           )}
@@ -55,10 +55,10 @@ export default async function GraveyardPage({
       </div>
 
       {/* Stats Bar */}
-      <div className="flex items-center justify-center gap-4 text-xs text-text-muted py-3 border-y border-border">
+      <div className="flex items-center justify-center gap-4 text-sm text-text-muted py-3 border-y border-border">
         <span>{profile.projectsCount} buried</span>
         <span>·</span>
-        <span className="inline-flex items-center gap-1">{profile.flowersReceived} <kbd className="inline-flex items-center justify-center w-4 h-4 bg-gradient-to-b from-white/[0.07] to-white/[0.02] border border-border-hover border-b-2 rounded text-[0.5rem] text-text-dim font-mono">F</kbd></span>
+        <span className="inline-flex items-center gap-1">{profile.flowersReceived} <kbd className="inline-flex items-center justify-center w-4 h-4 bg-gradient-to-b from-white/[0.07] to-white/[0.02] border border-border-hover border-b-2 rounded text-[0.6rem] text-text-dim font-mono">F</kbd></span>
         <span>·</span>
         <span>
           member since {profile.createdAt.getFullYear()}
@@ -79,7 +79,7 @@ export default async function GraveyardPage({
         {userProjects.length > 0 ? (
           <GraveyardViewToggle projects={userProjects} username={username} />
         ) : (
-          <p className="text-center text-text-muted text-xs py-12">
+          <p className="text-center text-text-muted text-sm py-12">
             No projects buried yet.
           </p>
         )}
@@ -87,7 +87,7 @@ export default async function GraveyardPage({
 
       {/* CTA */}
       <div className="border-t border-border pt-8 text-center space-y-3">
-        <p className="text-text-muted text-xs">
+        <p className="text-text-muted text-sm">
           Don&apos;t just spectate.
         </p>
         <Link
