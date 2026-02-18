@@ -34,6 +34,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${project.name} — RIP`,
     description: project.epitaph,
+    alternates: {
+      canonical: `/${username}/${slug}`,
+    },
     openGraph: {
       title: `${project.name} (${project.startDate}\u2013${project.endDate}) — RIP`,
       description: `"${project.epitaph}" — Cause of death: ${project.causeOfDeath}. Buried by @${username}.`,
@@ -120,8 +123,33 @@ export default async function ProjectPage({ params }: Props) {
 
   const projectUrl = `${process.env.NEXT_PUBLIC_APP_URL}/${username}/${slug}`;
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: `${project.name} — RIP`,
+    description: project.epitaph,
+    datePublished: project.createdAt.toISOString(),
+    dateModified: project.updatedAt.toISOString(),
+    author: {
+      "@type": "Person",
+      name: profile.displayName || `@${profile.username}`,
+      url: `${process.env.NEXT_PUBLIC_APP_URL}/${username}`,
+    },
+    url: projectUrl,
+    image: project.ogImageUrl || `${process.env.NEXT_PUBLIC_APP_URL}/api/og/${project.id}`,
+    interactionStatistic: {
+      "@type": "InteractionCounter",
+      interactionType: "https://schema.org/LikeAction",
+      userInteractionCount: project.flowersCount,
+    },
+  };
+
   return (
     <div className="space-y-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Back link */}
       <Link
         href={`/${username}`}
