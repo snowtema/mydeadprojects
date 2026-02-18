@@ -7,6 +7,7 @@ import { eq, and, sql } from "drizzle-orm";
 import { projectSchema, type ProjectInput } from "@/lib/validators";
 import { slugify } from "@/lib/utils";
 import { revalidatePath } from "next/cache";
+import { deleteR2Object, keyFromUrl } from "@/lib/r2";
 
 async function getAuthenticatedUserId(): Promise<string | null> {
   const supabase = await createClient();
@@ -54,6 +55,7 @@ export async function createProject(
     websiteUrl: data.websiteUrl || null,
     repoUrl: data.repoUrl || null,
     techStack: data.techStack || null,
+    screenshots: data.screenshots || null,
   });
 
   // Increment user's project count
@@ -88,6 +90,18 @@ export async function updateProject(
   const data = validation.data;
   const slug = slugify(data.name);
 
+  // Clean up removed screenshots from R2
+  const prevScreenshots = existing.screenshots ?? [];
+  const nextScreenshots = data.screenshots ?? [];
+  const removedScreenshots = prevScreenshots.filter(
+    (u) => !nextScreenshots.includes(u)
+  );
+  if (removedScreenshots.length > 0) {
+    await Promise.allSettled(
+      removedScreenshots.map((u) => deleteR2Object(keyFromUrl(u)))
+    );
+  }
+
   await db
     .update(projects)
     .set({
@@ -102,6 +116,7 @@ export async function updateProject(
       websiteUrl: data.websiteUrl || null,
       repoUrl: data.repoUrl || null,
       techStack: data.techStack || null,
+      screenshots: data.screenshots || null,
       updatedAt: new Date(),
     })
     .where(eq(projects.id, projectId));
@@ -150,6 +165,13 @@ export async function deleteProject(
   });
 
   if (!existing) return { error: "Project not found" };
+
+  // Clean up R2 screenshots
+  if (existing.screenshots?.length) {
+    await Promise.allSettled(
+      existing.screenshots.map((url) => deleteR2Object(keyFromUrl(url)))
+    );
+  }
 
   await db.delete(projects).where(eq(projects.id, projectId));
 
