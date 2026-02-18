@@ -1,4 +1,5 @@
 import { BuryForm } from "@/components/bury-form";
+import { DeleteProjectSection } from "@/components/delete-project-section";
 import { db } from "@/lib/db";
 import { projects } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
@@ -29,6 +30,12 @@ export default async function EditProjectPage({
       <h1 className="text-lg font-medium mb-1">Edit Project</h1>
       <div className="h-px bg-border mb-8" />
       <BuryForm existingProject={project} />
+      <div className="mt-12">
+        <DeleteProjectSection
+          projectId={project.id}
+          projectName={project.name}
+        />
+      </div>
     </div>
   );
 }
