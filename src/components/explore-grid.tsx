@@ -78,7 +78,7 @@ export function ExploreGrid({ projects }: ExploreGridProps) {
           <div className="mt-1 text-center">
             <Link
               href={`/${project.user.username}`}
-              className="text-[0.6rem] text-text-muted hover:text-text-dim transition-colors"
+              className="text-xs text-text-muted hover:text-text-dim transition-colors"
             >
               buried by @{project.user.username}
             </Link>
