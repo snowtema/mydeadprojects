@@ -154,6 +154,14 @@ export default async function Home() {
                   </Link>
                 ))}
               </div>
+              <div className="mt-8 text-center">
+                <Link
+                  href="/explore"
+                  className="text-sm text-text-muted hover:text-text-dim transition-colors"
+                >
+                  Explore all &rarr;
+                </Link>
+              </div>
             </div>
           </section>
         )}
@@ -177,9 +185,6 @@ export default async function Home() {
             >
               Start Burying
             </Link>
-            <p className="text-[0.65rem] text-text-muted mt-4 font-light">
-              Free forever. No credit card needed.
-            </p>
           </div>
         </section>
       </main>

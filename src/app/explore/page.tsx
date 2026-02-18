@@ -77,6 +77,22 @@ export default async function ExplorePage({ searchParams }: Props) {
         </p>
       </div>
 
+      {/* Section tabs */}
+      <div className="flex gap-6 border-b border-border">
+        <a
+          href="/explore"
+          className="text-sm pb-3 border-b-2 border-accent text-text-dim transition-colors -mb-px"
+        >
+          Projects
+        </a>
+        <a
+          href="/explore/people"
+          className="text-sm pb-3 border-b-2 border-transparent text-text-muted hover:text-text-dim transition-colors -mb-px"
+        >
+          People
+        </a>
+      </div>
+
       {/* Sort tabs */}
       <div className="flex gap-4 border-b border-border">
         {sortTabs.map((tab) => (

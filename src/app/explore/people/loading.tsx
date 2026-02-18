@@ -1,6 +1,6 @@
-import { Skeleton, SkeletonGrid } from "@/components/skeleton";
+import { Skeleton, SkeletonPeopleList } from "@/components/skeleton";
 
-export default function ExploreLoading() {
+export default function ExplorePeopleLoading() {
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -17,11 +17,12 @@ export default function ExploreLoading() {
 
       {/* Sort tabs */}
       <div className="flex gap-4 border-b border-border pb-3">
-        <Skeleton className="h-4 w-16" />
-        <Skeleton className="h-4 w-24" />
+        <Skeleton className="h-4 w-14" />
+        <Skeleton className="h-4 w-28" />
+        <Skeleton className="h-4 w-22" />
       </div>
 
-      <SkeletonGrid count={12} />
+      <SkeletonPeopleList count={10} />
     </div>
   );
 }

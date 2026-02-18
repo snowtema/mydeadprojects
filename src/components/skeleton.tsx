@@ -38,3 +38,29 @@ export function SkeletonGrid({ count = 6 }: { count?: number }) {
     </div>
   );
 }
+
+export function SkeletonPersonRow() {
+  return (
+    <div className="flex items-start gap-3 py-4">
+      <Skeleton className="w-9 h-9 rounded-full shrink-0" />
+      <div className="flex-1 space-y-2 min-w-0">
+        <Skeleton className="h-3.5 w-28" />
+        <Skeleton className="h-3 w-64 max-w-full" />
+        <div className="flex gap-3 pt-0.5">
+          <Skeleton className="h-3 w-16" />
+          <Skeleton className="h-3 w-14" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function SkeletonPeopleList({ count = 10 }: { count?: number }) {
+  return (
+    <div className="divide-y divide-border">
+      {Array.from({ length: count }).map((_, i) => (
+        <SkeletonPersonRow key={i} />
+      ))}
+    </div>
+  );
+}
