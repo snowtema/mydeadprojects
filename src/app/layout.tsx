@@ -42,9 +42,11 @@ export const metadata: Metadata = {
       "A graveyard for abandoned side projects. Rest in peace, dear code.",
     type: "website",
     siteName: "My Dead Projects",
+    images: [{ url: "/api/og", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
+    images: ["/api/og"],
   },
   icons: {
     icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪦</text></svg>",
