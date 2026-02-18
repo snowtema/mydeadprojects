@@ -50,7 +50,7 @@ export function CondolenceBook({
 
   return (
     <div className="space-y-4">
-      <div className="text-[0.65rem] uppercase tracking-[0.15em] text-text-muted pb-3 border-b border-border">
+      <div className="text-xs uppercase tracking-widest text-text-muted pb-3 border-b border-border">
         // condolence book
       </div>
 
@@ -61,30 +61,30 @@ export function CondolenceBook({
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           maxLength={280}
-          className="flex-1 py-2 px-3 bg-bg-card border border-border rounded-md text-xs text-text placeholder:text-text-muted outline-none focus:border-accent transition-colors"
+          className="flex-1 py-2 px-3 bg-bg-card border border-border rounded-md text-sm text-text placeholder:text-text-muted outline-none focus:border-accent transition-colors"
         />
         <button
           type="submit"
           disabled={submitting || !message.trim()}
-          className="px-3 py-2 bg-bg-card border border-border rounded-md text-xs text-text-dim hover:border-border-hover transition-colors cursor-pointer disabled:opacity-50"
+          className="px-4 py-2 bg-bg-card border border-border rounded-md text-sm text-text-dim hover:border-border-hover transition-colors cursor-pointer disabled:opacity-50"
         >
           {submitting ? "..." : "Send"}
         </button>
       </form>
 
-      {error && <p className="text-red text-[0.6rem]">{error}</p>}
+      {error && <p className="text-red text-xs">{error}</p>}
 
       {condolences.length > 0 && (
         <div className="space-y-2">
           {condolences.map((c) => (
             <div
               key={c.id}
-              className="py-2 px-3 bg-bg-card border border-border rounded-md"
+              className="py-2.5 px-3 bg-bg-card border border-border rounded-md"
             >
-              <p className="text-xs text-text-muted font-light leading-relaxed">
+              <p className="text-sm text-text-muted font-light leading-relaxed">
                 {c.message}
               </p>
-              <p className="text-[0.55rem] text-text-muted mt-1">
+              <p className="text-xs text-text-muted/60 mt-1">
                 {timeAgo(new Date(c.createdAt))}
               </p>
             </div>
