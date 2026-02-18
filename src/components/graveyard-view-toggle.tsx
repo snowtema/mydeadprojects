@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { type Project } from "@/lib/db/schema";
 import { GraveyardGrid } from "./graveyard-grid";
-import { GraveyardCanvasWrapper } from "./graveyard-canvas-wrapper";
-import { Grid3X3, Map } from "lucide-react";
+import { GraveyardTimeline } from "./graveyard-timeline";
+import { Grid3X3, GitCommitHorizontal } from "lucide-react";
 
 interface GraveyardViewToggleProps {
   projects: Project[];
@@ -12,18 +12,13 @@ interface GraveyardViewToggleProps {
   showEdit?: boolean;
 }
 
-type ViewMode = "canvas" | "grid";
+type ViewMode = "timeline" | "grid";
 
 export function GraveyardViewToggle({
   projects,
   username,
   showEdit,
 }: GraveyardViewToggleProps) {
-  // Default to canvas if any project has position, otherwise grid
-  const hasPositions = projects.some(
-    (p) => p.positionX != null && p.positionY != null
-  );
-  // TODO: re-enable canvas as default when ready
   const [view, setView] = useState<ViewMode>("grid");
 
   return (
@@ -35,16 +30,16 @@ export function GraveyardViewToggle({
         </div>
         <div className="flex items-center bg-bg-card border border-border rounded-md overflow-hidden">
           <button
-            onClick={() => setView("canvas")}
+            onClick={() => setView("timeline")}
             className={`p-1.5 transition-colors ${
-              view === "canvas"
+              view === "timeline"
                 ? "bg-border text-text-dim"
                 : "text-text-muted hover:text-text-dim"
             }`}
-            aria-label="Canvas view"
-            title="Canvas view"
+            aria-label="Timeline view"
+            title="Timeline view"
           >
-            <Map size={14} />
+            <GitCommitHorizontal size={14} />
           </button>
           <button
             onClick={() => setView("grid")}
@@ -62,12 +57,8 @@ export function GraveyardViewToggle({
       </div>
 
       {/* View */}
-      {view === "canvas" ? (
-        <GraveyardCanvasWrapper
-          projects={projects}
-          username={username}
-          showEdit={showEdit}
-        />
+      {view === "timeline" ? (
+        <GraveyardTimeline projects={projects} username={username} />
       ) : (
         <GraveyardGrid
           projects={projects}
