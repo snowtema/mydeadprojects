@@ -5,6 +5,7 @@ import { condolences } from "@/lib/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { rateLimit } from "@/lib/rate-limit";
 
 function hashIP(ip: string): string {
   // Simple hash for anonymization — not crypto-grade, just for dedup
@@ -21,6 +22,11 @@ export async function addCondolence(
   projectId: string,
   message: string
 ): Promise<{ error?: string }> {
+  const { success } = await rateLimit("condolence", 10, 60);
+  if (!success) {
+    return { error: "Too many requests. Please try again later." };
+  }
+
   if (!message || message.trim().length === 0) {
     return { error: "Message is required" };
   }

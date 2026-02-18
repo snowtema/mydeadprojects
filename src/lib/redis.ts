@@ -9,6 +9,7 @@ function createRedisClient(): Redis {
   return new Redis(url, {
     maxRetriesPerRequest: 3,
     lazyConnect: true,
+    password: process.env.REDIS_PASSWORD || undefined,
   });
 }
 

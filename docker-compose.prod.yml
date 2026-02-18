@@ -16,6 +16,7 @@ services:
 
   redis:
     image: valkey/valkey:8-alpine
+    command: valkey-server --requirepass ${REDIS_PASSWORD} --protected-mode yes --bind 0.0.0.0
     volumes:
       - redis-data:/data
     restart: unless-stopped

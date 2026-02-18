@@ -5,6 +5,7 @@ import { flowers, projects, users } from "@/lib/db/schema";
 import { eq, and, sql } from "drizzle-orm";
 import { headers } from "next/headers";
 import { createHash } from "crypto";
+import { rateLimit } from "@/lib/rate-limit";
 
 const VALID_TYPES = ["flower", "candle", "rip", "lol"] as const;
 
@@ -41,6 +42,11 @@ export async function addFlower(
   projectId: string,
   flowerType: string = "flower"
 ): Promise<{ error?: string; isNew?: boolean }> {
+  const { success } = await rateLimit("flower", 20, 60);
+  if (!success) {
+    return { error: "Too many requests. Please try again later." };
+  }
+
   if (!VALID_TYPES.includes(flowerType as (typeof VALID_TYPES)[number])) {
     return { error: "Invalid reaction type" };
   }

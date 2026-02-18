@@ -3,8 +3,17 @@ import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { usernameSchema } from "@/lib/validators";
+import { rateLimit } from "@/lib/rate-limit";
 
 export async function GET(request: NextRequest) {
+  const { success } = await rateLimit("username-check", 30, 60);
+  if (!success) {
+    return NextResponse.json(
+      { available: false, reason: "Too many requests" },
+      { status: 429 }
+    );
+  }
+
   const username = request.nextUrl.searchParams.get("username");
 
   if (!username) {

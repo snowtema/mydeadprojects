@@ -4,10 +4,23 @@ import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 
+const ALLOWED_REDIRECT_PATHS = ["/graveyard", "/bury", "/settings", "/explore"];
+
+function getSafeRedirectPath(next: string | null): string {
+  if (!next) return "/graveyard";
+  // Only allow relative paths starting with /
+  if (!next.startsWith("/") || next.startsWith("//")) return "/graveyard";
+  // Only allow known paths
+  const matchedPath = ALLOWED_REDIRECT_PATHS.find((path) =>
+    next.startsWith(path)
+  );
+  return matchedPath ? next : "/graveyard";
+}
+
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/graveyard";
+  const next = getSafeRedirectPath(searchParams.get("next"));
 
   if (code) {
     const supabase = await createClient();
@@ -32,16 +45,7 @@ export async function GET(request: Request) {
         }
       }
 
-      const forwardedHost = request.headers.get("x-forwarded-host");
-      const isLocalEnv = process.env.NODE_ENV === "development";
-
-      if (isLocalEnv) {
-        return NextResponse.redirect(`${origin}${next}`);
-      } else if (forwardedHost) {
-        return NextResponse.redirect(`https://${forwardedHost}${next}`);
-      } else {
-        return NextResponse.redirect(`${origin}${next}`);
-      }
+      return NextResponse.redirect(`${origin}${next}`);
     }
   }
 
