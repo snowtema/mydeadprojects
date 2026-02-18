@@ -220,6 +220,10 @@ export default async function ProjectPage({ params }: Props) {
           <span className="text-text-dim">Cause of death:</span>{" "}
           {project.causeOfDeath}
         </div>
+        <span className="hidden sm:inline text-border">|</span>
+        <div className="text-accent">
+          Dead for {timeSinceDeath(project.endDate)}
+        </div>
         {project.websiteUrl && (
           <>
             <span className="hidden sm:inline text-border">|</span>
