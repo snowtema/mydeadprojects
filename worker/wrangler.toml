@@ -1,0 +1,10 @@
+name = "mydeadprojects-r2"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "mydeadprojects"
+
+[vars]
+ALLOWED_ORIGINS = "http://localhost:3000,https://mydeadprojects.com"
