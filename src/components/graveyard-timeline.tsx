@@ -98,9 +98,18 @@ export function GraveyardTimeline({
   const yearTicks: number[] = [];
   for (let y = firstYear; y <= lastYear; y++) yearTicks.push(y);
 
+  // --- Compute start dates too (for duration display on hover) ---
+  const startDecimalYears = projects.map((p) =>
+    dateToDecimalYear(p.startDate)
+  );
+
   // --- Sort by death date ---
   const sorted = [...projects]
-    .map((p, i) => ({ p, decimal: decimalYears[i] }))
+    .map((p, i) => ({
+      p,
+      decimal: decimalYears[i],
+      startDecimal: startDecimalYears[i],
+    }))
     .sort((a, b) => a.decimal - b.decimal);
 
   const hoveredProject = hoveredId
@@ -122,6 +131,89 @@ export function GraveyardTimeline({
           className="absolute left-0 right-0 h-px bg-border"
           style={{ top: AXIS_Y }}
         />
+
+        {/* Duration line on hover */}
+        {hoveredId &&
+          (() => {
+            const item = sorted.find(({ p }) => p.id === hoveredId);
+            if (!item) return null;
+            const startLeft = toPercent(item.startDecimal);
+            const endLeft = toPercent(item.decimal);
+            const lineLeft = Math.min(startLeft, endLeft);
+            const lineWidth = Math.abs(endLeft - startLeft);
+
+            return (
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  animation: reducedMotion
+                    ? "none"
+                    : "timeline-duration-in 0.3s ease both",
+                }}
+              >
+                {/* Dashed duration line */}
+                <div
+                  className="absolute h-px"
+                  style={{
+                    top: AXIS_Y,
+                    left: `${lineLeft}%`,
+                    width: `${lineWidth}%`,
+                    backgroundImage:
+                      "repeating-linear-gradient(90deg, #9B7E7E 0, #9B7E7E 4px, transparent 4px, transparent 8px)",
+                    opacity: 0.6,
+                  }}
+                />
+
+                {/* Glow line underneath */}
+                <div
+                  className="absolute h-px blur-[2px]"
+                  style={{
+                    top: AXIS_Y,
+                    left: `${lineLeft}%`,
+                    width: `${lineWidth}%`,
+                    backgroundColor: "#9B7E7E",
+                    opacity: 0.15,
+                  }}
+                />
+
+                {/* Birth flag at startDate */}
+                <div
+                  className="absolute"
+                  style={{
+                    left: `${startLeft}%`,
+                    top: AXIS_Y - 24,
+                  }}
+                >
+                  {/* Pole (from flag down to axis) */}
+                  <div
+                    className="absolute w-px bg-accent/40"
+                    style={{ left: 0, top: 0, height: 24 }}
+                  />
+                  {/* Flag pennant (top of pole, pointing right) */}
+                  <div
+                    className="absolute bg-accent/60"
+                    style={{
+                      left: 1,
+                      top: 0,
+                      width: 10,
+                      height: 8,
+                      clipPath:
+                        "polygon(0 0, 100% 0, 65% 50%, 100% 100%, 0 100%)",
+                      filter:
+                        "drop-shadow(0 0 4px rgba(155,126,126,0.3))",
+                    }}
+                  />
+                  {/* Birth date label */}
+                  <span
+                    className="absolute text-[8px] font-mono text-accent/50 whitespace-nowrap"
+                    style={{ left: 10, top: -1 }}
+                  >
+                    {formatDate(item.p.startDate)}
+                  </span>
+                </div>
+              </div>
+            );
+          })()}
 
         {/* Year tick marks */}
         {yearTicks.map((year) => (
