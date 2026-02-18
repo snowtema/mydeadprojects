@@ -19,14 +19,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!profile) return {};
 
+  const ogImage = `${process.env.NEXT_PUBLIC_APP_URL}/api/og/user/${profile.username}`;
+  const description =
+    profile.bio ||
+    `${profile.projectsCount} projects buried by @${profile.username}. Rest in peace, dear code.`;
+
   return {
     title: `@${profile.username}'s Graveyard`,
-    description: profile.bio || `${profile.projectsCount} projects buried by @${profile.username}`,
+    description,
     openGraph: {
       title: `@${profile.username}'s Graveyard | My Dead Projects`,
-      description:
-        profile.bio ||
-        `${profile.projectsCount} projects buried. Rest in peace, dear code.`,
+      description,
+      images: [{ url: ogImage, width: 1200, height: 630 }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `@${profile.username}'s Graveyard | My Dead Projects`,
+      description,
+      images: [ogImage],
     },
   };
 }
