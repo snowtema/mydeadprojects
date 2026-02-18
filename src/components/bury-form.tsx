@@ -61,7 +61,15 @@ export function BuryForm({ existingProject, username }: BuryFormProps) {
   const [screenshots, setScreenshots] = useState<string[]>(
     existingProject?.screenshots ?? []
   );
-  const [showDetails, setShowDetails] = useState(false);
+  const [showDetails, setShowDetails] = useState(
+    !!(
+      existingProject?.description ||
+      existingProject?.websiteUrl ||
+      existingProject?.repoUrl ||
+      existingProject?.techStack?.length ||
+      existingProject?.screenshots?.length
+    )
+  );
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [showFuneral, setShowFuneral] = useState(false);

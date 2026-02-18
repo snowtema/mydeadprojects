@@ -13,8 +13,6 @@
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.992.0",
-    "@aws-sdk/s3-request-presigner": "^3.992.0",
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.49.1",
     "drizzle-orm": "^0.38.4",

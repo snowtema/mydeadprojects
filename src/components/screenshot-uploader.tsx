@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { validateImageFile, optimizeImage } from "@/lib/image-utils";
 
 interface ScreenshotUploaderProps {
@@ -14,6 +14,12 @@ type SlotState =
   | { status: "done"; url: string }
   | { status: "error"; message: string };
 
+function urlsFromSlots(slots: SlotState[]): string[] {
+  return slots
+    .filter((s): s is { status: "done"; url: string } => s.status === "done")
+    .map((s) => s.url);
+}
+
 export function ScreenshotUploader({
   urls,
   onChange,
@@ -26,72 +32,65 @@ export function ScreenshotUploader({
   );
   const [globalError, setGlobalError] = useState("");
 
+  // Sync done URLs to parent whenever slots change
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
+  const prevUrlsRef = useRef<string>(JSON.stringify(urls));
+
+  useEffect(() => {
+    const currentUrls = JSON.stringify(urlsFromSlots(slots));
+    if (currentUrls !== prevUrlsRef.current) {
+      prevUrlsRef.current = currentUrls;
+      onChangeRef.current(JSON.parse(currentUrls));
+    }
+  }, [slots]);
+
   async function handleFiles(files: FileList) {
     if (uploadingRef.current) return;
     setGlobalError("");
 
-    // Use functional updater to get current slot count
-    let startIndex = 0;
-    setSlots((prev) => {
-      const activeCount = prev.filter((s) => s.status !== "error").length;
-      const available = maxCount - activeCount;
-      const toAdd = Math.min(files.length, available);
-      startIndex = prev.length;
+    const activeCount = slots.filter((s) => s.status !== "error").length;
+    const available = maxCount - activeCount;
+    const fileArray = Array.from(files).slice(0, available);
 
-      if (toAdd === 0) {
-        setGlobalError(`Maximum ${maxCount} screenshots allowed`);
-        return prev;
-      }
+    if (fileArray.length === 0) {
+      setGlobalError(`Maximum ${maxCount} screenshots allowed`);
+      return;
+    }
 
-      return [
-        ...prev,
-        ...Array.from({ length: toAdd }, () => ({
-          status: "uploading" as const,
-        })),
-      ];
-    });
-
-    // Validate files
-    const toProcess = Array.from(files).slice(0, maxCount);
-    for (const file of toProcess) {
+    for (const file of fileArray) {
       const err = validateImageFile(file);
       if (err) {
         setGlobalError(err);
-        // Remove the uploading slots we just added
-        setSlots((prev) => prev.filter((s) => s.status !== "uploading"));
         return;
       }
     }
 
+    const startIndex = slots.length;
+
+    setSlots((prev) => [
+      ...prev,
+      ...fileArray.map(() => ({ status: "uploading" as const })),
+    ]);
+
     uploadingRef.current = true;
 
-    // Get actual count of files to process from the slots we added
-    let actualCount = 0;
-    setSlots((prev) => {
-      actualCount = prev.filter((s) => s.status === "uploading").length;
-      return prev;
-    });
-
-    const filesToUpload = Array.from(files).slice(0, actualCount);
-
     const results = await Promise.allSettled(
-      filesToUpload.map(async (file, i) => {
+      fileArray.map(async (file, i) => {
         const slotIndex = startIndex + i;
 
         const blob = await optimizeImage(file);
 
-        const res = await fetch(
-          "/api/screenshots/presign?contentType=image/webp"
-        );
-        if (!res.ok) throw new Error("Failed to get upload URL");
-        const { uploadUrl, publicUrl } = await res.json();
-
-        const uploadRes = await fetch(uploadUrl, {
-          method: "PUT",
+        const res = await fetch("/api/screenshots/upload", {
+          method: "POST",
           body: blob,
           headers: { "Content-Type": "image/webp" },
         });
-        if (!uploadRes.ok) throw new Error("Upload failed");
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.error || "Upload failed");
+        }
+        const { publicUrl } = await res.json();
 
         setSlots((prev) => {
           const next = [...prev];
@@ -105,8 +104,9 @@ export function ScreenshotUploader({
       })
     );
 
-    setSlots((prev) => {
-      const final = prev.map((slot, i) => {
+    // Mark failed uploads as error
+    setSlots((prev) =>
+      prev.map((slot, i) => {
         if (i >= startIndex && i < startIndex + results.length) {
           const result = results[i - startIndex];
           if (result.status === "rejected") {
@@ -117,31 +117,14 @@ export function ScreenshotUploader({
           }
         }
         return slot;
-      });
-
-      const finalUrls = final
-        .filter(
-          (s): s is { status: "done"; url: string } => s.status === "done"
-        )
-        .map((s) => s.url);
-      onChange(finalUrls);
-      return final;
-    });
+      })
+    );
 
     uploadingRef.current = false;
   }
 
   function removeSlot(index: number) {
-    setSlots((prev) => {
-      const next = prev.filter((_, i) => i !== index);
-      const nextUrls = next
-        .filter(
-          (s): s is { status: "done"; url: string } => s.status === "done"
-        )
-        .map((s) => s.url);
-      onChange(nextUrls);
-      return next;
-    });
+    setSlots((prev) => prev.filter((_, i) => i !== index));
   }
 
   const activeCount = slots.filter((s) => s.status !== "error").length;
