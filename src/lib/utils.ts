@@ -40,7 +40,7 @@ export function timeSinceDeath(endDate: string): string {
   // endDate is "YYYY" or "YYYY-MM"
   const parts = endDate.split("-");
   const year = parseInt(parts[0]);
-  const month = parts[1] ? parseInt(parts[1]) - 1 : 11; // default to December if year-only
+  const month = parts[1] ? parseInt(parts[1]) - 1 : 6; // default to July (mid-year) if year-only
   const deathDate = new Date(year, month + 1, 0); // last day of the month
   const now = new Date();
   const diffMs = now.getTime() - deathDate.getTime();
@@ -53,6 +53,12 @@ export function timeSinceDeath(endDate: string): string {
   const remainingMonths = diffMonths % 12;
   if (remainingMonths === 0) return `${diffYears}y`;
   return `${diffYears}y ${remainingMonths}mo`;
+}
+
+export function dateToDecimalYear(date: string): number {
+  if (date.length === 4) return parseInt(date, 10) + 0.5;
+  const [year, month] = date.split("-").map(Number);
+  return year + (month - 0.5) / 12;
 }
 
 export function timeAgo(date: Date): string {
