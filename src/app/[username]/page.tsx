@@ -27,8 +27,24 @@ export default async function GraveyardPage({
 
   const graveyardUrl = `${process.env.NEXT_PUBLIC_APP_URL}/${username}`;
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ProfilePage",
+    mainEntity: {
+      "@type": "Person",
+      name: profile.displayName || `@${profile.username}`,
+      url: graveyardUrl,
+      ...(profile.avatarUrl && { image: profile.avatarUrl }),
+      ...(profile.bio && { description: profile.bio }),
+    },
+  };
+
   return (
     <div className="space-y-8">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Profile Header */}
       <div className="text-center space-y-3">
         {profile.avatarUrl ? (

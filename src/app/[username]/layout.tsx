@@ -27,6 +27,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `@${profile.username}'s Graveyard`,
     description,
+    alternates: {
+      canonical: `/${profile.username}`,
+    },
     openGraph: {
       title: `@${profile.username}'s Graveyard | My Dead Projects`,
       description,
