@@ -121,156 +121,62 @@ export default async function ProjectPage({ params }: Props) {
   const projectUrl = `${process.env.NEXT_PUBLIC_APP_URL}/${username}/${slug}`;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       {/* Back link */}
       <Link
         href={`/${username}`}
-        className="text-xs text-text-muted hover:text-text-dim transition-colors"
+        className="text-sm text-text-muted hover:text-text-dim transition-colors"
       >
         &larr; @{username}&apos;s graveyard
       </Link>
 
-      {/* Large Tombstone */}
-      <div className="max-w-xs mx-auto">
-        <div className="tombstone-card p-8 border border-border rounded-t-md text-center space-y-3">
-          <div className="tombstone-cross text-2xl text-text-muted">&#10013;</div>
-          <h1 className="text-lg font-medium text-text-dim">{project.name}</h1>
-          <div className="text-xs text-text-muted font-light">
-            {formatDateRange(project.startDate, project.endDate)}
-            <span className="mx-1">&middot;</span>
-            Dead for {timeSinceDeath(project.endDate)}
+      {/* Tombstone with prev/next navigation */}
+      <div className="relative max-w-2xl mx-auto flex items-center justify-center">
+        {/* Prev project */}
+        {prevProject ? (
+          <Link
+            href={`/${username}/${prevProject.slug}`}
+            className="absolute left-0 top-1/2 -translate-y-1/2 text-sm text-text-muted hover:text-text-dim transition-colors hidden sm:block max-w-[120px] text-left leading-tight"
+            title={prevProject.name}
+          >
+            <span className="block text-text-muted/50 text-xs mb-0.5">&larr; prev</span>
+            <span className="line-clamp-2">{prevProject.name}</span>
+          </Link>
+        ) : null}
+
+        {/* Tombstone */}
+        <div className="max-w-sm w-full">
+          <div className="tombstone-card p-8 border border-border rounded-t-md text-center space-y-3">
+            <div className="tombstone-cross text-2xl text-text-muted">&#10013;</div>
+            <h1 className="text-xl font-medium text-text-dim">{project.name}</h1>
+            <div className="text-xs text-text-muted font-light">
+              {formatDateRange(project.startDate, project.endDate)}
+              <span className="mx-1.5">&middot;</span>
+              Dead for {timeSinceDeath(project.endDate)}
+            </div>
+            <div className="text-lg font-serif text-text-dim italic leading-relaxed">
+              &ldquo;{project.epitaph}&rdquo;
+            </div>
           </div>
-          <div className="text-lg font-serif text-text-dim italic leading-relaxed">
-            &ldquo;{project.epitaph}&rdquo;
-          </div>
+          <div className="tombstone-base mx-[10%] h-2 bg-bg border border-border border-t-0 rounded-b" />
         </div>
-        <div className="tombstone-base mx-[10%] h-2 bg-bg border border-border border-t-0 rounded-b" />
+
+        {/* Next project */}
+        {nextProject ? (
+          <Link
+            href={`/${username}/${nextProject.slug}`}
+            className="absolute right-0 top-1/2 -translate-y-1/2 text-sm text-text-muted hover:text-text-dim transition-colors hidden sm:block max-w-[120px] text-right leading-tight"
+            title={nextProject.name}
+          >
+            <span className="block text-text-muted/50 text-xs mb-0.5">next &rarr;</span>
+            <span className="line-clamp-2">{nextProject.name}</span>
+          </Link>
+        ) : null}
       </div>
 
-      {/* Details */}
-      <div className="max-w-lg mx-auto space-y-4 text-xs">
-        <div className="flex gap-8 justify-center text-text-muted">
-          <div>
-            <span className="text-text-dim">Cause of death:</span>{" "}
-            {project.causeOfDeath}
-          </div>
-        </div>
-
-        {project.description && (
-          <div className="border-t border-border pt-4">
-            <h2 className="text-text-dim mb-2">Description</h2>
-            <p className="text-text-muted font-light leading-relaxed whitespace-pre-wrap">
-              {project.description}
-            </p>
-          </div>
-        )}
-
-        {project.lessonsLearned && (
-          <div className="border-t border-border pt-4">
-            <h2 className="text-text-dim mb-2">Lessons Learned</h2>
-            <p className="text-text-muted font-light leading-relaxed whitespace-pre-wrap">
-              {project.lessonsLearned}
-            </p>
-          </div>
-        )}
-
-        {project.techStack && project.techStack.length > 0 && (
-          <div className="flex flex-wrap gap-2 justify-center">
-            {project.techStack.map((tech) => (
-              <span
-                key={tech}
-                className="px-2 py-0.5 bg-bg-card border border-border rounded text-text-muted text-[0.6rem]"
-              >
-                {tech}
-              </span>
-            ))}
-          </div>
-        )}
-
-        {project.screenshots && project.screenshots.length > 0 && (
-          <div className="border-t border-border pt-4">
-            <h2 className="text-text-dim mb-2">Screenshots</h2>
-            <ScreenshotGallery urls={project.screenshots} />
-          </div>
-        )}
-
-        <div className="flex items-center justify-center gap-4 pt-4">
-          <FlowerButton
-            projectId={project.id}
-            reactionCounts={reactionCounts}
-          />
-          <ShareMenu
-            url={projectUrl}
-            title={`${project.name} — RIP`}
-            text={`RIP ${project.name} (${project.startDate}\u2013${project.endDate}). Cause of death: ${project.causeOfDeath}. Press F to pay respects.`}
-          />
-        </div>
-
-        <CondolenceBook
-          projectId={project.id}
-          initialCondolences={initialCondolences}
-        />
-
-        {(project.websiteUrl || project.repoUrl) && (
-          <div className="flex items-center justify-center gap-4 text-text-muted">
-            {project.websiteUrl && (
-              <a
-                href={project.websiteUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-text-dim transition-colors border-b border-border hover:border-text-dim"
-              >
-                Website
-              </a>
-            )}
-            {project.repoUrl && (
-              <a
-                href={project.repoUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-text-dim transition-colors border-b border-border hover:border-text-dim"
-              >
-                Repository
-              </a>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Similar graves */}
-      {similarProjects.length > 0 && (
-        <div className="space-y-4">
-          <div className="text-[0.65rem] uppercase tracking-[0.15em] text-text-muted pb-3 border-b border-border">
-            // similar graves
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
-            {similarProjects.map((p) => (
-              <TombstoneCard
-                key={p.id}
-                project={p}
-                username={p.user.username}
-              />
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Footer link to graveyard */}
-      <div className="border-t border-border pt-6 text-center">
-        <p className="text-text-muted text-xs mb-2">
-          From @{username}&apos;s graveyard
-        </p>
-        <Link
-          href={`/${username}`}
-          className="text-xs text-text-dim hover:text-text transition-colors border-b border-border hover:border-text-dim"
-        >
-          {profile.projectsCount} projects buried &middot; View full graveyard
-        </Link>
-      </div>
-
-      {/* Prev/next navigation */}
+      {/* Mobile prev/next (hidden on desktop since they're beside the tombstone) */}
       {(prevProject || nextProject) && (
-        <div className="flex justify-between items-center text-xs text-text-muted border-t border-border pt-4">
+        <div className="flex justify-between items-center text-sm text-text-muted sm:hidden">
           {prevProject ? (
             <Link
               href={`/${username}/${prevProject.slug}`}
@@ -294,9 +200,137 @@ export default async function ProjectPage({ params }: Props) {
         </div>
       )}
 
+      {/* Engagement block — right under the tombstone */}
+      <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
+        <FlowerButton
+          projectId={project.id}
+          reactionCounts={reactionCounts}
+        />
+        <div className="hidden sm:block w-px h-6 bg-border" />
+        <ShareMenu
+          url={projectUrl}
+          title={`${project.name} — RIP`}
+          text={`RIP ${project.name} (${project.startDate}\u2013${project.endDate}). Cause of death: ${project.causeOfDeath}. Press F to pay respects.`}
+        />
+      </div>
+
+      {/* Meta row: cause of death + external links */}
+      <div className="max-w-2xl mx-auto flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-text-muted">
+        <div>
+          <span className="text-text-dim">Cause of death:</span>{" "}
+          {project.causeOfDeath}
+        </div>
+        {project.websiteUrl && (
+          <>
+            <span className="hidden sm:inline text-border">|</span>
+            <a
+              href={project.websiteUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-text-dim transition-colors border-b border-border hover:border-text-dim"
+            >
+              Website
+            </a>
+          </>
+        )}
+        {project.repoUrl && (
+          <>
+            <span className="hidden sm:inline text-border">|</span>
+            <a
+              href={project.repoUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-text-dim transition-colors border-b border-border hover:border-text-dim"
+            >
+              Repository
+            </a>
+          </>
+        )}
+      </div>
+
+      {/* Content sections */}
+      <div className="max-w-2xl mx-auto space-y-6">
+        {project.description && (
+          <div className="border-t border-border pt-6">
+            <h2 className="text-xs uppercase tracking-widest text-text-muted mb-3">Description</h2>
+            <p className="font-body text-base text-text-dim leading-relaxed whitespace-pre-wrap">
+              {project.description}
+            </p>
+          </div>
+        )}
+
+        {project.lessonsLearned && (
+          <div className="border-t border-border pt-6">
+            <h2 className="text-xs uppercase tracking-widest text-text-muted mb-3">Lessons Learned</h2>
+            <p className="font-body text-base text-text-dim leading-relaxed whitespace-pre-wrap">
+              {project.lessonsLearned}
+            </p>
+          </div>
+        )}
+
+        {project.techStack && project.techStack.length > 0 && (
+          <div className="flex flex-wrap gap-2 justify-center pt-2">
+            {project.techStack.map((tech) => (
+              <span
+                key={tech}
+                className="px-2.5 py-1 bg-bg-card border border-border rounded text-text-muted text-xs"
+              >
+                {tech}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {project.screenshots && project.screenshots.length > 0 && (
+          <div className="border-t border-border pt-6">
+            <h2 className="text-xs uppercase tracking-widest text-text-muted mb-3">Screenshots</h2>
+            <ScreenshotGallery urls={project.screenshots} />
+          </div>
+        )}
+      </div>
+
+      {/* Condolence book */}
+      <div className="max-w-2xl mx-auto">
+        <CondolenceBook
+          projectId={project.id}
+          initialCondolences={initialCondolences}
+        />
+      </div>
+
+      {/* Similar graves */}
+      {similarProjects.length > 0 && (
+        <div className="space-y-4">
+          <div className="text-xs uppercase tracking-widest text-text-muted pb-3 border-b border-border">
+            // similar graves
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
+            {similarProjects.map((p) => (
+              <TombstoneCard
+                key={p.id}
+                project={p}
+                username={p.user.username}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Footer link to graveyard */}
+      <div className="border-t border-border pt-6 text-center">
+        <p className="text-text-muted text-sm mb-2">
+          From @{username}&apos;s graveyard
+        </p>
+        <Link
+          href={`/${username}`}
+          className="text-sm text-text-dim hover:text-text transition-colors border-b border-border hover:border-text-dim"
+        >
+          {profile.projectsCount} projects buried &middot; View full graveyard
+        </Link>
+      </div>
+
       {/* CTA */}
       <div className="border-t border-border pt-8 text-center space-y-3">
-        <p className="text-text-muted text-xs">
+        <p className="text-text-muted text-sm">
           Have dead projects of your own?
         </p>
         <Link

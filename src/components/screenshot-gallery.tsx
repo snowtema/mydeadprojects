@@ -90,12 +90,12 @@ export function ScreenshotGallery({ urls }: ScreenshotGalleryProps) {
             <button
               type="button"
               onClick={close}
-              className="absolute top-2 right-2 w-6 h-6 bg-bg-card border border-border rounded-md text-text-muted hover:text-red hover:border-red transition-colors cursor-pointer flex items-center justify-center text-[0.6rem]"
+              className="absolute top-2 right-2 w-7 h-7 bg-bg-card border border-border rounded-md text-text-muted hover:text-red hover:border-red transition-colors cursor-pointer flex items-center justify-center text-xs"
             >
               &times;
             </button>
 
-            <p className="text-center text-[0.6rem] text-text-muted mt-2">
+            <p className="text-center text-xs text-text-muted mt-2">
               {open + 1} / {urls.length}
             </p>
           </div>

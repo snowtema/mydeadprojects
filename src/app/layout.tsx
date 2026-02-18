@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { JetBrains_Mono, Cormorant_Garamond } from "next/font/google";
+import { JetBrains_Mono, Cormorant_Garamond, Lora } from "next/font/google";
 
 export const dynamic = "force-dynamic";
 import "./globals.css";
@@ -15,6 +15,14 @@ const cormorantGaramond = Cormorant_Garamond({
   weight: ["300", "400", "500"],
   style: ["normal", "italic"],
   variable: "--font-serif",
+  display: "swap",
+});
+
+const lora = Lora({
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "500", "600"],
+  style: ["normal", "italic"],
+  variable: "--font-body",
   display: "swap",
 });
 
@@ -51,7 +59,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${jetbrainsMono.variable} ${cormorantGaramond.variable} font-mono bg-bg text-text antialiased min-h-screen`}
+        className={`${jetbrainsMono.variable} ${cormorantGaramond.variable} ${lora.variable} font-mono bg-bg text-text antialiased min-h-screen`}
       >
         {children}
       </body>
