@@ -234,12 +234,19 @@ export function GraveyardTimeline({
           const left = toPercent(decimal);
           const isAbove = idx % 2 === 0;
           const isHovered = hoveredId === p.id;
+          const isFaded = hoveredId !== null && !isHovered;
 
           return (
             <div
               key={p.id}
               className="absolute -translate-x-1/2"
-              style={{ left: `${left}%`, top: 0, height: "100%" }}
+              style={{
+                left: `${left}%`,
+                top: 0,
+                height: "100%",
+                opacity: isFaded ? 0.25 : 1,
+                transition: reducedMotion ? "none" : "opacity 0.2s ease",
+              }}
               onMouseEnter={() => showTooltip(p.id)}
               onMouseLeave={hideTooltip}
             >
