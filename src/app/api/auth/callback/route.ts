@@ -18,9 +18,10 @@ function getSafeRedirectPath(next: string | null): string {
 }
 
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url);
+  const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
   const next = getSafeRedirectPath(searchParams.get("next"));
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin;
 
   if (code) {
     const supabase = await createClient();
@@ -40,7 +41,7 @@ export async function GET(request: Request) {
         if (!existing) {
           // New user — redirect to username selection
           return NextResponse.redirect(
-            `${origin}/signup/username`
+            `${baseUrl}/signup/username`
           );
         }
 
@@ -54,9 +55,9 @@ export async function GET(request: Request) {
         }
       }
 
-      return NextResponse.redirect(`${origin}${next}`);
+      return NextResponse.redirect(`${baseUrl}${next}`);
     }
   }
 
-  return NextResponse.redirect(`${origin}/login?error=auth`);
+  return NextResponse.redirect(`${baseUrl}/login?error=auth`);
 }
