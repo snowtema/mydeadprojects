@@ -61,6 +61,7 @@ export const projects = pgTable(
     positionX: real("position_x"),
     positionY: real("position_y"),
     ogImageUrl: text("og_image_url"),
+    telegramPostedAt: timestamp("telegram_posted_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
