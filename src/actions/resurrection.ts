@@ -6,6 +6,7 @@ import {
   resurrectionWishes,
   adoptionPledges,
   users,
+  notifications,
 } from "@/lib/db/schema";
 import { eq, and, sql } from "drizzle-orm";
 import { headers } from "next/headers";
@@ -13,6 +14,7 @@ import { createHash } from "crypto";
 import { revalidatePath } from "next/cache";
 import { rateLimit } from "@/lib/rate-limit";
 import { pledgeSchema } from "@/lib/validators";
+import { checkWishMilestone } from "@/actions/notifications";
 
 function hashVisitor(ip: string): string {
   return createHash("sha256").update(ip + "mdp-salt").digest("hex");
@@ -80,21 +82,31 @@ export async function addResurrectionWish(
     });
 
     // Increment counter
-    await db
+    const updated = await db
       .update(projects)
       .set({
         resurrectionWishesCount: sql`${projects.resurrectionWishesCount} + 1`,
       })
-      .where(eq(projects.id, projectId));
+      .where(eq(projects.id, projectId))
+      .returning({
+        resurrectionWishesCount: projects.resurrectionWishesCount,
+        name: projects.name,
+        slug: projects.slug,
+        userId: projects.userId,
+      });
 
-    // Revalidate
-    const project = await db.query.projects.findFirst({
-      where: eq(projects.id, projectId),
-      columns: { slug: true },
-      with: { user: { columns: { username: true } } },
-    });
-    if (project?.user?.username) {
-      revalidateProject(project.user.username, project.slug);
+    // Revalidate + ghost ping
+    if (updated[0]) {
+      const p = updated[0];
+      const user = await db.query.users.findFirst({
+        where: eq(users.id, p.userId),
+        columns: { username: true },
+      });
+      if (user?.username) {
+        revalidateProject(user.username, p.slug);
+      }
+      // Ghost ping: check milestone
+      checkWishMilestone(projectId, p.name, p.userId, p.resurrectionWishesCount);
     }
 
     return {};
@@ -171,6 +183,7 @@ export async function submitPledge(
     where: eq(projects.id, projectId),
     columns: {
       id: true,
+      name: true,
       slug: true,
       userId: true,
       status: true,
@@ -187,23 +200,41 @@ export async function submitPledge(
   if (!project.openForResurrection)
     return { error: "Project is not open for resurrection" };
 
-  try {
-    await db.insert(adoptionPledges).values({
-      projectId,
-      userId: user.id,
-      message: message.trim(),
-    });
+  // Check if this user already has a pending pledge
+  const existingPledge = await db.query.adoptionPledges.findFirst({
+    where: and(
+      eq(adoptionPledges.projectId, projectId),
+      eq(adoptionPledges.userId, user.id),
+      eq(adoptionPledges.status, "pending")
+    ),
+    columns: { id: true },
+  });
 
-    if (project.user?.username) {
-      revalidateProject(project.user.username, project.slug);
-    }
-
-    return {};
-  } catch {
-    return {
-      error: "A pending pledge already exists for this project",
-    };
+  if (existingPledge) {
+    return { error: "You already have a pending pledge for this project" };
   }
+
+  await db.insert(adoptionPledges).values({
+    projectId,
+    userId: user.id,
+    message: message.trim(),
+  });
+
+  // Notify owner about new pledge
+  try {
+    await db.insert(notifications).values({
+      userId: project.userId,
+      type: "new_pledge",
+      message: `Someone wants to resurrect ${project.name}!`,
+      projectId,
+    });
+  } catch { /* best-effort */ }
+
+  if (project.user?.username) {
+    revalidateProject(project.user.username, project.slug);
+  }
+
+  return {};
 }
 
 export async function resolvePledge(
@@ -241,6 +272,17 @@ export async function resolvePledge(
       .set({ status: "approved", resolvedAt: new Date() })
       .where(eq(adoptionPledges.id, pledgeId));
 
+    // Decline all other pending pledges for this project
+    await db
+      .update(adoptionPledges)
+      .set({ status: "declined", resolvedAt: new Date() })
+      .where(
+        and(
+          eq(adoptionPledges.projectId, pledge.project.id),
+          eq(adoptionPledges.status, "pending")
+        )
+      );
+
     // Update project: mark as adopted, set necromancer
     await db
       .update(projects)
@@ -248,6 +290,7 @@ export async function resolvePledge(
         status: "adopted",
         necromancerId: pledge.userId,
         openForResurrection: false,
+        adoptedAt: new Date(),
         updatedAt: new Date(),
       })
       .where(eq(projects.id, pledge.project.id));
@@ -287,7 +330,7 @@ export async function submitResurrectionProof(
       eq(projects.necromancerId, user.id),
       eq(projects.status, "adopted")
     ),
-    columns: { id: true, slug: true },
+    columns: { id: true, slug: true, name: true, userId: true },
     with: { user: { columns: { username: true } } },
   });
 
@@ -303,6 +346,24 @@ export async function submitResurrectionProof(
     })
     .where(eq(projects.id, projectId));
 
+  // Increment necromancer's resurrections count
+  await db
+    .update(users)
+    .set({
+      resurrectionsCount: sql`${users.resurrectionsCount} + 1`,
+    })
+    .where(eq(users.id, user.id));
+
+  // Notify project owner
+  try {
+    await db.insert(notifications).values({
+      userId: project.userId,
+      type: "project_resurrected",
+      message: `${project.name} has been resurrected! IT LIVES!`,
+      projectId,
+    });
+  } catch { /* best-effort */ }
+
   if (project.user?.username) {
     revalidateProject(project.user.username, project.slug);
   }
@@ -312,12 +373,13 @@ export async function submitResurrectionProof(
 
 // --- Query helpers ---
 
-export async function getPendingPledge(projectId: string) {
-  return db.query.adoptionPledges.findFirst({
+export async function getPendingPledges(projectId: string) {
+  return db.query.adoptionPledges.findMany({
     where: and(
       eq(adoptionPledges.projectId, projectId),
       eq(adoptionPledges.status, "pending")
     ),
+    orderBy: [sql`${adoptionPledges.createdAt} ASC`],
     with: {
       user: {
         columns: { username: true, displayName: true, avatarUrl: true },

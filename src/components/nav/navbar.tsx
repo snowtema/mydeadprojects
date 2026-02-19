@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { type User } from "@/lib/db/schema";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { NotificationBell } from "@/components/nav/notification-bell";
 
 interface NavbarProps {
   user?: User | null;
@@ -71,6 +72,7 @@ export function Navbar({ user }: NavbarProps) {
                 {link.label}
               </Link>
             ))}
+            {user && <NotificationBell userId={user.id} />}
             <ThemeToggle />
           </div>
 

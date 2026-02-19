@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { submitResurrectionProof } from "@/actions/resurrection";
 import { ShareMenu } from "@/components/share-menu";
+import { ItLivesCelebration } from "@/components/it-lives-celebration";
 
 interface ResurrectionProofProps {
   projectId: string;
@@ -18,6 +19,7 @@ export function ResurrectionProof({
   const [url, setUrl] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [celebrating, setCelebrating] = useState(false);
   const [success, setSuccess] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -31,8 +33,17 @@ export function ResurrectionProof({
       setError(result.error);
       setSubmitting(false);
     } else {
-      setSuccess(true);
+      setCelebrating(true);
     }
+  }
+
+  if (celebrating) {
+    return (
+      <ItLivesCelebration onComplete={() => {
+        setCelebrating(false);
+        setSuccess(true);
+      }} />
+    );
   }
 
   if (success) {

@@ -10,6 +10,7 @@ interface AdoptButtonProps {
   projectName: string;
   projectUrl: string;
   isAuthenticated: boolean;
+  hasPendingPledge?: boolean;
 }
 
 export function AdoptButton({
@@ -17,6 +18,7 @@ export function AdoptButton({
   projectName,
   projectUrl,
   isAuthenticated,
+  hasPendingPledge = false,
 }: AdoptButtonProps) {
   const [expanded, setExpanded] = useState(false);
   const [message, setMessage] = useState("");
@@ -47,6 +49,14 @@ export function AdoptButton({
           text={`I just pledged to bring ${projectName} back to life on MyDeadProjects!`}
         />
       </div>
+    );
+  }
+
+  if (hasPendingPledge) {
+    return (
+      <p className="text-sm text-text-muted italic">
+        Your pledge is pending review by the owner.
+      </p>
     );
   }
 

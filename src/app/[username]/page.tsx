@@ -83,10 +83,18 @@ export default async function GraveyardPage({
       </div>
 
       {/* Stats Bar */}
-      <div className="flex items-center justify-center gap-4 text-sm text-text-muted py-3 border-y border-border">
+      <div className="flex items-center justify-center gap-4 text-sm text-text-muted py-3 border-y border-border flex-wrap">
         <span>{profile.projectsCount} buried</span>
         <span>·</span>
         <span className="inline-flex items-center gap-1">{profile.flowersReceived} <kbd className="inline-flex items-center justify-center w-4 h-4 glass-kbd border border-border-hover border-b-2 rounded text-[0.6rem] text-text-dim font-mono">F</kbd></span>
+        {profile.resurrectionsCount > 0 && (
+          <>
+            <span>·</span>
+            <span className="inline-flex items-center gap-1 text-green">
+              {profile.resurrectionsCount} resurrected
+            </span>
+          </>
+        )}
         <span>·</span>
         <span>
           member since {profile.createdAt.getFullYear()}
