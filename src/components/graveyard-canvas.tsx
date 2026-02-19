@@ -280,13 +280,7 @@ function GroundDecorations() {
   return (
     <>
       {/* Ground gradient */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(ellipse at 50% 50%, rgba(20,20,20,0) 30%, rgba(10,10,10,0.8) 100%)",
-        }}
-      />
+      <div className="canvas-vignette absolute inset-0 pointer-events-none" />
 
       {/* Subtle ground texture */}
       <div

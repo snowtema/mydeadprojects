@@ -6,6 +6,7 @@ import { projects, users, flowers } from "@/lib/db/schema";
 import { count, sql } from "drizzle-orm";
 import { Skull, Sparkles, Github, Cross } from "lucide-react";
 import { type ReactNode } from "react";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 3600;
@@ -55,6 +56,11 @@ export default async function Home() {
   };
   return (
     <div className="min-h-screen">
+      {/* Theme toggle */}
+      <div className="absolute top-4 right-4 z-50">
+        <ThemeToggle />
+      </div>
+
       {/* Header */}
       <header className="pt-12 text-center">
         <span className="text-5xl block mb-6" aria-hidden="true">
@@ -74,14 +80,14 @@ export default async function Home() {
           <div className="max-w-[720px] mx-auto px-6">
             <p className="text-[clamp(1.1rem,2.5vw,1.35rem)] font-light max-w-[540px] mx-auto mb-12 leading-relaxed">
               Every developer has a folder of{" "}
-              <strong className="font-medium text-white">
+              <strong className="font-medium text-text-strong">
                 unfinished projects
               </strong>
               . Half-built apps, abandoned repos, ideas that never shipped.
               <br />
               <br />
               It&apos;s time to give them a{" "}
-              <strong className="font-medium text-white">proper burial</strong>.
+              <strong className="font-medium text-text-strong">proper burial</strong>.
             </p>
 
             <Terminal />

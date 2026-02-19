@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { type User } from "@/lib/db/schema";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 interface NavbarProps {
   user?: User | null;
@@ -70,6 +71,7 @@ export function Navbar({ user }: NavbarProps) {
                 {link.label}
               </Link>
             ))}
+            <ThemeToggle />
           </div>
 
           {/* Mobile hamburger */}
@@ -121,6 +123,9 @@ export function Navbar({ user }: NavbarProps) {
                 {link.label}
               </Link>
             ))}
+            <div className="pt-1 border-t border-border">
+              <ThemeToggle />
+            </div>
           </div>
         </div>
       </nav>

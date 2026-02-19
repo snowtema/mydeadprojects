@@ -200,7 +200,7 @@ export function Terminal() {
       {/* Title bar */}
       <div className="flex items-center gap-1.5 px-4 py-3 bg-bg-subtle border-b border-border">
         <div className="w-2.5 h-2.5 rounded-full bg-red" />
-        <div className="w-2.5 h-2.5 rounded-full bg-[#5a5a2a]" />
+        <div className="w-2.5 h-2.5 rounded-full bg-yellow" />
         <div className="w-2.5 h-2.5 rounded-full bg-green" />
       </div>
 
@@ -258,7 +258,7 @@ export function Terminal() {
                       className="flex items-center gap-2.5 pt-3 pb-0.5 animate-[fade-in_0.4s_ease_forwards] cursor-pointer"
                       onClick={handleInteract}
                     >
-                      <span className="inline-flex items-center px-3 py-1 bg-gradient-to-b from-white/[0.07] to-white/[0.02] border border-border-hover border-b-2 rounded text-text-dim text-[0.7rem] tracking-wide animate-[cursor-blink_2s_ease-in-out_infinite] hover:bg-white/10 hover:border-text-muted transition-colors">
+                      <span className="inline-flex items-center px-3 py-1 glass-kbd border border-border-hover border-b-2 rounded text-text-dim text-[0.7rem] tracking-wide animate-[cursor-blink_2s_ease-in-out_infinite] hover:border-text-muted transition-colors">
                         &crarr; Enter
                       </span>
                       <span className="text-text-muted text-[0.65rem] tracking-wide">

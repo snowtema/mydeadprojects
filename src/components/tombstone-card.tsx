@@ -35,7 +35,7 @@ export function TombstoneCard({
           </div>
         )}
         <div className="mt-3 text-xs text-text-muted inline-flex items-center gap-1 justify-center w-full">
-          <kbd className="inline-flex items-center justify-center w-4 h-4 bg-gradient-to-b from-white/[0.07] to-white/[0.02] border border-border-hover border-b-2 rounded text-[0.6rem] text-text-dim font-mono">F</kbd>
+          <kbd className="inline-flex items-center justify-center w-4 h-4 glass-kbd border border-border-hover border-b-2 rounded text-[0.6rem] text-text-dim font-mono">F</kbd>
           <span className="text-accent">{project.flowersCount}</span>
         </div>
       </Link>
