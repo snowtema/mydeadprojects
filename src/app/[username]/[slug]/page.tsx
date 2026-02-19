@@ -10,7 +10,7 @@ import { TombstoneCard } from "@/components/tombstone-card";
 import { CondolenceBook } from "@/components/condolence-book";
 import { getCondolences } from "@/actions/condolences";
 import { getCurrentUser } from "@/actions/auth";
-import { getPendingPledge } from "@/actions/resurrection";
+import { getPendingPledges } from "@/actions/resurrection";
 import { ScreenshotGallery } from "@/components/screenshot-gallery";
 import { ResurrectionBadge } from "@/components/resurrection-badge";
 import { ResurrectionToggle } from "@/components/resurrection-toggle";
@@ -18,6 +18,7 @@ import { PledgeReview } from "@/components/pledge-review";
 import { AdoptButton } from "@/components/adopt-button";
 import { ResurrectionProof } from "@/components/resurrection-proof";
 import { WishButton } from "@/components/wish-button";
+import { ResurrectionCertificate } from "@/components/resurrection-certificate";
 import type { Metadata } from "next";
 
 interface Props {
@@ -120,8 +121,22 @@ export default async function ProjectPage({ params }: Props) {
     project.openForResurrection && project.status === "dead";
   const isNecromancer =
     currentUser?.id === project.necromancerId;
-  const pendingPledge =
-    isOwner ? await getPendingPledge(project.id) : null;
+  const pendingPledges =
+    isOwner ? await getPendingPledges(project.id) : [];
+
+  // Check if current visitor has a pending pledge
+  let visitorHasPendingPledge = false;
+  if (currentUser && !isOwner && isSeeking) {
+    const existingPledge = await db.query.adoptionPledges.findFirst({
+      where: and(
+        eq(adoptionPledges.projectId, project.id),
+        eq(adoptionPledges.userId, currentUser.id),
+        eq(adoptionPledges.status, "pending")
+      ),
+      columns: { id: true },
+    });
+    visitorHasPendingPledge = !!existingPledge;
+  }
 
   // Necromancer info for adopted/resurrected
   let necromancerUsername: string | null = null;
@@ -460,9 +475,16 @@ export default async function ProjectPage({ params }: Props) {
             />
           )}
 
-          {/* Owner: review pending pledge */}
-          {isOwner && pendingPledge && (
-            <PledgeReview pledge={pendingPledge} />
+          {/* Owner: review pending pledges */}
+          {isOwner && pendingPledges.length > 0 && (
+            <div className="space-y-3">
+              <p className="text-xs text-text-muted">
+                {pendingPledges.length} pending pledge{pendingPledges.length > 1 ? "s" : ""}
+              </p>
+              {pendingPledges.map((pledge) => (
+                <PledgeReview key={pledge.id} pledge={pledge} />
+              ))}
+            </div>
           )}
 
           {/* Visitor: adopt */}
@@ -472,6 +494,7 @@ export default async function ProjectPage({ params }: Props) {
               projectName={project.name}
               projectUrl={projectUrl}
               isAuthenticated={!!currentUser}
+              hasPendingPledge={visitorHasPendingPledge}
             />
           )}
 
@@ -484,8 +507,21 @@ export default async function ProjectPage({ params }: Props) {
             />
           )}
 
-          {/* Resurrected: show proof link */}
-          {project.status === "resurrected" && project.resurrectionProofUrl && (
+          {/* Resurrected: certificate + proof link */}
+          {project.status === "resurrected" && necromancerUsername && project.resurrectedAt && (
+            <ResurrectionCertificate
+              projectName={project.name}
+              epitaph={project.epitaph}
+              causeOfDeath={project.causeOfDeath}
+              startDate={project.startDate}
+              endDate={project.endDate}
+              ownerUsername={username}
+              necromancerUsername={necromancerUsername}
+              resurrectedAt={project.resurrectedAt}
+              proofUrl={project.resurrectionProofUrl}
+            />
+          )}
+          {project.status === "resurrected" && project.resurrectionProofUrl && !necromancerUsername && (
             <a
               href={project.resurrectionProofUrl}
               target="_blank"

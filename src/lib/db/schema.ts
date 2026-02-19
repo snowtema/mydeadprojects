@@ -25,6 +25,7 @@ export const users = pgTable(
     showGithubLink: boolean("show_github_link").default(false).notNull(),
     projectsCount: integer("projects_count").default(0).notNull(),
     flowersReceived: integer("flowers_received").default(0).notNull(),
+    resurrectionsCount: integer("resurrections_count").default(0).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
@@ -38,6 +39,7 @@ export const users = pgTable(
 export const usersRelations = relations(users, ({ many }) => ({
   projects: many(projects),
   adoptionPledges: many(adoptionPledges),
+  notifications: many(notifications),
 }));
 
 export const projects = pgTable(
@@ -75,6 +77,7 @@ export const projects = pgTable(
     }),
     resurrectionProofUrl: text("resurrection_proof_url"),
     resurrectedAt: timestamp("resurrected_at", { withTimezone: true }),
+    adoptedAt: timestamp("adopted_at", { withTimezone: true }),
     telegramPostedAt: timestamp("telegram_posted_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
@@ -222,6 +225,37 @@ export const adoptionPledgesRelations = relations(
   })
 );
 
+export const notifications = pgTable(
+  "notifications",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    type: varchar("type", { length: 50 }).notNull(),
+    message: text("message").notNull(),
+    projectId: uuid("project_id").references(() => projects.id, {
+      onDelete: "cascade",
+    }),
+    read: boolean("read").default(false).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [index("idx_notifications_user").on(table.userId)]
+);
+
+export const notificationsRelations = relations(notifications, ({ one }) => ({
+  user: one(users, {
+    fields: [notifications.userId],
+    references: [users.id],
+  }),
+  project: one(projects, {
+    fields: [notifications.projectId],
+    references: [projects.id],
+  }),
+}));
+
 export const causesOfDeath = pgTable("causes_of_death", {
   id: serial("id").primaryKey(),
   label: varchar("label", { length: 100 }).notNull(),
@@ -238,3 +272,4 @@ export type Condolence = typeof condolences.$inferSelect;
 export type CauseOfDeath = typeof causesOfDeath.$inferSelect;
 export type ResurrectionWish = typeof resurrectionWishes.$inferSelect;
 export type AdoptionPledge = typeof adoptionPledges.$inferSelect;
+export type Notification = typeof notifications.$inferSelect;
