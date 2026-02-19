@@ -38,24 +38,34 @@ function generateParticles(): Particle[] {
   }));
 }
 
-// Zombie hand — fingers + thumb joining + palm + arm
+// Zombie hand — fingers + thumb + palm + arm
 const HAND_LINES = [
-  " |  |  |      ",
-  " |  |  |  /   ",
-  " |  |  | /    ",
-  "  \\  | | /    ",
-  "    ----      ",
-  "     ||       ",
-  "     ||       ",
+  " |  |  |",
+  " |  |  |  /",
+  " |  |  | /",
+  "  \\  | | /",
+  "    ----",
+  "     ||",
+  "     ||",
 ];
 
-// Ground crack progression
+// Ground crack progression (centered: 15+│+15 = 31)
 const CRACK_STAGES = [
-  "▓▓▓▓▓▓▓▓▓▓▓▓▓▓│▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓",
-  "▓▓▓▓▓▓▓▓▓▓▓▓▓░╨░▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓",
-  "▓▓▓▓▓▓▓▓▓▓▓▓░ ╨ ░▓▓▓▓▓▓▓▓▓▓▓▓▓▓",
-  "▓▓▓▓▓▓▓▓▓░░░       ░░░▓▓▓▓▓▓▓▓▓",
+  "▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓│▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓",
+  "▓▓▓▓▓▓▓▓▓▓▓▓▓▓░╨░▓▓▓▓▓▓▓▓▓▓▓▓▓▓",
+  "▓▓▓▓▓▓▓▓▓▓▓▓▓░ ╨ ░▓▓▓▓▓▓▓▓▓▓▓▓▓",
+  "▓▓▓▓▓▓▓▓▓▓░░░     ░░░▓▓▓▓▓▓▓▓▓▓",
 ];
+
+// Tombstone zigzag clip-paths — /\ crack pattern
+const ZIGZAG_LEFT =
+  "polygon(0 0, 53% 0, 47% 17%, 53% 33%, 47% 50%, 53% 67%, 47% 83%, 53% 100%, 0 100%)";
+const ZIGZAG_RIGHT =
+  "polygon(47% 0, 100% 0, 100% 100%, 47% 100%, 53% 83%, 47% 67%, 53% 50%, 47% 33%, 53% 17%)";
+
+// Split intensity per crack stage
+const SPLIT_GAP = [0, 1, 5, 18];
+const SPLIT_TILT = [0, 0.3, 1.2, 4];
 
 function padCenter(s: string, w: number) {
   if (s.length >= w) return s.slice(0, w);
@@ -84,11 +94,23 @@ export function ItLivesCelebration({
 
   const displayName = useMemo(() => {
     const n =
-      projectName.length <= 16
+      projectName.length <= 13
         ? projectName
-        : projectName.slice(0, 14) + "..";
-    return padCenter(n, 16);
+        : projectName.slice(0, 11) + "..";
+    return padCenter(n, 13);
   }, [projectName]);
+
+  // Compact tombstone — 6 lines, perfectly centered ┬
+  const tombstoneText = useMemo(
+    () =>
+      `  ┌───────────────────┐
+  │                   │
+  │   R . I . P .     │
+  │   ${displayName}   │
+  │                   │
+  └─────────┬─────────┘`,
+    [displayName]
+  );
 
   const dirtParticles = useMemo(
     () =>
@@ -101,6 +123,9 @@ export function ItLivesCelebration({
       })),
     []
   );
+
+  const gap = SPLIT_GAP[crackStage];
+  const tilt = SPLIT_TILT[crackStage];
 
   // Main animation timeline
   useEffect(() => {
@@ -149,19 +174,12 @@ export function ItLivesCelebration({
       t(() => setHitFlash(false), 150);
     }
 
-    // Flash → Grave
     t(() => setPhase("grave"), 400);
-
-    // Tombstone fades in
     t(() => setTombstoneIn(true), 700);
 
-    // Hit 1 — subtle tap
+    // 3 hits with escalating force
     t(() => hit(1, 3), 1600);
-
-    // Hit 2 — medium punch
     t(() => hit(2, 7), 2700);
-
-    // Hit 3 — ground splits open
     t(() => hit(3, 12), 3800);
 
     // Hand rises through the crack
@@ -176,10 +194,7 @@ export function ItLivesCelebration({
       rafId = requestAnimationFrame(frame);
     }, 4400);
 
-    // Fade out grave scene
     t(() => setGraveFading(true), 7200);
-
-    // Transition to IT LIVES
     t(() => setPhase("text"), 7700);
 
     return () => {
@@ -203,6 +218,9 @@ export function ItLivesCelebration({
     window.location.href = pageUrl;
   }
 
+  const preClasses =
+    "absolute inset-0 font-mono text-[10px] sm:text-xs md:text-sm leading-tight text-text-muted/80 whitespace-pre select-none";
+
   return (
     <div className="fixed inset-0 z-[10000] flex items-center justify-center overflow-hidden">
       {/* Background */}
@@ -225,26 +243,58 @@ export function ItLivesCelebration({
             graveFading ? "opacity-0" : "opacity-100"
           }`}
         >
-          {/* Tombstone — tilts more with each hit */}
-          <pre
-            className={`font-mono text-[10px] sm:text-xs md:text-sm leading-tight text-text-muted/80 whitespace-pre select-none ${
-              tombstoneIn ? "opacity-100" : "opacity-0"
-            }`}
+          {/* Tombstone — splits with zigzag /\ crack */}
+          <div
+            className="relative inline-block"
             style={{
-              transform: tombstoneIn
-                ? `rotate(${crackStage * 0.6}deg)`
-                : "translateY(12px)",
+              opacity: tombstoneIn ? 1 : 0,
+              transform: tombstoneIn ? "none" : "translateY(12px)",
               transition: "opacity 0.7s, transform 0.7s",
             }}
           >
-            {`    ┌────────────────────┐
-    │                    │
-    │    R  .  I  .  P   │
-    │                    │
-    │  ${displayName}  │
-    │                    │
-    └─────────┬──────────┘`}
-          </pre>
+            {/* Invisible spacer to reserve dimensions */}
+            <pre className="invisible font-mono text-[10px] sm:text-xs md:text-sm leading-tight whitespace-pre">
+              {tombstoneText}
+            </pre>
+
+            {/* Crack glow behind the halves */}
+            {crackStage >= 1 && (
+              <div
+                className="absolute left-1/2 top-0 h-full -translate-x-1/2 pointer-events-none"
+                style={{
+                  width: `${crackStage * 4}px`,
+                  background: `rgba(90,154,90,${0.05 + crackStage * 0.05})`,
+                  filter: `blur(${1 + crackStage * 2}px)`,
+                }}
+              />
+            )}
+
+            {/* Left half */}
+            <pre
+              className={preClasses}
+              style={{
+                clipPath: ZIGZAG_LEFT,
+                transform: `rotate(${-tilt}deg) translateX(${-gap}px)`,
+                transformOrigin: "50% 0%",
+                transition: "transform 0.5s ease-out",
+              }}
+            >
+              {tombstoneText}
+            </pre>
+
+            {/* Right half */}
+            <pre
+              className={preClasses}
+              style={{
+                clipPath: ZIGZAG_RIGHT,
+                transform: `rotate(${tilt}deg) translateX(${gap}px)`,
+                transformOrigin: "50% 0%",
+                transition: "transform 0.5s ease-out",
+              }}
+            >
+              {tombstoneText}
+            </pre>
+          </div>
 
           {/* Ground line + crack */}
           <div className="relative">
@@ -260,7 +310,7 @@ export function ItLivesCelebration({
               {CRACK_STAGES[crackStage]}
             </pre>
 
-            {/* Hit flash glow at crack point */}
+            {/* Hit flash glow */}
             {hitFlash && (
               <div
                 className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full pointer-events-none"
@@ -272,40 +322,38 @@ export function ItLivesCelebration({
               />
             )}
 
-            {/* Dirt debris — escalates with each hit */}
+            {/* Dirt debris */}
             {crackStage > 0 && (
               <div key={`dirt-${crackStage}`} className="absolute inset-0">
-                {dirtParticles
-                  .slice(0, 4 + crackStage * 5)
-                  .map((p) => (
-                    <div
-                      key={p.id}
-                      className="absolute rounded-sm"
-                      style={
-                        {
-                          left: `calc(50% + ${p.x}px)`,
-                          top: "50%",
-                          width: p.size * (0.4 + crackStage * 0.3),
-                          height: p.size * (0.4 + crackStage * 0.3),
-                          backgroundColor:
-                            p.id % 3 === 0 ? "#5a4a2a" : "#3a3a2a",
-                          animation: `celebration-burst ${0.6 + crackStage * 0.3}s ease-out ${p.id * 25}ms forwards`,
-                          "--burst-x": `${Math.cos((p.angle * Math.PI) / 180) * p.speed * (6 + crackStage * 7)}px`,
-                          "--burst-y": `${Math.sin((p.angle * Math.PI) / 180) * p.speed * (6 + crackStage * 7)}px`,
-                          opacity: 0,
-                        } as React.CSSProperties
-                      }
-                    />
-                  ))}
+                {dirtParticles.slice(0, 4 + crackStage * 5).map((p) => (
+                  <div
+                    key={p.id}
+                    className="absolute rounded-sm"
+                    style={
+                      {
+                        left: `calc(50% + ${p.x}px)`,
+                        top: "50%",
+                        width: p.size * (0.4 + crackStage * 0.3),
+                        height: p.size * (0.4 + crackStage * 0.3),
+                        backgroundColor:
+                          p.id % 3 === 0 ? "#5a4a2a" : "#3a3a2a",
+                        animation: `celebration-burst ${0.6 + crackStage * 0.3}s ease-out ${p.id * 25}ms forwards`,
+                        "--burst-x": `${Math.cos((p.angle * Math.PI) / 180) * p.speed * (6 + crackStage * 7)}px`,
+                        "--burst-y": `${Math.sin((p.angle * Math.PI) / 180) * p.speed * (6 + crackStage * 7)}px`,
+                        opacity: 0,
+                      } as React.CSSProperties
+                    }
+                  />
+                ))}
               </div>
             )}
           </div>
 
-          {/* Hand rising from the crack */}
+          {/* Hand rising — taller container */}
           <div
             className="overflow-hidden"
             style={{
-              height: handRise > 0 ? 90 : 0,
+              height: handRise > 0 ? 130 : 0,
               transition: "height 0.3s ease-out",
             }}
           >
@@ -325,12 +373,12 @@ export function ItLivesCelebration({
         </div>
       )}
 
-      {/* Transition flash between grave and text */}
+      {/* Transition flash */}
       {graveFading && phase === "grave" && (
         <div className="absolute inset-0 bg-green/15 animate-[celebration-flash_0.5s_ease-out_forwards]" />
       )}
 
-      {/* Burst particles for text phase */}
+      {/* Burst particles */}
       {!reducedMotion &&
         phase === "text" &&
         particles.map((p) => (
