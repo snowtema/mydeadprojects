@@ -173,7 +173,7 @@ export default async function ExplorePeoplePage({ searchParams }: Props) {
                   <span>·</span>
                   <span className="inline-flex items-center gap-1">
                     {person.flowersReceived}{" "}
-                    <kbd className="inline-flex items-center justify-center w-4 h-4 bg-gradient-to-b from-white/[0.07] to-white/[0.02] border border-border-hover border-b-2 rounded text-[0.6rem] text-text-dim font-mono">
+                    <kbd className="inline-flex items-center justify-center w-4 h-4 glass-kbd border border-border-hover border-b-2 rounded text-[0.6rem] text-text-dim font-mono">
                       F
                     </kbd>
                   </span>

@@ -159,7 +159,7 @@ export function GraveyardTimeline({
                     left: `${lineLeft}%`,
                     width: `${lineWidth}%`,
                     backgroundImage:
-                      "repeating-linear-gradient(90deg, #9B7E7E 0, #9B7E7E 4px, transparent 4px, transparent 8px)",
+                      "repeating-linear-gradient(90deg, var(--color-accent) 0, var(--color-accent) 4px, transparent 4px, transparent 8px)",
                     opacity: 0.6,
                   }}
                 />
@@ -171,7 +171,7 @@ export function GraveyardTimeline({
                     top: AXIS_Y,
                     left: `${lineLeft}%`,
                     width: `${lineWidth}%`,
-                    backgroundColor: "#9B7E7E",
+                    backgroundColor: "var(--color-accent)",
                     opacity: 0.15,
                   }}
                 />
@@ -304,7 +304,7 @@ export function GraveyardTimeline({
               left: tooltipPos.x,
               top: tooltipPos.y,
               transform: "translate(-50%, -100%)",
-              boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
+              boxShadow: "0 8px 32px rgba(0,0,0,var(--tooltip-shadow-opacity, 0.6))",
             }}
           >
             <div className="text-xs font-mono text-text-dim mb-1 truncate">
@@ -331,7 +331,7 @@ export function GraveyardTimeline({
                 </span>
               )}
               <span className="text-[10px] text-accent ml-auto flex items-center gap-1">
-                <kbd className="inline-flex items-center justify-center w-3.5 h-3.5 bg-gradient-to-b from-white/[0.07] to-white/[0.02] border border-border-hover border-b-2 rounded text-[0.5rem] text-text-dim font-mono">
+                <kbd className="inline-flex items-center justify-center w-3.5 h-3.5 glass-kbd border border-border-hover border-b-2 rounded text-[0.5rem] text-text-dim font-mono">
                   F
                 </kbd>
                 {hoveredProject.flowersCount}
