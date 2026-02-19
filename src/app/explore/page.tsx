@@ -7,20 +7,27 @@ import { cn } from "@/lib/utils";
 
 const PAGE_SIZE = 12;
 
-type SortOption = "recent" | "flowers";
+type SortOption = "recent" | "flowers" | "wished";
+type TabOption = "all" | "seeking";
 
 interface Props {
   searchParams: Promise<{
     sort?: string;
     page?: string;
     cause?: string;
+    tab?: string;
   }>;
 }
 
 export default async function ExplorePage({ searchParams }: Props) {
   const params = await searchParams;
+  const tab: TabOption = params.tab === "seeking" ? "seeking" : "all";
   const sort: SortOption =
-    params.sort === "flowers" ? "flowers" : "recent";
+    params.sort === "flowers"
+      ? "flowers"
+      : params.sort === "wished"
+        ? "wished"
+        : "recent";
   const currentPage = Math.max(1, parseInt(params.page || "1", 10) || 1);
   const causeFilter = params.cause || null;
 
@@ -33,9 +40,16 @@ export default async function ExplorePage({ searchParams }: Props) {
   const causes = causesResult.map((r) => r.cause);
 
   // Build where clause
-  const whereClause = causeFilter
-    ? eq(projects.causeOfDeath, causeFilter)
-    : undefined;
+  const conditions = [];
+  if (causeFilter) {
+    conditions.push(eq(projects.causeOfDeath, causeFilter));
+  }
+  if (tab === "seeking") {
+    conditions.push(eq(projects.openForResurrection, true));
+    conditions.push(eq(projects.status, "dead"));
+  }
+  const whereClause =
+    conditions.length > 0 ? and(...conditions) : undefined;
 
   // Get total count for pagination
   const [{ total }] = await db
@@ -50,7 +64,9 @@ export default async function ExplorePage({ searchParams }: Props) {
   const orderBy =
     sort === "flowers"
       ? [desc(projects.flowersCount), desc(projects.id)]
-      : [desc(projects.createdAt)];
+      : sort === "wished"
+        ? [desc(projects.resurrectionWishesCount), desc(projects.id)]
+        : [desc(projects.createdAt)];
 
   const rows = await db.query.projects.findMany({
     with: {
@@ -65,6 +81,9 @@ export default async function ExplorePage({ searchParams }: Props) {
   const sortTabs: { key: SortOption; label: string }[] = [
     { key: "recent", label: "Recent" },
     { key: "flowers", label: "Most Respected" },
+    ...(tab === "seeking"
+      ? [{ key: "wished" as SortOption, label: "Most Wished" }]
+      : []),
   ];
 
   // Build URL helpers that preserve active filters
@@ -72,8 +91,11 @@ export default async function ExplorePage({ searchParams }: Props) {
     sort?: string;
     page?: number;
     cause?: string | null;
+    tab?: string;
   }) {
     const p = new URLSearchParams();
+    const t = overrides.tab ?? tab;
+    if (t !== "all") p.set("tab", t);
     const s = overrides.sort ?? sort;
     if (s !== "recent") p.set("sort", s);
     const c = overrides.cause !== undefined ? overrides.cause : causeFilter;
@@ -101,9 +123,25 @@ export default async function ExplorePage({ searchParams }: Props) {
       <div className="flex gap-6 border-b border-border">
         <a
           href="/explore"
-          className="text-sm pb-3 border-b-2 border-accent text-text-dim transition-colors -mb-px"
+          className={cn(
+            "text-sm pb-3 border-b-2 transition-colors -mb-px",
+            tab === "all"
+              ? "border-accent text-text-dim"
+              : "border-transparent text-text-muted hover:text-text-dim"
+          )}
         >
           Projects
+        </a>
+        <a
+          href={buildUrl({ tab: "seeking", sort: "recent", page: 1, cause: null })}
+          className={cn(
+            "text-sm pb-3 border-b-2 transition-colors -mb-px",
+            tab === "seeking"
+              ? "border-green text-green"
+              : "border-transparent text-text-muted hover:text-text-dim"
+          )}
+        >
+          Seeking Revival
         </a>
         <a
           href="/explore/people"

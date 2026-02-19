@@ -71,3 +71,12 @@ export const projectSchema = z.object({
 });
 
 export type ProjectInput = z.infer<typeof projectSchema>;
+
+export const pledgeSchema = z.object({
+  message: z
+    .string()
+    .min(1, "Message is required")
+    .max(140, "Message must be 140 characters or less"),
+});
+
+export type PledgeInput = z.infer<typeof pledgeSchema>;

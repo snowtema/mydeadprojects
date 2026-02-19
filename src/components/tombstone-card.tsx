@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { type Project } from "@/lib/db/schema";
 import { formatDateRange } from "@/lib/utils";
+import { ResurrectionBadge } from "@/components/resurrection-badge";
 
 interface TombstoneCardProps {
   project: Project;
@@ -17,7 +18,7 @@ export function TombstoneCard({
     <div className="group relative">
       <Link
         href={`/${username}/${project.slug}`}
-        className="tombstone-card block p-6 border border-border rounded-t-md text-center transition-all duration-300 hover:border-border-hover hover:-translate-y-1"
+        className={`tombstone-card block p-6 border border-border rounded-t-md text-center transition-all duration-300 hover:border-border-hover hover:-translate-y-1${project.openForResurrection && project.status === "dead" ? " tombstone-seeking" : ""}`}
       >
         <div className="tombstone-cross text-text-muted text-lg mb-3">&#10013;</div>
         <div className="text-sm font-medium text-text-dim mb-1">
@@ -34,9 +35,23 @@ export function TombstoneCard({
             {project.causeOfDeath}
           </div>
         )}
-        <div className="mt-3 text-xs text-text-muted inline-flex items-center gap-1 justify-center w-full">
-          <kbd className="inline-flex items-center justify-center w-4 h-4 glass-kbd border border-border-hover border-b-2 rounded text-[0.6rem] text-text-dim font-mono">F</kbd>
-          <span className="text-accent">{project.flowersCount}</span>
+        <div className="mt-3 flex items-center justify-center gap-3">
+          <ResurrectionBadge
+            status={project.status}
+            openForResurrection={project.openForResurrection}
+          />
+        </div>
+        <div className="mt-2 text-xs text-text-muted inline-flex items-center gap-2 justify-center w-full">
+          <span className="inline-flex items-center gap-1">
+            <kbd className="inline-flex items-center justify-center w-4 h-4 glass-kbd border border-border-hover border-b-2 rounded text-[0.6rem] text-text-dim font-mono">F</kbd>
+            <span className="text-accent">{project.flowersCount}</span>
+          </span>
+          {project.openForResurrection && project.status === "dead" && project.resurrectionWishesCount > 0 && (
+            <span className="inline-flex items-center gap-1">
+              <kbd className="inline-flex items-center justify-center w-4 h-4 glass-kbd border border-border-hover border-b-2 rounded text-[0.6rem] text-text-dim font-mono">R</kbd>
+              <span className="text-green">{project.resurrectionWishesCount}</span>
+            </span>
+          )}
         </div>
       </Link>
       {/* Tombstone base */}
