@@ -9,6 +9,7 @@ import { ShareMenu } from "@/components/share-menu";
 import { TombstoneCard } from "@/components/tombstone-card";
 import { CondolenceBook } from "@/components/condolence-book";
 import { getCondolences } from "@/actions/condolences";
+import { getCurrentUser } from "@/actions/auth";
 import { ScreenshotGallery } from "@/components/screenshot-gallery";
 import type { Metadata } from "next";
 
@@ -88,6 +89,10 @@ export default async function ProjectPage({ params }: Props) {
   // Condolences
   const initialCondolences = await getCondolences(project.id);
 
+  // Check if the current user is the project owner
+  const currentUser = await getCurrentUser();
+  const isOwner = currentUser?.id === profile.id;
+
   // Similar graves: same cause of death, excluding current
   const similarProjects = await db.query.projects.findMany({
     where: and(
@@ -150,13 +155,23 @@ export default async function ProjectPage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      {/* Back link */}
-      <Link
-        href={`/${username}`}
-        className="text-sm text-text-muted hover:text-text-dim transition-colors"
-      >
-        &larr; @{username}&apos;s graveyard
-      </Link>
+      {/* Back link + Edit */}
+      <div className="flex items-center justify-between">
+        <Link
+          href={`/${username}`}
+          className="text-sm text-text-muted hover:text-text-dim transition-colors"
+        >
+          &larr; @{username}&apos;s graveyard
+        </Link>
+        {isOwner && (
+          <Link
+            href={`/bury/${project.id}/edit`}
+            className="text-xs px-3 py-1.5 bg-bg-card border border-border rounded-md text-text-muted hover:text-text-dim hover:border-border-hover transition-colors"
+          >
+            Edit
+          </Link>
+        )}
+      </div>
 
       {/* Tombstone with prev/next navigation */}
       <div className="relative max-w-2xl mx-auto flex items-center justify-center">
@@ -326,6 +341,7 @@ export default async function ProjectPage({ params }: Props) {
         <CondolenceBook
           projectId={project.id}
           initialCondolences={initialCondolences}
+          isOwner={isOwner}
         />
       </div>
 

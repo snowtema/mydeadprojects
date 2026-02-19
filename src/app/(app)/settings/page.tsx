@@ -1,17 +1,10 @@
-"use client";
+import { getCurrentUser } from "@/actions/auth";
+import { redirect } from "next/navigation";
+import { SettingsForm } from "@/components/settings-form";
 
-import { createClient } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
-
-export default function SettingsPage() {
-  const router = useRouter();
-  const supabase = createClient();
-
-  async function handleSignOut() {
-    await supabase.auth.signOut();
-    router.push("/");
-    router.refresh();
-  }
+export default async function SettingsPage() {
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
 
   return (
     <div className="space-y-8 max-w-lg">
@@ -20,17 +13,11 @@ export default function SettingsPage() {
         <div className="h-px bg-border" />
       </div>
 
-      <div className="space-y-4">
-        <h2 className="text-xs text-text-dim uppercase tracking-wider">
-          Account
-        </h2>
-        <button
-          onClick={handleSignOut}
-          className="px-4 py-2 text-xs bg-bg-card border border-border rounded-md text-red hover:border-red transition-colors cursor-pointer"
-        >
-          Sign Out
-        </button>
-      </div>
+      <SettingsForm
+        initialDisplayName={user.displayName ?? ""}
+        initialBio={user.bio ?? ""}
+        username={user.username}
+      />
     </div>
   );
 }
