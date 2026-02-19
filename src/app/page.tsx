@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Terminal } from "@/components/landing/terminal";
 import { StatsCounter } from "@/components/landing/stats-counter";
+import { PayRespects } from "@/components/landing/pay-respects";
 import { db } from "@/lib/db";
 import { projects, users, flowers } from "@/lib/db/schema";
 import { count, sql } from "drizzle-orm";
@@ -37,7 +38,7 @@ const features: { icon: ReactNode; title: string; desc: string; comingSoon?: boo
 ];
 
 export default async function Home() {
-  const [projectsResult, usersResult, flowersResult, randomGraves] = await Promise.all([
+  const [projectsResult, usersResult, flowersResult, randomGraves, ritualGraves] = await Promise.all([
     db.select({ value: count() }).from(projects),
     db.select({ value: count() }).from(users),
     db.select({ value: count() }).from(flowers),
@@ -45,6 +46,12 @@ export default async function Home() {
       orderBy: sql`RANDOM()`,
       limit: 3,
       columns: { name: true, slug: true, startDate: true, endDate: true, epitaph: true },
+      with: { user: { columns: { username: true } } },
+    }),
+    db.query.projects.findMany({
+      orderBy: sql`RANDOM()`,
+      limit: 3,
+      columns: { name: true, slug: true, startDate: true, endDate: true, epitaph: true, flowersCount: true },
       with: { user: { columns: { username: true } } },
     }),
   ]);
@@ -170,6 +177,21 @@ export default async function Home() {
               </div>
             </div>
           </section>
+        )}
+
+        {/* Pay Respects Ritual */}
+        {ritualGraves.length > 0 && (
+          <PayRespects
+            projects={ritualGraves.map((p) => ({
+              name: p.name,
+              slug: p.slug,
+              startDate: p.startDate,
+              endDate: p.endDate,
+              epitaph: p.epitaph,
+              flowersCount: p.flowersCount,
+              username: p.user.username,
+            }))}
+          />
         )}
 
         {/* Stats */}

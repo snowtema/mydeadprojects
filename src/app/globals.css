@@ -385,6 +385,20 @@ html.light .glass-kbd {
   }
 }
 
+@keyframes ritual-float {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-50px) scale(0.5);
+  }
+}
+
 @keyframes timeline-duration-in {
   from {
     opacity: 0;
