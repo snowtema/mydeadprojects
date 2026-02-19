@@ -32,6 +32,7 @@ interface TerminalLine {
   type: "cmd" | "output" | "comment" | "success";
   text: string;
   cmdText?: string;
+  link?: { text: string; href: string };
 }
 
 const lines: TerminalLine[] = [
@@ -53,6 +54,7 @@ const lines: TerminalLine[] = [
     group: 4,
     type: "comment",
     text: "# visit mydeadprojects.com/~artem to pay respects",
+    link: { text: "mydeadprojects.com/~artem", href: "/artem" },
   },
 ];
 
@@ -193,7 +195,7 @@ export function Terminal() {
     <div
       ref={terminalRef}
       onClick={handleInteract}
-      className="bg-bg-card border border-border rounded-lg overflow-hidden text-left max-w-[520px] mx-auto cursor-pointer focus:outline-none"
+      className="bg-bg-card border border-border rounded-lg overflow-hidden text-left max-w-[520px] mx-auto cursor-default focus:outline-none"
       tabIndex={0}
       aria-label="Interactive terminal demo"
     >
@@ -240,11 +242,33 @@ export function Terminal() {
                     ? "text-text-muted italic"
                     : "text-text-muted";
 
+              let content: React.ReactNode = line.text;
+              if (line.link) {
+                const idx = line.text.indexOf(line.link.text);
+                if (idx !== -1) {
+                  const before = line.text.slice(0, idx);
+                  const after = line.text.slice(idx + line.link.text.length);
+                  content = (
+                    <>
+                      {before}
+                      <a
+                        href={line.link.href}
+                        className="text-accent hover:underline !cursor-pointer"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {line.link.text}
+                      </a>
+                      {after}
+                    </>
+                  );
+                }
+              }
+
               lineEl = (
                 <div
                   className={`${colorClass} ${isVisible ? "animate-[fade-in_0.3s_ease_forwards]" : "opacity-0"}`}
                 >
-                  {line.text}
+                  {content}
                 </div>
               );
             }
@@ -255,7 +279,8 @@ export function Terminal() {
                   {lineEl}
                   <div className="h-0">
                     <div
-                      className="flex items-center gap-2.5 pt-3 pb-0.5 animate-[fade-in_0.4s_ease_forwards] cursor-pointer"
+                      className="relative z-10 flex items-center gap-2.5 pt-3 pb-0.5 animate-[fade-in_0.4s_ease_forwards]"
+                      style={{ cursor: "pointer" }}
                       onClick={handleInteract}
                     >
                       <span className="inline-flex items-center px-3 py-1 glass-kbd border border-border-hover border-b-2 rounded text-text-dim text-[0.7rem] tracking-wide animate-[cursor-blink_2s_ease-in-out_infinite] hover:border-text-muted transition-colors">
