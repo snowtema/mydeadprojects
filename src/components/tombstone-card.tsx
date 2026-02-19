@@ -9,18 +9,43 @@ interface TombstoneCardProps {
   showEdit?: boolean;
 }
 
+function statusIcon(status: string, openForResurrection: boolean) {
+  if (status === "resurrected") return "✦";
+  if (status === "adopted") return "⚗";
+  if (status === "dead" && openForResurrection) return "☽";
+  return "✝";
+}
+
+function statusCardClass(status: string, openForResurrection: boolean) {
+  if (status === "resurrected") return " tombstone-resurrected";
+  if (status === "adopted") return " tombstone-adopted";
+  if (status === "dead" && openForResurrection) return " tombstone-seeking";
+  return "";
+}
+
 export function TombstoneCard({
   project,
   username,
   showEdit,
 }: TombstoneCardProps) {
+  const icon = statusIcon(project.status, project.openForResurrection);
+  const cardClass = statusCardClass(project.status, project.openForResurrection);
+
   return (
     <div className="group relative">
       <Link
         href={`/${username}/${project.slug}`}
-        className={`tombstone-card block p-6 border border-border rounded-t-md text-center transition-all duration-300 hover:border-border-hover hover:-translate-y-1${project.openForResurrection && project.status === "dead" ? " tombstone-seeking" : ""}`}
+        className={`tombstone-card block p-6 border border-border rounded-t-md text-center transition-all duration-300 hover:border-border-hover hover:-translate-y-1${cardClass}`}
       >
-        <div className="tombstone-cross text-text-muted text-lg mb-3">&#10013;</div>
+        <div className={`text-lg mb-3 ${
+          project.status === "resurrected"
+            ? "text-green"
+            : project.status === "adopted"
+              ? "text-accent"
+              : project.openForResurrection && project.status === "dead"
+                ? "text-cta resurrection-pulse"
+                : "tombstone-cross text-text-muted"
+        }`}>{icon}</div>
         <div className="text-sm font-medium text-text-dim mb-1">
           {project.name}
         </div>
