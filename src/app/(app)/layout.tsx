@@ -1,4 +1,5 @@
 import { Navbar } from "@/components/nav/navbar";
+import { Footer } from "@/components/footer";
 import { getCurrentUser } from "@/actions/auth";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
@@ -24,6 +25,7 @@ export default async function AppLayout({
     <div className="min-h-screen">
       <Navbar user={user} />
       <main className="max-w-5xl mx-auto px-6 py-8">{children}</main>
+      <Footer />
     </div>
   );
 }
