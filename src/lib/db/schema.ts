@@ -37,6 +37,7 @@ export const users = pgTable(
 
 export const usersRelations = relations(users, ({ many }) => ({
   projects: many(projects),
+  adoptionPledges: many(adoptionPledges),
 }));
 
 export const projects = pgTable(
@@ -63,6 +64,17 @@ export const projects = pgTable(
     positionX: real("position_x"),
     positionY: real("position_y"),
     ogImageUrl: text("og_image_url"),
+    openForResurrection: boolean("open_for_resurrection")
+      .default(false)
+      .notNull(),
+    resurrectionWishesCount: integer("resurrection_wishes_count")
+      .default(0)
+      .notNull(),
+    necromancerId: uuid("necromancer_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    resurrectionProofUrl: text("resurrection_proof_url"),
+    resurrectedAt: timestamp("resurrected_at", { withTimezone: true }),
     telegramPostedAt: timestamp("telegram_posted_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
@@ -81,8 +93,15 @@ export const projects = pgTable(
 
 export const projectsRelations = relations(projects, ({ one, many }) => ({
   user: one(users, { fields: [projects.userId], references: [users.id] }),
+  necromancer: one(users, {
+    fields: [projects.necromancerId],
+    references: [users.id],
+    relationName: "necromancer",
+  }),
   flowers: many(flowers),
   condolences: many(condolences),
+  resurrectionWishes: many(resurrectionWishes),
+  adoptionPledges: many(adoptionPledges),
 }));
 
 export const flowers = pgTable(
@@ -138,6 +157,71 @@ export const condolencesRelations = relations(condolences, ({ one }) => ({
   }),
 }));
 
+export const resurrectionWishes = pgTable(
+  "resurrection_wishes",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    projectId: uuid("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    visitorHash: varchar("visitor_hash", { length: 64 }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("idx_wishes_unique").on(table.projectId, table.visitorHash),
+    index("idx_wishes_project").on(table.projectId),
+  ]
+);
+
+export const resurrectionWishesRelations = relations(
+  resurrectionWishes,
+  ({ one }) => ({
+    project: one(projects, {
+      fields: [resurrectionWishes.projectId],
+      references: [projects.id],
+    }),
+  })
+);
+
+export const adoptionPledges = pgTable(
+  "adoption_pledges",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    projectId: uuid("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    message: varchar("message", { length: 140 }).notNull(),
+    status: varchar("status", { length: 20 }).default("pending").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    resolvedAt: timestamp("resolved_at", { withTimezone: true }),
+  },
+  (table) => [
+    index("idx_pledges_project").on(table.projectId),
+    index("idx_pledges_user").on(table.userId),
+  ]
+);
+
+export const adoptionPledgesRelations = relations(
+  adoptionPledges,
+  ({ one }) => ({
+    project: one(projects, {
+      fields: [adoptionPledges.projectId],
+      references: [projects.id],
+    }),
+    user: one(users, {
+      fields: [adoptionPledges.userId],
+      references: [users.id],
+    }),
+  })
+);
+
 export const causesOfDeath = pgTable("causes_of_death", {
   id: serial("id").primaryKey(),
   label: varchar("label", { length: 100 }).notNull(),
@@ -152,3 +236,5 @@ export type NewProject = typeof projects.$inferInsert;
 export type Flower = typeof flowers.$inferSelect;
 export type Condolence = typeof condolences.$inferSelect;
 export type CauseOfDeath = typeof causesOfDeath.$inferSelect;
+export type ResurrectionWish = typeof resurrectionWishes.$inferSelect;
+export type AdoptionPledge = typeof adoptionPledges.$inferSelect;

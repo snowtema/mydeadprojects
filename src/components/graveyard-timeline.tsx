@@ -11,6 +11,7 @@ import {
   dateToDecimalYear,
   timeSinceDeath,
 } from "@/lib/utils";
+import { ResurrectionBadge } from "@/components/resurrection-badge";
 
 interface GraveyardTimelineProps {
   projects: Project[];
@@ -265,7 +266,9 @@ export function GraveyardTimeline({
                 } ${
                   isHovered
                     ? `bg-accent border-accent ${reducedMotion ? "" : "scale-150"} z-10`
-                    : `bg-bg-card border-border ${reducedMotion ? "" : "hover:border-accent hover:scale-125"}`
+                    : p.openForResurrection && p.status === "dead"
+                      ? `bg-green border-green/50 resurrection-pulse ${reducedMotion ? "" : "hover:border-green hover:scale-125"}`
+                      : `bg-bg-card border-border ${reducedMotion ? "" : "hover:border-accent hover:scale-125"}`
                 }`}
                 style={{ top: AXIS_Y }}
               />
@@ -331,7 +334,11 @@ export function GraveyardTimeline({
                 &ldquo;{hoveredProject.epitaph}&rdquo;
               </div>
             )}
-            <div className="flex items-center justify-between">
+            <ResurrectionBadge
+              status={hoveredProject.status}
+              openForResurrection={hoveredProject.openForResurrection}
+            />
+            <div className="flex items-center justify-between mt-1">
               {hoveredProject.causeOfDeath && (
                 <span className="text-[10px] text-text-muted border border-border rounded px-1.5 py-0.5 truncate max-w-[60%]">
                   {hoveredProject.causeOfDeath}

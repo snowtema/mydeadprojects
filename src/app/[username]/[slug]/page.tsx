@@ -10,7 +10,14 @@ import { TombstoneCard } from "@/components/tombstone-card";
 import { CondolenceBook } from "@/components/condolence-book";
 import { getCondolences } from "@/actions/condolences";
 import { getCurrentUser } from "@/actions/auth";
+import { getPendingPledge } from "@/actions/resurrection";
 import { ScreenshotGallery } from "@/components/screenshot-gallery";
+import { ResurrectionBadge } from "@/components/resurrection-badge";
+import { ResurrectionToggle } from "@/components/resurrection-toggle";
+import { PledgeReview } from "@/components/pledge-review";
+import { AdoptButton } from "@/components/adopt-button";
+import { ResurrectionProof } from "@/components/resurrection-proof";
+import { WishButton } from "@/components/wish-button";
 import type { Metadata } from "next";
 
 interface Props {
@@ -32,8 +39,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const ogImage = project.ogImageUrl || `${process.env.NEXT_PUBLIC_APP_URL}/api/og/${project.id}`;
 
+  const statusLabel = project.status === "resurrected" ? "Resurrected" : "RIP";
+
   return {
-    title: `${project.name} — RIP`,
+    title: `${project.name} — ${statusLabel}`,
     description: project.epitaph,
     alternates: {
       canonical: `/${username}/${slug}`,
@@ -92,6 +101,14 @@ export default async function ProjectPage({ params }: Props) {
   // Check if the current user is the project owner
   const currentUser = await getCurrentUser();
   const isOwner = currentUser?.id === profile.id;
+
+  // Resurrection data
+  const isSeeking =
+    project.openForResurrection && project.status === "dead";
+  const isNecromancer =
+    currentUser?.id === project.necromancerId;
+  const pendingPledge =
+    isOwner ? await getPendingPledge(project.id) : null;
 
   // Similar graves: same cause of death, excluding current
   const similarProjects = await db.query.projects.findMany({
@@ -245,10 +262,21 @@ export default async function ProjectPage({ params }: Props) {
 
       {/* Engagement block — right under the tombstone */}
       <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
-        <FlowerButton
-          projectId={project.id}
-          reactionCounts={reactionCounts}
-        />
+        <div className="inline-flex items-center gap-2">
+          <FlowerButton
+            projectId={project.id}
+            reactionCounts={reactionCounts}
+          />
+          {isSeeking && (
+            <>
+              <div className="w-px h-4 bg-border/40" />
+              <WishButton
+                projectId={project.id}
+                initialCount={project.resurrectionWishesCount}
+              />
+            </>
+          )}
+        </div>
         <div className="hidden sm:block w-px h-6 bg-border" />
         <ShareMenu
           url={projectUrl}
@@ -344,6 +372,68 @@ export default async function ProjectPage({ params }: Props) {
           isOwner={isOwner}
         />
       </div>
+
+      {/* Resurrection section */}
+      {(project.status !== "dead" || project.openForResurrection || isOwner) && (
+        <div className="max-w-2xl mx-auto space-y-4">
+          <div className="text-xs uppercase tracking-widest text-text-muted pb-3 border-b border-border">
+            // resurrection
+          </div>
+
+          <div>
+            <ResurrectionBadge
+              status={project.status}
+              openForResurrection={project.openForResurrection}
+            />
+          </div>
+
+          {/* Owner: toggle resurrection */}
+          {isOwner && project.status === "dead" && (
+            <ResurrectionToggle
+              projectId={project.id}
+              projectName={project.name}
+              projectUrl={projectUrl}
+              initialOpen={project.openForResurrection}
+            />
+          )}
+
+          {/* Owner: review pending pledge */}
+          {isOwner && pendingPledge && (
+            <PledgeReview pledge={pendingPledge} />
+          )}
+
+          {/* Visitor: adopt */}
+          {!isOwner && isSeeking && (
+            <AdoptButton
+              projectId={project.id}
+              projectName={project.name}
+              projectUrl={projectUrl}
+              isAuthenticated={!!currentUser}
+            />
+          )}
+
+          {/* Necromancer: submit proof */}
+          {isNecromancer && project.status === "adopted" && (
+            <ResurrectionProof
+              projectId={project.id}
+              projectName={project.name}
+              projectUrl={projectUrl}
+            />
+          )}
+
+          {/* Resurrected: show proof link */}
+          {project.status === "resurrected" && project.resurrectionProofUrl && (
+            <a
+              href={project.resurrectionProofUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-sm text-green hover:underline"
+            >
+              View resurrected project &rarr;
+            </a>
+          )}
+        </div>
+      )}
 
       {/* Similar graves */}
       {similarProjects.length > 0 && (
