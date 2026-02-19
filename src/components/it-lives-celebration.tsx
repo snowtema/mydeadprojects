@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
 import { ShareMenu } from "@/components/share-menu";
 
@@ -49,7 +48,6 @@ export function ItLivesCelebration({
   const [showActions, setShowActions] = useState(false);
   const [particles] = useState(generateParticles);
   const reducedMotion = useReducedMotion();
-  const router = useRouter();
 
   const animationDone = visibleLetters >= LETTERS.length;
 
@@ -82,8 +80,7 @@ export function ItLivesCelebration({
   }, [phase, visibleLetters, reducedMotion]);
 
   function handleGoToProject() {
-    router.refresh();
-    router.push(pageUrl);
+    window.location.href = pageUrl;
   }
 
   return (
@@ -171,7 +168,7 @@ export function ItLivesCelebration({
 
             <button
               onClick={handleGoToProject}
-              className="text-sm px-6 py-2.5 bg-green-dim border border-green/30 rounded-md text-green hover:border-green/50 transition-colors"
+              className="text-sm px-6 py-2.5 bg-green-dim border border-green/30 rounded-md text-green hover:border-green/50 transition-colors cursor-pointer"
             >
               View resurrected project &rarr;
             </button>

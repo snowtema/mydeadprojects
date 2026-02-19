@@ -19,6 +19,7 @@ import { AdoptButton } from "@/components/adopt-button";
 import { ResurrectionProof } from "@/components/resurrection-proof";
 import { WishButton } from "@/components/wish-button";
 import { ResurrectionCertificate } from "@/components/resurrection-certificate";
+import { DebugCelebration } from "@/components/debug-celebration";
 import type { Metadata } from "next";
 
 interface Props {
@@ -454,8 +455,15 @@ export default async function ProjectPage({ params }: Props) {
       {/* Resurrection section */}
       {(project.status !== "dead" || project.openForResurrection || isOwner) && (
         <div className="max-w-2xl mx-auto space-y-4">
-          <div className="text-xs uppercase tracking-widest text-text-muted pb-3 border-b border-border">
-            // resurrection
+          <div className="flex items-center justify-between pb-3 border-b border-border">
+            <div className="text-xs uppercase tracking-widest text-text-muted">
+              // resurrection
+            </div>
+            <DebugCelebration
+              projectName={project.name}
+              projectUrl={projectUrl}
+              pageUrl={`/${username}/${slug}`}
+            />
           </div>
 
           <div>

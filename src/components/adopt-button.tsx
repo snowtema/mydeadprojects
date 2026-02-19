@@ -30,7 +30,7 @@ export function AdoptButton({
     return (
       <Link
         href="/login"
-        className="inline-flex items-center gap-2 text-sm px-4 py-2 bg-green-dim border border-green/30 rounded-md text-green hover:border-green/50 transition-colors"
+        className="inline-flex items-center gap-2 text-sm px-4 py-2 bg-green-dim border border-green/30 rounded-md text-green hover:border-green/50 transition-colors cursor-pointer"
       >
         Log in to adopt this project
       </Link>
@@ -64,7 +64,7 @@ export function AdoptButton({
     return (
       <button
         onClick={() => setExpanded(true)}
-        className="inline-flex items-center gap-2 text-sm px-4 py-2 bg-green-dim border border-green/30 rounded-md text-green hover:border-green/50 transition-colors"
+        className="inline-flex items-center gap-2 text-sm px-4 py-2 bg-green-dim border border-green/30 rounded-md text-green hover:border-green/50 transition-colors cursor-pointer"
       >
         Adopt this project
       </button>
@@ -107,14 +107,14 @@ export function AdoptButton({
         <button
           type="submit"
           disabled={submitting || message.trim().length === 0}
-          className="text-sm px-4 py-1.5 bg-green-dim border border-green/30 rounded-md text-green hover:border-green/50 transition-colors disabled:opacity-50"
+          className="text-sm px-4 py-1.5 bg-green-dim border border-green/30 rounded-md text-green hover:border-green/50 transition-colors disabled:opacity-50 cursor-pointer"
         >
           {submitting ? "Submitting..." : "Submit Pledge"}
         </button>
         <button
           type="button"
           onClick={() => setExpanded(false)}
-          className="text-sm px-3 py-1.5 text-text-muted hover:text-text-dim transition-colors"
+          className="text-sm px-3 py-1.5 text-text-muted hover:text-text-dim transition-colors cursor-pointer"
         >
           Cancel
         </button>

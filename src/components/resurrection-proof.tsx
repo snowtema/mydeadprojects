@@ -65,7 +65,7 @@ export function ResurrectionProof({
       <button
         type="submit"
         disabled={submitting || !url.startsWith("http")}
-        className="text-sm px-4 py-1.5 bg-green-dim border border-green/30 rounded-md text-green hover:border-green/50 transition-colors disabled:opacity-50"
+        className="text-sm px-4 py-1.5 bg-green-dim border border-green/30 rounded-md text-green hover:border-green/50 transition-colors disabled:opacity-50 cursor-pointer"
       >
         {submitting ? "Submitting..." : "Submit Proof"}
       </button>

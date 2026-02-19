@@ -76,14 +76,14 @@ export function PledgeReview({ pledge }: PledgeReviewProps) {
         <button
           onClick={() => handleResolve("approve")}
           disabled={resolving}
-          className="text-sm px-4 py-1.5 bg-green-dim border border-green/30 rounded-md text-green hover:border-green/50 transition-colors disabled:opacity-50"
+          className="text-sm px-4 py-1.5 bg-green-dim border border-green/30 rounded-md text-green hover:border-green/50 transition-colors disabled:opacity-50 cursor-pointer"
         >
           Approve
         </button>
         <button
           onClick={() => handleResolve("decline")}
           disabled={resolving}
-          className="text-sm px-4 py-1.5 bg-red-dim border border-red/30 rounded-md text-red hover:border-red/50 transition-colors disabled:opacity-50"
+          className="text-sm px-4 py-1.5 bg-red-dim border border-red/30 rounded-md text-red hover:border-red/50 transition-colors disabled:opacity-50 cursor-pointer"
         >
           Decline
         </button>
