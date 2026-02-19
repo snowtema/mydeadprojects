@@ -1,0 +1,9 @@
+name = "mydeadprojects-telegram-cron"
+main = "src/index.ts"
+compatibility_date = "2024-11-01"
+
+[triggers]
+crons = ["0 9 * * *"]
+
+# Set secrets via: wrangler secret put CRON_SECRET
+#                   wrangler secret put NEXTJS_APP_URL
