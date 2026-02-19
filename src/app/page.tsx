@@ -101,6 +101,21 @@ export default async function Home() {
           </div>
         </section>
 
+        {/* Pay Respects Ritual */}
+        {ritualGraves.length > 0 && (
+          <PayRespects
+            projects={ritualGraves.map((p) => ({
+              name: p.name,
+              slug: p.slug,
+              startDate: p.startDate,
+              endDate: p.endDate,
+              epitaph: p.epitaph,
+              flowersCount: p.flowersCount,
+              username: p.user.username,
+            }))}
+          />
+        )}
+
         {/* Features */}
         <section className="pb-20">
           <div className="max-w-[720px] mx-auto px-6">
@@ -177,21 +192,6 @@ export default async function Home() {
               </div>
             </div>
           </section>
-        )}
-
-        {/* Pay Respects Ritual */}
-        {ritualGraves.length > 0 && (
-          <PayRespects
-            projects={ritualGraves.map((p) => ({
-              name: p.name,
-              slug: p.slug,
-              startDate: p.startDate,
-              endDate: p.endDate,
-              epitaph: p.epitaph,
-              flowersCount: p.flowersCount,
-              username: p.user.username,
-            }))}
-          />
         )}
 
         {/* Stats */}
