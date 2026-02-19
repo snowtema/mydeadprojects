@@ -9,7 +9,11 @@ const PAGE_SIZE = 12;
 type SortOption = "recent" | "flowers";
 
 interface Props {
-  searchParams: Promise<{ sort?: string; cursor?: string }>;
+  searchParams: Promise<{
+    sort?: string;
+    cursor?: string;
+    cause?: string;
+  }>;
 }
 
 export default async function ExplorePage({ searchParams }: Props) {
@@ -17,25 +21,46 @@ export default async function ExplorePage({ searchParams }: Props) {
   const sort: SortOption =
     params.sort === "flowers" ? "flowers" : "recent";
   const cursor = params.cursor;
+  const causeFilter = params.cause || null;
 
-  // Build where clause based on cursor
-  const cursorFilter = (() => {
-    if (!cursor) return undefined;
+  // Get all unique causes of death for the filter UI
+  const causesResult = await db
+    .select({ cause: projects.causeOfDeath })
+    .from(projects)
+    .groupBy(projects.causeOfDeath)
+    .orderBy(sql`count(*) desc`);
+  const causes = causesResult.map((r) => r.cause);
 
+  // Build where clauses
+  const conditions: ReturnType<typeof eq>[] = [];
+
+  if (causeFilter) {
+    conditions.push(eq(projects.causeOfDeath, causeFilter));
+  }
+
+  // Cursor filter
+  if (cursor) {
     if (sort === "recent") {
-      return lt(projects.createdAt, new Date(cursor));
+      conditions.push(lt(projects.createdAt, new Date(cursor)));
+    } else {
+      const [rawFlowers, id] = cursor.split(",");
+      const flowersNum = parseInt(rawFlowers, 10);
+      if (!isNaN(flowersNum) && id) {
+        conditions.push(
+          or(
+            lt(projects.flowersCount, flowersNum),
+            and(
+              eq(projects.flowersCount, flowersNum),
+              lt(projects.id, id)
+            )
+          )!
+        );
+      }
     }
+  }
 
-    // Composite cursor: "flowersCount,id"
-    const [rawFlowers, id] = cursor.split(",");
-    const flowers = parseInt(rawFlowers, 10);
-    if (isNaN(flowers) || !id) return undefined;
-
-    return or(
-      lt(projects.flowersCount, flowers),
-      and(eq(projects.flowersCount, flowers), lt(projects.id, id))
-    );
-  })();
+  const whereClause =
+    conditions.length > 0 ? and(...conditions) : undefined;
 
   const orderBy =
     sort === "flowers"
@@ -46,7 +71,7 @@ export default async function ExplorePage({ searchParams }: Props) {
     with: {
       user: { columns: { username: true, avatarUrl: true } },
     },
-    where: cursorFilter,
+    where: whereClause,
     orderBy,
     limit: PAGE_SIZE + 1,
   });
@@ -67,6 +92,22 @@ export default async function ExplorePage({ searchParams }: Props) {
     { key: "recent", label: "Recent" },
     { key: "flowers", label: "Most Respected" },
   ];
+
+  // Build URL helpers that preserve active filters
+  function buildUrl(overrides: {
+    sort?: string;
+    cursor?: string;
+    cause?: string | null;
+  }) {
+    const p = new URLSearchParams();
+    const s = overrides.sort ?? sort;
+    if (s !== "recent") p.set("sort", s);
+    const c = overrides.cause !== undefined ? overrides.cause : causeFilter;
+    if (c) p.set("cause", c);
+    if (overrides.cursor) p.set("cursor", overrides.cursor);
+    const qs = p.toString();
+    return `/explore${qs ? `?${qs}` : ""}`;
+  }
 
   return (
     <div className="space-y-8">
@@ -98,7 +139,7 @@ export default async function ExplorePage({ searchParams }: Props) {
         {sortTabs.map((tab) => (
           <a
             key={tab.key}
-            href={tab.key === "recent" ? "/explore" : `/explore?sort=${tab.key}`}
+            href={buildUrl({ sort: tab.key, cursor: undefined })}
             className={cn(
               "text-sm pb-3 border-b-2 transition-colors -mb-px",
               sort === tab.key
@@ -111,18 +152,54 @@ export default async function ExplorePage({ searchParams }: Props) {
         ))}
       </div>
 
+      {/* Cause of death filter */}
+      {causes.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          <a
+            href={buildUrl({ cause: null, cursor: undefined })}
+            className={cn(
+              "text-xs px-2.5 py-1 rounded border transition-colors",
+              !causeFilter
+                ? "bg-accent/10 border-accent text-accent"
+                : "bg-bg-card border-border text-text-muted hover:border-border-hover hover:text-text-dim"
+            )}
+          >
+            All
+          </a>
+          {causes.map((cause) => (
+            <a
+              key={cause}
+              href={buildUrl({
+                cause: causeFilter === cause ? null : cause,
+                cursor: undefined,
+              })}
+              className={cn(
+                "text-xs px-2.5 py-1 rounded border transition-colors",
+                causeFilter === cause
+                  ? "bg-accent/10 border-accent text-accent"
+                  : "bg-bg-card border-border text-text-muted hover:border-border-hover hover:text-text-dim"
+              )}
+            >
+              {cause}
+            </a>
+          ))}
+        </div>
+      )}
+
       {items.length > 0 ? (
         <ExploreGrid projects={items} />
       ) : (
         <p className="text-center text-text-muted text-sm py-12">
-          No projects buried yet. Be the first!
+          {causeFilter
+            ? `No projects with cause "${causeFilter}" found.`
+            : "No projects buried yet. Be the first!"}
         </p>
       )}
 
       {nextCursor && (
         <div className="flex justify-center pt-4">
           <a
-            href={`/explore?sort=${sort}&cursor=${encodeURIComponent(nextCursor)}`}
+            href={buildUrl({ cursor: nextCursor })}
             className="text-sm px-6 py-2.5 bg-bg-card border border-border rounded-md text-text-dim hover:border-border-hover transition-colors"
           >
             Load More

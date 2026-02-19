@@ -1,8 +1,8 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { condolences } from "@/lib/db/schema";
-import { eq, desc } from "drizzle-orm";
+import { condolences, projects } from "@/lib/db/schema";
+import { eq, and, desc } from "drizzle-orm";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { rateLimit } from "@/lib/rate-limit";
@@ -41,6 +41,13 @@ export async function addCondolence(
     "unknown";
   const visitorHash = hashIP(ip);
 
+  // Look up the project to get slug + username for revalidation
+  const project = await db.query.projects.findFirst({
+    where: eq(projects.id, projectId),
+    columns: { slug: true },
+    with: { user: { columns: { username: true } } },
+  });
+
   await db.insert(condolences).values({
     projectId,
     visitorHash,
@@ -48,6 +55,39 @@ export async function addCondolence(
   });
 
   revalidatePath("/");
+  if (project?.user?.username) {
+    revalidatePath(`/${project.user.username}/${project.slug}`);
+  }
+
+  return {};
+}
+
+export async function deleteCondolence(
+  condolenceId: string,
+  projectId: string
+): Promise<{ error?: string }> {
+  const { createClient } = await import("@/lib/supabase/server");
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return { error: "Not authenticated" };
+
+  // Verify the user owns the project this condolence belongs to
+  const project = await db.query.projects.findFirst({
+    where: and(eq(projects.id, projectId), eq(projects.userId, user.id)),
+    columns: { id: true, slug: true },
+    with: { user: { columns: { username: true } } },
+  });
+
+  if (!project) return { error: "Not authorized" };
+
+  await db.delete(condolences).where(eq(condolences.id, condolenceId));
+
+  if (project.user?.username) {
+    revalidatePath(`/${project.user.username}/${project.slug}`);
+  }
 
   return {};
 }

@@ -1,23 +1,26 @@
 "use client";
 
 import { useState } from "react";
-import { addCondolence } from "@/actions/condolences";
-import { cn, timeAgo } from "@/lib/utils";
+import { addCondolence, deleteCondolence } from "@/actions/condolences";
+import { timeAgo } from "@/lib/utils";
 import type { Condolence } from "@/lib/db/schema";
 
 interface CondolenceBookProps {
   projectId: string;
   initialCondolences: Condolence[];
+  isOwner?: boolean;
 }
 
 export function CondolenceBook({
   projectId,
   initialCondolences,
+  isOwner,
 }: CondolenceBookProps) {
   const [condolences, setCondolences] = useState(initialCondolences);
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -46,6 +49,19 @@ export function CondolenceBook({
     ]);
     setMessage("");
     setSubmitting(false);
+  }
+
+  async function handleDelete(condolenceId: string) {
+    setDeletingId(condolenceId);
+    const result = await deleteCondolence(condolenceId, projectId);
+
+    if (result.error) {
+      setDeletingId(null);
+      return;
+    }
+
+    setCondolences((prev) => prev.filter((c) => c.id !== condolenceId));
+    setDeletingId(null);
   }
 
   return (
@@ -79,11 +95,23 @@ export function CondolenceBook({
           {condolences.map((c) => (
             <div
               key={c.id}
-              className="py-2.5 px-3 bg-bg-card border border-border rounded-md"
+              className="group py-2.5 px-3 bg-bg-card border border-border rounded-md"
             >
-              <p className="text-sm text-text-muted font-light leading-relaxed">
-                {c.message}
-              </p>
+              <div className="flex items-start justify-between gap-2">
+                <p className="text-sm text-text-muted font-light leading-relaxed flex-1">
+                  {c.message}
+                </p>
+                {isOwner && (
+                  <button
+                    onClick={() => handleDelete(c.id)}
+                    disabled={deletingId === c.id}
+                    className="shrink-0 text-xs text-text-muted/40 hover:text-red opacity-0 group-hover:opacity-100 transition-all cursor-pointer disabled:opacity-50"
+                    title="Delete condolence"
+                  >
+                    {deletingId === c.id ? "..." : "\u00d7"}
+                  </button>
+                )}
+              </div>
               <p className="text-xs text-text-muted/60 mt-1">
                 {timeAgo(new Date(c.createdAt))}
               </p>
