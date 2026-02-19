@@ -28,6 +28,52 @@ export async function GET(
   const dateRange = formatDateRange(project.startDate, project.endDate);
   const username = user?.username || "unknown";
 
+  // Status-aware OG variants
+  const status = project.status;
+  const isSeeking = status === "dead" && project.openForResurrection;
+
+  const accentColor = status === "resurrected"
+    ? "#5a9a5a"
+    : status === "adopted"
+      ? "#9B7E7E"
+      : isSeeking
+        ? "#C4A07C"
+        : "#C4A07C";
+
+  const headerLabel = status === "resurrected"
+    ? "RESURRECTION CERTIFICATE"
+    : status === "adopted"
+      ? "ADOPTION CERTIFICATE"
+      : isSeeking
+        ? "SEEKING NECROMANCER"
+        : "DEATH CERTIFICATE";
+
+  const statusIcon = status === "resurrected"
+    ? "\u2726"  // ✦
+    : status === "adopted"
+      ? "\u2697"  // ⚗
+      : isSeeking
+        ? "\u263D"  // ☽
+        : "\u2020"; // †
+
+  // Necromancer info
+  let necromancerName: string | null = null;
+  if (project.necromancerId) {
+    const necromancer = await db.query.users.findFirst({
+      where: eq(users.id, project.necromancerId),
+      columns: { username: true },
+    });
+    necromancerName = necromancer?.username || null;
+  }
+
+  const footerLeft = status === "resurrected" && necromancerName
+    ? `Resurrected by @${necromancerName}`
+    : status === "adopted" && necromancerName
+      ? `Adopted by @${necromancerName}`
+      : isSeeking
+        ? `Will you be its Necromancer?`
+        : `Buried by @${username}`;
+
   return new ImageResponse(
     (
       <div
@@ -44,7 +90,7 @@ export async function GET(
           style={{
             width: "8px",
             height: "100%",
-            background: "linear-gradient(180deg, #C4A07C 0%, #8a6a4a 100%)",
+            background: `linear-gradient(180deg, ${accentColor} 0%, ${accentColor}88 100%)`,
             flexShrink: 0,
           }}
         />
@@ -63,14 +109,14 @@ export async function GET(
           <div
             style={{
               fontSize: "28px",
-              color: "#C4A07C",
+              color: accentColor,
               letterSpacing: "0.3em",
             }}
           >
-            DEATH CERTIFICATE
+            {headerLabel}
           </div>
 
-          {/* Middle: cross + name + meta + epitaph */}
+          {/* Middle: icon + name + meta + epitaph */}
           <div
             style={{
               display: "flex",
@@ -78,7 +124,7 @@ export async function GET(
               gap: "12px",
             }}
           >
-            {/* Cross + project name row */}
+            {/* Icon + project name row */}
             <div
               style={{
                 display: "flex",
@@ -89,11 +135,11 @@ export async function GET(
               <div
                 style={{
                   fontSize: "108px",
-                  color: "#C4A07C",
+                  color: accentColor,
                   lineHeight: 1,
                 }}
               >
-                {"\u2020"}
+                {statusIcon}
               </div>
               <div
                 style={{
@@ -136,6 +182,21 @@ export async function GET(
             >
               {`\u201C${project.epitaph}\u201D`}
             </div>
+
+            {/* Resurrection proof link */}
+            {status === "resurrected" && project.resurrectionProofUrl && (
+              <div
+                style={{
+                  fontSize: "28px",
+                  color: "#5a9a5a",
+                  paddingLeft: "136px",
+                  marginTop: "8px",
+                  display: "flex",
+                }}
+              >
+                IT LIVES!
+              </div>
+            )}
           </div>
 
           {/* Bottom bar */}
@@ -144,12 +205,12 @@ export async function GET(
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              borderTop: "1px solid #1e1e1e",
+              borderTop: `1px solid ${accentColor}33`,
               paddingTop: "20px",
             }}
           >
             <div style={{ fontSize: "28px", color: "#808080" }}>
-              {`Buried by @${username}`}
+              {footerLeft}
             </div>
             <div style={{ fontSize: "28px", color: "#555" }}>
               mydeadprojects.com
