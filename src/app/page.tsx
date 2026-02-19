@@ -4,7 +4,7 @@ import { StatsCounter } from "@/components/landing/stats-counter";
 import { db } from "@/lib/db";
 import { projects, users, flowers } from "@/lib/db/schema";
 import { count, sql } from "drizzle-orm";
-import { Skull, Sparkles, Github, Cross } from "lucide-react";
+import { Skull, Sparkles, Github, Cross, Send } from "lucide-react";
 import { type ReactNode } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
 
@@ -201,13 +201,23 @@ export default async function Home() {
           <p className="text-[0.7rem] text-text-muted font-light leading-relaxed">
             Built with love for all the projects that never were.
           </p>
-          <div className="mt-4">
+          <div className="mt-4 flex items-center justify-center gap-3 text-[0.65rem] text-text-muted">
             <Link
               href="/privacy"
-              className="text-[0.65rem] text-text-muted hover:text-text-dim transition-colors"
+              className="hover:text-text-dim transition-colors"
             >
               Privacy Policy
             </Link>
+            <span className="text-border">·</span>
+            <a
+              href="https://t.me/mydeadprojects"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 hover:text-text-dim transition-colors"
+            >
+              <Send size={10} />
+              Telegram
+            </a>
           </div>
           <pre
             className="mt-6 text-[0.6rem] text-text-muted leading-snug opacity-50"

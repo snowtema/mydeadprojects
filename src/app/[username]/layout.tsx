@@ -3,6 +3,7 @@ import { users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { Navbar } from "@/components/nav/navbar";
+import { Footer } from "@/components/footer";
 import { getCurrentUser } from "@/actions/auth";
 import type { Metadata } from "next";
 
@@ -59,6 +60,7 @@ export default async function UsernameLayout({ params, children }: Props) {
     <div className="min-h-screen">
       <Navbar user={currentUser} />
       <main className="max-w-5xl mx-auto px-6 py-8">{children}</main>
+      <Footer />
     </div>
   );
 }

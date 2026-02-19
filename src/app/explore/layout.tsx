@@ -1,4 +1,5 @@
 import { Navbar } from "@/components/nav/navbar";
+import { Footer } from "@/components/footer";
 import { getCurrentUser } from "@/actions/auth";
 import type { Metadata } from "next";
 
@@ -18,6 +19,7 @@ export default async function ExploreLayout({
     <div className="min-h-screen">
       <Navbar user={user} />
       <main className="max-w-5xl mx-auto px-6 py-8">{children}</main>
+      <Footer />
     </div>
   );
 }
