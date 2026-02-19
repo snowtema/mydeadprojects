@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { users, projects, flowers } from "@/lib/db/schema";
+import { users, projects, flowers, adoptionPledges } from "@/lib/db/schema";
 import { eq, and, ne, lt, gt, sql, asc, desc } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -39,7 +39,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const ogImage = project.ogImageUrl || `${process.env.NEXT_PUBLIC_APP_URL}/api/og/${project.id}`;
 
-  const statusLabel = project.status === "resurrected" ? "Resurrected" : "RIP";
+  const isSeeking = project.openForResurrection && project.status === "dead";
+  const statusLabel = project.status === "resurrected"
+    ? "Resurrected"
+    : project.status === "adopted"
+      ? "Adopted"
+      : isSeeking
+        ? "Seeking Necromancer"
+        : "RIP";
+
+  const ogDescription = project.status === "resurrected"
+    ? `"${project.epitaph}" — ${project.name} has risen from the dead!`
+    : isSeeking
+      ? `"${project.epitaph}" — This project is seeking a Necromancer. Will you bring it back to life?`
+      : `"${project.epitaph}" — Cause of death: ${project.causeOfDeath}. Buried by @${username}.`;
 
   return {
     title: `${project.name} — ${statusLabel}`,
@@ -48,8 +61,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       canonical: `/${username}/${slug}`,
     },
     openGraph: {
-      title: `${project.name} (${project.startDate}\u2013${project.endDate}) — RIP`,
-      description: `"${project.epitaph}" — Cause of death: ${project.causeOfDeath}. Buried by @${username}.`,
+      title: `${project.name} (${project.startDate}\u2013${project.endDate}) — ${statusLabel}`,
+      description: ogDescription,
       images: [{ url: ogImage, width: 1200, height: 630 }],
     },
     twitter: {
@@ -109,6 +122,27 @@ export default async function ProjectPage({ params }: Props) {
     currentUser?.id === project.necromancerId;
   const pendingPledge =
     isOwner ? await getPendingPledge(project.id) : null;
+
+  // Necromancer info for adopted/resurrected
+  let necromancerUsername: string | null = null;
+  let approvedPledgeMessage: string | null = null;
+  if (project.necromancerId && (project.status === "adopted" || project.status === "resurrected")) {
+    const [necromancer, approvedPledge] = await Promise.all([
+      db.query.users.findFirst({
+        where: eq(users.id, project.necromancerId),
+        columns: { username: true },
+      }),
+      db.query.adoptionPledges.findFirst({
+        where: and(
+          eq(adoptionPledges.projectId, project.id),
+          eq(adoptionPledges.status, "approved")
+        ),
+        columns: { message: true },
+      }),
+    ]);
+    necromancerUsername = necromancer?.username || null;
+    approvedPledgeMessage = approvedPledge?.message || null;
+  }
 
   // Similar graves: same cause of death, excluding current
   const similarProjects = await db.query.projects.findMany({
@@ -230,6 +264,16 @@ export default async function ProjectPage({ params }: Props) {
             <div className="text-lg font-serif text-text-dim italic leading-relaxed">
               &ldquo;{project.epitaph}&rdquo;
             </div>
+            {approvedPledgeMessage && necromancerUsername && (
+              <div className="border-t border-border/50 pt-3 mt-1 space-y-1">
+                <div className="text-xs font-serif text-text-dim italic leading-relaxed">
+                  &ldquo;{approvedPledgeMessage}&rdquo;
+                </div>
+                <div className="text-xs text-text-muted">
+                  &mdash; @{necromancerUsername}
+                </div>
+              </div>
+            )}
           </div>
           <div className="tombstone-base mx-[10%] h-2 bg-bg border border-border border-t-0 rounded-b" />
         </div>
@@ -293,8 +337,14 @@ export default async function ProjectPage({ params }: Props) {
         <div className="hidden sm:block w-px h-6 bg-border" />
         <ShareMenu
           url={projectUrl}
-          title={`${project.name} — RIP`}
-          text={`RIP ${project.name} (${project.startDate}\u2013${project.endDate}). Cause of death: ${project.causeOfDeath}. Press F to pay respects.`}
+          title={`${project.name} — ${project.status === "resurrected" ? "Resurrected" : "RIP"}`}
+          text={
+            project.status === "resurrected"
+              ? `IT LIVES! ${project.name} was dead but has been resurrected. From grave to glory.`
+              : isSeeking
+                ? `${project.name} is looking for a second chance. Will you be its Necromancer? Press R to wish it back to life.`
+                : `RIP ${project.name} (${project.startDate}\u2013${project.endDate}). Cause of death: ${project.causeOfDeath}. Press F to pay respects.`
+          }
         />
       </div>
 
