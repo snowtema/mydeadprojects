@@ -504,6 +504,7 @@ export default async function ProjectPage({ params }: Props) {
               projectId={project.id}
               projectName={project.name}
               projectUrl={projectUrl}
+              pageUrl={`/${username}/${slug}`}
             />
           )}
 
