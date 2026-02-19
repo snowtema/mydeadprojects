@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ShareMenu } from "@/components/share-menu";
 import { GraveyardViewToggle } from "@/components/graveyard-view-toggle";
+import { Github } from "lucide-react";
 
 export default async function GraveyardPage({
   params,
@@ -66,6 +67,17 @@ export default async function GraveyardPage({
             <p className="text-sm text-text-muted font-light mt-1">
               {profile.bio}
             </p>
+          )}
+          {profile.showGithubLink && profile.githubUsername && (
+            <a
+              href={`https://github.com/${profile.githubUsername}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 mt-2 text-xs text-text-muted hover:text-text-dim transition-colors"
+            >
+              <Github className="w-3.5 h-3.5" />
+              {profile.githubUsername}
+            </a>
           )}
         </div>
       </div>

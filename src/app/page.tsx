@@ -195,6 +195,14 @@ export default async function Home() {
           <p className="text-[0.7rem] text-text-muted font-light leading-relaxed">
             Built with love for all the projects that never were.
           </p>
+          <div className="mt-4">
+            <Link
+              href="/privacy"
+              className="text-[0.65rem] text-text-muted hover:text-text-dim transition-colors"
+            >
+              Privacy Policy
+            </Link>
+          </div>
           <pre
             className="mt-6 text-[0.6rem] text-text-muted leading-snug opacity-50"
             aria-hidden="true"

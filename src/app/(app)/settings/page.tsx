@@ -17,6 +17,8 @@ export default async function SettingsPage() {
         initialDisplayName={user.displayName ?? ""}
         initialBio={user.bio ?? ""}
         username={user.username}
+        githubUsername={user.githubUsername ?? null}
+        initialShowGithubLink={user.showGithubLink}
       />
     </div>
   );

@@ -54,7 +54,6 @@ export async function addCondolence(
     message: message.trim(),
   });
 
-  revalidatePath("/");
   if (project?.user?.username) {
     revalidatePath(`/${project.user.username}/${project.slug}`);
   }
