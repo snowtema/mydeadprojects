@@ -70,10 +70,9 @@ export async function POST(request: NextRequest) {
 
   // 3. Build caption (Telegram HTML, max 1024 chars for sendPhoto)
   const dateRange = formatDateRange(project.startDate, project.endDate);
-  const techLine =
-    project.techStack && project.techStack.length > 0
-      ? `\n🛠 ${project.techStack.slice(0, 5).map(escapeHtml).join(", ")}`
-      : "";
+  const descLine = project.description
+    ? `\n<code>${escapeHtml(project.description.slice(0, 300))}</code>`
+    : "";
 
   let caption = [
     `#random`,
@@ -83,7 +82,7 @@ export async function POST(request: NextRequest) {
     ``,
     `📅 ${dateRange}`,
     `💀 Причина смерти: ${escapeHtml(project.causeOfDeath)}`,
-    techLine ? techLine.trimStart() : null,
+    descLine ? descLine.trimStart() : null,
     ``,
     `<a href="${escapeHtml(projectUrl)}">Смотреть полный некролог →</a>`,
   ]
