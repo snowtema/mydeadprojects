@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
 import { ShareMenu } from "@/components/share-menu";
 
@@ -38,19 +38,71 @@ function generateParticles(): Particle[] {
   }));
 }
 
+// Zombie hand — fingers + thumb joining + palm + arm
+const HAND_LINES = [
+  " |  |  |      ",
+  " |  |  |  /   ",
+  " |  |  | /    ",
+  "  \\  | | /    ",
+  "    ----      ",
+  "     ||       ",
+  "     ||       ",
+];
+
+// Ground crack progression
+const CRACK_STAGES = [
+  "▓▓▓▓▓▓▓▓▓▓▓▓▓▓│▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓",
+  "▓▓▓▓▓▓▓▓▓▓▓▓▓░╨░▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓",
+  "▓▓▓▓▓▓▓▓▓▓▓▓░ ╨ ░▓▓▓▓▓▓▓▓▓▓▓▓▓▓",
+  "▓▓▓▓▓▓▓▓▓░░░       ░░░▓▓▓▓▓▓▓▓▓",
+];
+
+function padCenter(s: string, w: number) {
+  if (s.length >= w) return s.slice(0, w);
+  const left = Math.floor((w - s.length) / 2);
+  return s.padStart(s.length + left).padEnd(w);
+}
+
 export function ItLivesCelebration({
   projectName,
   projectUrl,
   pageUrl,
 }: ItLivesCelebrationProps) {
-  const [phase, setPhase] = useState<"flash" | "text">("flash");
+  const [phase, setPhase] = useState<"flash" | "grave" | "text">("flash");
+  const [tombstoneIn, setTombstoneIn] = useState(false);
+  const [crackStage, setCrackStage] = useState(0);
+  const [hitFlash, setHitFlash] = useState(false);
+  const [handRise, setHandRise] = useState(0);
+  const [graveFading, setGraveFading] = useState(false);
   const [visibleLetters, setVisibleLetters] = useState(0);
   const [showActions, setShowActions] = useState(false);
   const [particles] = useState(generateParticles);
+  const graveRef = useRef<HTMLDivElement>(null);
   const reducedMotion = useReducedMotion();
 
   const animationDone = visibleLetters >= LETTERS.length;
 
+  const displayName = useMemo(() => {
+    const n =
+      projectName.length <= 16
+        ? projectName
+        : projectName.slice(0, 14) + "..";
+    return padCenter(n, 16);
+  }, [projectName]);
+
+  const dirtParticles = useMemo(
+    () =>
+      Array.from({ length: 18 }, (_, i) => ({
+        id: i,
+        x: (Math.random() - 0.5) * 50,
+        angle: -20 - Math.random() * 140,
+        speed: 1 + Math.random() * 3,
+        size: 2 + Math.random() * 4,
+      })),
+    []
+  );
+
+  // Main animation timeline
   useEffect(() => {
     if (reducedMotion) {
       setPhase("text");
@@ -59,24 +111,92 @@ export function ItLivesCelebration({
       return;
     }
 
-    // Flash phase: 400ms
-    const flashTimer = setTimeout(() => setPhase("text"), 400);
-    return () => clearTimeout(flashTimer);
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    const t = (fn: () => void, ms: number) => {
+      timers.push(setTimeout(fn, ms));
+    };
+    let rafId: number;
+
+    function shake(intensity: number) {
+      if (!graveRef.current) return;
+      const x = intensity;
+      const r = intensity * 0.12;
+      graveRef.current.animate(
+        [
+          { transform: "translate(0, 0) rotate(0)" },
+          {
+            transform: `translate(${-x}px, ${x * 0.3}px) rotate(${-r}deg)`,
+          },
+          {
+            transform: `translate(${x * 1.2}px, ${-x * 0.25}px) rotate(${r}deg)`,
+          },
+          {
+            transform: `translate(${-x * 0.7}px, ${x * 0.15}px) rotate(${-r * 0.6}deg)`,
+          },
+          {
+            transform: `translate(${x * 0.35}px, 0) rotate(${r * 0.25}deg)`,
+          },
+          { transform: "translate(0, 0) rotate(0)" },
+        ],
+        { duration: 350 + intensity * 20, easing: "ease-out" }
+      );
+    }
+
+    function hit(stage: number, intensity: number) {
+      shake(intensity);
+      setCrackStage(stage);
+      setHitFlash(true);
+      t(() => setHitFlash(false), 150);
+    }
+
+    // Flash → Grave
+    t(() => setPhase("grave"), 400);
+
+    // Tombstone fades in
+    t(() => setTombstoneIn(true), 700);
+
+    // Hit 1 — subtle tap
+    t(() => hit(1, 3), 1600);
+
+    // Hit 2 — medium punch
+    t(() => hit(2, 7), 2700);
+
+    // Hit 3 — ground splits open
+    t(() => hit(3, 12), 3800);
+
+    // Hand rises through the crack
+    t(() => {
+      const start = Date.now();
+      const dur = 2400;
+      function frame() {
+        const p = Math.min((Date.now() - start) / dur, 1);
+        setHandRise(1 - Math.pow(1 - p, 3));
+        if (p < 1) rafId = requestAnimationFrame(frame);
+      }
+      rafId = requestAnimationFrame(frame);
+    }, 4400);
+
+    // Fade out grave scene
+    t(() => setGraveFading(true), 7200);
+
+    // Transition to IT LIVES
+    t(() => setPhase("text"), 7700);
+
+    return () => {
+      timers.forEach(clearTimeout);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
   }, [reducedMotion]);
 
   // Letter-by-letter reveal
   useEffect(() => {
     if (phase !== "text" || reducedMotion) return;
     if (visibleLetters >= LETTERS.length) {
-      // Show actions after a short pause
-      const actionsTimer = setTimeout(() => setShowActions(true), 600);
-      return () => clearTimeout(actionsTimer);
+      const timer = setTimeout(() => setShowActions(true), 600);
+      return () => clearTimeout(timer);
     }
-    const letterTimer = setTimeout(
-      () => setVisibleLetters((v) => v + 1),
-      120
-    );
-    return () => clearTimeout(letterTimer);
+    const timer = setTimeout(() => setVisibleLetters((v) => v + 1), 120);
+    return () => clearTimeout(timer);
   }, [phase, visibleLetters, reducedMotion]);
 
   function handleGoToProject() {
@@ -84,7 +204,7 @@ export function ItLivesCelebration({
   }
 
   return (
-    <div className="fixed inset-0 z-[10000] flex items-center justify-center">
+    <div className="fixed inset-0 z-[10000] flex items-center justify-center overflow-hidden">
       {/* Background */}
       <div
         className={`absolute inset-0 transition-colors duration-500 ${
@@ -92,35 +212,150 @@ export function ItLivesCelebration({
         }`}
       />
 
-      {/* Flash */}
+      {/* Initial flash */}
       {phase === "flash" && !reducedMotion && (
         <div className="absolute inset-0 bg-green/30 animate-[celebration-flash_0.4s_ease-out_forwards]" />
       )}
 
-      {/* Particles */}
+      {/* === GRAVE SCENE === */}
+      {phase === "grave" && (
+        <div
+          ref={graveRef}
+          className={`relative z-10 flex flex-col items-center transition-opacity duration-500 ${
+            graveFading ? "opacity-0" : "opacity-100"
+          }`}
+        >
+          {/* Tombstone — tilts more with each hit */}
+          <pre
+            className={`font-mono text-[10px] sm:text-xs md:text-sm leading-tight text-text-muted/80 whitespace-pre select-none ${
+              tombstoneIn ? "opacity-100" : "opacity-0"
+            }`}
+            style={{
+              transform: tombstoneIn
+                ? `rotate(${crackStage * 0.6}deg)`
+                : "translateY(12px)",
+              transition: "opacity 0.7s, transform 0.7s",
+            }}
+          >
+            {`    ┌────────────────────┐
+    │                    │
+    │    R  .  I  .  P   │
+    │                    │
+    │  ${displayName}  │
+    │                    │
+    └─────────┬──────────┘`}
+          </pre>
+
+          {/* Ground line + crack */}
+          <div className="relative">
+            <pre
+              className={`font-mono text-[10px] sm:text-xs md:text-sm leading-tight whitespace-pre select-none transition-colors duration-200 ${
+                crackStage >= 3
+                  ? "text-green/40"
+                  : crackStage > 0
+                    ? "text-text-muted/50"
+                    : "text-text-muted/30"
+              }`}
+            >
+              {CRACK_STAGES[crackStage]}
+            </pre>
+
+            {/* Hit flash glow at crack point */}
+            {hitFlash && (
+              <div
+                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full pointer-events-none"
+                style={{
+                  background:
+                    "radial-gradient(circle, rgba(90,154,90,0.7) 0%, transparent 70%)",
+                  filter: "blur(4px)",
+                }}
+              />
+            )}
+
+            {/* Dirt debris — escalates with each hit */}
+            {crackStage > 0 && (
+              <div key={`dirt-${crackStage}`} className="absolute inset-0">
+                {dirtParticles
+                  .slice(0, 4 + crackStage * 5)
+                  .map((p) => (
+                    <div
+                      key={p.id}
+                      className="absolute rounded-sm"
+                      style={
+                        {
+                          left: `calc(50% + ${p.x}px)`,
+                          top: "50%",
+                          width: p.size * (0.4 + crackStage * 0.3),
+                          height: p.size * (0.4 + crackStage * 0.3),
+                          backgroundColor:
+                            p.id % 3 === 0 ? "#5a4a2a" : "#3a3a2a",
+                          animation: `celebration-burst ${0.6 + crackStage * 0.3}s ease-out ${p.id * 25}ms forwards`,
+                          "--burst-x": `${Math.cos((p.angle * Math.PI) / 180) * p.speed * (6 + crackStage * 7)}px`,
+                          "--burst-y": `${Math.sin((p.angle * Math.PI) / 180) * p.speed * (6 + crackStage * 7)}px`,
+                          opacity: 0,
+                        } as React.CSSProperties
+                      }
+                    />
+                  ))}
+              </div>
+            )}
+          </div>
+
+          {/* Hand rising from the crack */}
+          <div
+            className="overflow-hidden"
+            style={{
+              height: handRise > 0 ? 90 : 0,
+              transition: "height 0.3s ease-out",
+            }}
+          >
+            <pre
+              className="font-mono text-[10px] sm:text-xs md:text-sm leading-tight text-green whitespace-pre text-center select-none"
+              style={{
+                transform: `translateY(${(1 - handRise) * 100}%)`,
+                textShadow:
+                  handRise > 0.2
+                    ? `0 0 12px rgba(90,154,90,${handRise * 0.6})`
+                    : "none",
+              }}
+            >
+              {HAND_LINES.join("\n")}
+            </pre>
+          </div>
+        </div>
+      )}
+
+      {/* Transition flash between grave and text */}
+      {graveFading && phase === "grave" && (
+        <div className="absolute inset-0 bg-green/15 animate-[celebration-flash_0.5s_ease-out_forwards]" />
+      )}
+
+      {/* Burst particles for text phase */}
       {!reducedMotion &&
+        phase === "text" &&
         particles.map((p) => (
           <div
             key={p.id}
             className="absolute rounded-full"
-            style={{
-              left: `${p.x}%`,
-              top: `${p.y}%`,
-              width: p.size,
-              height: p.size,
-              backgroundColor: p.color,
-              animation: `celebration-burst 2s ease-out ${p.delay}ms forwards`,
-              "--burst-x": `${Math.cos((p.angle * Math.PI) / 180) * p.speed * 60}px`,
-              "--burst-y": `${Math.sin((p.angle * Math.PI) / 180) * p.speed * 60}px`,
-              opacity: 0,
-            } as React.CSSProperties}
+            style={
+              {
+                left: `${p.x}%`,
+                top: `${p.y}%`,
+                width: p.size,
+                height: p.size,
+                backgroundColor: p.color,
+                animation: `celebration-burst 2s ease-out ${p.delay}ms forwards`,
+                "--burst-x": `${Math.cos((p.angle * Math.PI) / 180) * p.speed * 60}px`,
+                "--burst-y": `${Math.sin((p.angle * Math.PI) / 180) * p.speed * 60}px`,
+                opacity: 0,
+              } as React.CSSProperties
+            }
           />
         ))}
 
-      {/* Text + Actions */}
+      {/* === IT LIVES TEXT + ACTIONS === */}
       {phase === "text" && (
         <div className="relative z-10 text-center flex flex-col items-center gap-8">
-          {/* Title */}
           <div className="text-4xl sm:text-6xl md:text-8xl font-bold tracking-widest">
             {LETTERS.map((letter, i) => (
               <span
@@ -143,7 +378,6 @@ export function ItLivesCelebration({
             ))}
           </div>
 
-          {/* Subtitle */}
           <div
             className={`text-sm text-text-muted transition-opacity duration-500 ${
               animationDone ? "opacity-100" : "opacity-0"
@@ -152,7 +386,6 @@ export function ItLivesCelebration({
             {projectName} has risen from the dead
           </div>
 
-          {/* Action buttons */}
           <div
             className={`flex flex-col items-center gap-5 transition-all duration-700 ${
               showActions
