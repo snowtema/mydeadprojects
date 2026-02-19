@@ -92,19 +92,28 @@ export async function POST(request: NextRequest) {
     caption = caption.slice(0, 1021) + "...";
   }
 
-  // 4. Send to Telegram
+  // 4. Fetch OG image and send to Telegram as multipart upload
+  const imageResponse = await fetch(ogImageUrl);
+  if (!imageResponse.ok) {
+    console.error(
+      `[telegram-cron] Failed to fetch OG image: ${imageResponse.status}`
+    );
+    return NextResponse.json(
+      { error: "Failed to fetch OG image" },
+      { status: 502 }
+    );
+  }
+  const imageBlob = await imageResponse.blob();
+
+  const form = new FormData();
+  form.append("chat_id", channelId);
+  form.append("photo", imageBlob, "og.png");
+  form.append("caption", caption);
+  form.append("parse_mode", "HTML");
+
   const telegramResponse = await fetch(
     `https://api.telegram.org/bot${botToken}/sendPhoto`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        chat_id: channelId,
-        photo: ogImageUrl,
-        caption,
-        parse_mode: "HTML",
-      }),
-    }
+    { method: "POST", body: form }
   );
 
   if (!telegramResponse.ok) {
