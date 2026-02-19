@@ -21,7 +21,26 @@ export default function ExploreLoading() {
         <Skeleton className="h-4 w-24" />
       </div>
 
+      {/* Cause filters */}
+      <div className="flex gap-2">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <Skeleton key={i} className="h-6 w-16 rounded" />
+        ))}
+      </div>
+
+      {/* View toggle */}
+      <div className="flex justify-end">
+        <Skeleton className="h-8 w-16 rounded-md" />
+      </div>
+
       <SkeletonGrid count={12} />
+
+      {/* Pagination */}
+      <div className="flex items-center justify-center gap-1">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <Skeleton key={i} className="w-8 h-8 rounded" />
+        ))}
+      </div>
     </div>
   );
 }

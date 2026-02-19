@@ -1,7 +1,8 @@
 import { db } from "@/lib/db";
 import { projects } from "@/lib/db/schema";
-import { desc, lt, or, and, eq, sql } from "drizzle-orm";
-import { ExploreGrid } from "@/components/explore-grid";
+import { desc, and, eq, sql, count } from "drizzle-orm";
+import { ExploreViewToggle } from "@/components/explore-view-toggle";
+import { Pagination } from "@/components/pagination";
 import { cn } from "@/lib/utils";
 
 const PAGE_SIZE = 12;
@@ -11,7 +12,7 @@ type SortOption = "recent" | "flowers";
 interface Props {
   searchParams: Promise<{
     sort?: string;
-    cursor?: string;
+    page?: string;
     cause?: string;
   }>;
 }
@@ -20,7 +21,7 @@ export default async function ExplorePage({ searchParams }: Props) {
   const params = await searchParams;
   const sort: SortOption =
     params.sort === "flowers" ? "flowers" : "recent";
-  const cursor = params.cursor;
+  const currentPage = Math.max(1, parseInt(params.page || "1", 10) || 1);
   const causeFilter = params.cause || null;
 
   // Get all unique causes of death for the filter UI
@@ -31,36 +32,20 @@ export default async function ExplorePage({ searchParams }: Props) {
     .orderBy(sql`count(*) desc`);
   const causes = causesResult.map((r) => r.cause);
 
-  // Build where clauses
-  const conditions: ReturnType<typeof eq>[] = [];
+  // Build where clause
+  const whereClause = causeFilter
+    ? eq(projects.causeOfDeath, causeFilter)
+    : undefined;
 
-  if (causeFilter) {
-    conditions.push(eq(projects.causeOfDeath, causeFilter));
-  }
+  // Get total count for pagination
+  const [{ total }] = await db
+    .select({ total: count() })
+    .from(projects)
+    .where(whereClause);
 
-  // Cursor filter
-  if (cursor) {
-    if (sort === "recent") {
-      conditions.push(lt(projects.createdAt, new Date(cursor)));
-    } else {
-      const [rawFlowers, id] = cursor.split(",");
-      const flowersNum = parseInt(rawFlowers, 10);
-      if (!isNaN(flowersNum) && id) {
-        conditions.push(
-          or(
-            lt(projects.flowersCount, flowersNum),
-            and(
-              eq(projects.flowersCount, flowersNum),
-              lt(projects.id, id)
-            )
-          )!
-        );
-      }
-    }
-  }
-
-  const whereClause =
-    conditions.length > 0 ? and(...conditions) : undefined;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const safePage = Math.min(currentPage, totalPages);
+  const offset = (safePage - 1) * PAGE_SIZE;
 
   const orderBy =
     sort === "flowers"
@@ -73,20 +58,9 @@ export default async function ExplorePage({ searchParams }: Props) {
     },
     where: whereClause,
     orderBy,
-    limit: PAGE_SIZE + 1,
+    limit: PAGE_SIZE,
+    offset,
   });
-
-  const hasMore = rows.length > PAGE_SIZE;
-  const items = hasMore ? rows.slice(0, PAGE_SIZE) : rows;
-
-  const nextCursor = (() => {
-    if (!hasMore || items.length === 0) return null;
-    const last = items[items.length - 1];
-    if (sort === "flowers") {
-      return `${last.flowersCount},${last.id}`;
-    }
-    return last.createdAt.toISOString();
-  })();
 
   const sortTabs: { key: SortOption; label: string }[] = [
     { key: "recent", label: "Recent" },
@@ -96,7 +70,7 @@ export default async function ExplorePage({ searchParams }: Props) {
   // Build URL helpers that preserve active filters
   function buildUrl(overrides: {
     sort?: string;
-    cursor?: string;
+    page?: number;
     cause?: string | null;
   }) {
     const p = new URLSearchParams();
@@ -104,9 +78,14 @@ export default async function ExplorePage({ searchParams }: Props) {
     if (s !== "recent") p.set("sort", s);
     const c = overrides.cause !== undefined ? overrides.cause : causeFilter;
     if (c) p.set("cause", c);
-    if (overrides.cursor) p.set("cursor", overrides.cursor);
+    const pg = overrides.page ?? safePage;
+    if (pg > 1) p.set("page", String(pg));
     const qs = p.toString();
     return `/explore${qs ? `?${qs}` : ""}`;
+  }
+
+  function buildPageUrl(page: number) {
+    return buildUrl({ page });
   }
 
   return (
@@ -139,7 +118,7 @@ export default async function ExplorePage({ searchParams }: Props) {
         {sortTabs.map((tab) => (
           <a
             key={tab.key}
-            href={buildUrl({ sort: tab.key, cursor: undefined })}
+            href={buildUrl({ sort: tab.key, page: 1 })}
             className={cn(
               "text-sm pb-3 border-b-2 transition-colors -mb-px",
               sort === tab.key
@@ -156,7 +135,7 @@ export default async function ExplorePage({ searchParams }: Props) {
       {causes.length > 0 && (
         <div className="flex flex-wrap gap-2">
           <a
-            href={buildUrl({ cause: null, cursor: undefined })}
+            href={buildUrl({ cause: null, page: 1 })}
             className={cn(
               "text-xs px-2.5 py-1 rounded border transition-colors",
               !causeFilter
@@ -171,7 +150,7 @@ export default async function ExplorePage({ searchParams }: Props) {
               key={cause}
               href={buildUrl({
                 cause: causeFilter === cause ? null : cause,
-                cursor: undefined,
+                page: 1,
               })}
               className={cn(
                 "text-xs px-2.5 py-1 rounded border transition-colors",
@@ -186,8 +165,8 @@ export default async function ExplorePage({ searchParams }: Props) {
         </div>
       )}
 
-      {items.length > 0 ? (
-        <ExploreGrid projects={items} />
+      {rows.length > 0 ? (
+        <ExploreViewToggle projects={rows} />
       ) : (
         <p className="text-center text-text-muted text-sm py-12">
           {causeFilter
@@ -196,16 +175,11 @@ export default async function ExplorePage({ searchParams }: Props) {
         </p>
       )}
 
-      {nextCursor && (
-        <div className="flex justify-center pt-4">
-          <a
-            href={buildUrl({ cursor: nextCursor })}
-            className="text-sm px-6 py-2.5 bg-bg-card border border-border rounded-md text-text-dim hover:border-border-hover transition-colors"
-          >
-            Load More
-          </a>
-        </div>
-      )}
+      <Pagination
+        currentPage={safePage}
+        totalPages={totalPages}
+        buildUrl={buildPageUrl}
+      />
     </div>
   );
 }

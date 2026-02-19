@@ -64,3 +64,49 @@ export function SkeletonPeopleList({ count = 10 }: { count?: number }) {
     </div>
   );
 }
+
+export function SkeletonTableRow() {
+  return (
+    <tr>
+      <td className="py-3 px-4">
+        <Skeleton className="h-4 w-32" />
+        <Skeleton className="h-3 w-48 mt-1" />
+      </td>
+      <td className="py-3 px-4 hidden sm:table-cell">
+        <Skeleton className="h-3 w-24" />
+      </td>
+      <td className="py-3 px-4 hidden md:table-cell">
+        <Skeleton className="h-5 w-20 rounded" />
+      </td>
+      <td className="py-3 px-4 hidden sm:table-cell">
+        <Skeleton className="h-3 w-6 ml-auto" />
+      </td>
+      <td className="py-3 px-4 hidden lg:table-cell">
+        <Skeleton className="h-3 w-16" />
+      </td>
+    </tr>
+  );
+}
+
+export function SkeletonTable({ count = 12 }: { count?: number }) {
+  return (
+    <div className="border border-border rounded-md overflow-hidden">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-b border-border bg-bg-card">
+            <th className="py-2.5 px-4"><Skeleton className="h-3 w-14" /></th>
+            <th className="py-2.5 px-4 hidden sm:table-cell"><Skeleton className="h-3 w-10" /></th>
+            <th className="py-2.5 px-4 hidden md:table-cell"><Skeleton className="h-3 w-20" /></th>
+            <th className="py-2.5 px-4"><Skeleton className="h-3 w-4 ml-auto" /></th>
+            <th className="py-2.5 px-4 hidden lg:table-cell"><Skeleton className="h-3 w-16" /></th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-border">
+          {Array.from({ length: count }).map((_, i) => (
+            <SkeletonTableRow key={i} />
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
