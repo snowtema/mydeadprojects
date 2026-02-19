@@ -60,7 +60,7 @@ export function TombstoneCard({
             {project.causeOfDeath}
           </div>
         )}
-        <div className="mt-3 flex items-center justify-center gap-3">
+        <div className="mt-3 flex items-center justify-center gap-3 min-h-[20px]">
           <ResurrectionBadge
             status={project.status}
             openForResurrection={project.openForResurrection}
