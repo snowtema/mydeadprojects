@@ -81,10 +81,10 @@ export async function POST(request: NextRequest) {
     `<i>"${escapeHtml(project.epitaph)}"</i>`,
     ``,
     `📅 ${dateRange}`,
-    `💀 Причина смерти: ${escapeHtml(project.causeOfDeath)}`,
-    descLine ? descLine.trimStart() : null,
+    `💀 ${escapeHtml(project.causeOfDeath)}`,
+    descLine ? `📝 ${descLine.trimStart()}` : null,
     ``,
-    `<a href="${escapeHtml(projectUrl)}">Смотреть полный некролог →</a>`,
+    `<a href="${escapeHtml(projectUrl)}">Подробнее →</a>`,
   ]
     .filter((line) => line !== null)
     .join("\n");
