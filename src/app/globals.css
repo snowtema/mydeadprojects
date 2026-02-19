@@ -350,26 +350,94 @@ html.light .reaction-wish-active {
   50% { opacity: 0.4; }
 }
 
+@keyframes wish-float {
+  0%   { opacity: 1; transform: translateY(0) rotate(0deg); }
+  100% { opacity: 0; transform: translateY(-60px) rotate(15deg); }
+}
+
 .resurrection-pulse {
   animation: pulse-dot 2s ease-in-out infinite;
 }
 
+/* Seeking: persistent pulsing glow */
+.tombstone-card.tombstone-seeking {
+  border-color: rgba(196, 160, 124, 0.25);
+  animation: pulse-seek 3s ease-in-out infinite;
+}
+
+@keyframes pulse-seek {
+  0%, 100% {
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.03),
+      inset 0 -1px 0 0 rgba(0, 0, 0, 0.2),
+      0 1px 3px 0 rgba(0, 0, 0, 0.3),
+      0 4px 12px 0 rgba(0, 0, 0, 0.15),
+      0 0 20px 0 rgba(196, 160, 124, 0.06);
+  }
+  50% {
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.03),
+      inset 0 -1px 0 0 rgba(0, 0, 0, 0.2),
+      0 1px 3px 0 rgba(0, 0, 0, 0.3),
+      0 4px 12px 0 rgba(0, 0, 0, 0.15),
+      0 0 35px 0 rgba(196, 160, 124, 0.12);
+  }
+}
+
 .tombstone-card.tombstone-seeking:hover {
+  border-color: rgba(196, 160, 124, 0.4);
+  animation: none;
   box-shadow:
     inset 0 1px 0 0 rgba(255, 255, 255, 0.04),
     inset 0 -1px 0 0 rgba(0, 0, 0, 0.2),
     0 2px 6px 0 rgba(0, 0, 0, 0.4),
     0 8px 24px 0 rgba(0, 0, 0, 0.2),
-    0 0 20px 0 rgba(90, 154, 90, 0.08);
+    0 0 30px 0 rgba(196, 160, 124, 0.15);
+}
+
+html.light .tombstone-card.tombstone-seeking {
+  border-color: rgba(154, 115, 80, 0.2);
 }
 
 html.light .tombstone-card.tombstone-seeking:hover {
+  border-color: rgba(154, 115, 80, 0.35);
+  animation: none;
   box-shadow:
     inset 0 1px 0 0 rgba(255, 255, 255, 0.6),
     inset 0 -1px 0 0 rgba(0, 0, 0, 0.05),
     0 2px 6px 0 rgba(0, 0, 0, 0.08),
     0 8px 24px 0 rgba(0, 0, 0, 0.06),
-    0 0 20px 0 rgba(58, 122, 58, 0.1);
+    0 0 30px 0 rgba(154, 115, 80, 0.12);
+}
+
+/* Adopted: accent glow */
+.tombstone-card.tombstone-adopted {
+  border-color: rgba(155, 126, 126, 0.25);
+}
+
+.tombstone-card.tombstone-adopted:hover {
+  border-color: rgba(155, 126, 126, 0.4);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.04),
+    inset 0 -1px 0 0 rgba(0, 0, 0, 0.2),
+    0 2px 6px 0 rgba(0, 0, 0, 0.4),
+    0 8px 24px 0 rgba(0, 0, 0, 0.2),
+    0 0 20px 0 rgba(155, 126, 126, 0.1);
+}
+
+/* Resurrected: green glow */
+.tombstone-card.tombstone-resurrected {
+  border-color: rgba(90, 154, 90, 0.25);
+}
+
+.tombstone-card.tombstone-resurrected:hover {
+  border-color: rgba(90, 154, 90, 0.4);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.04),
+    inset 0 -1px 0 0 rgba(0, 0, 0, 0.2),
+    0 2px 6px 0 rgba(0, 0, 0, 0.4),
+    0 8px 24px 0 rgba(0, 0, 0, 0.2),
+    0 0 20px 0 rgba(90, 154, 90, 0.1);
 }
 
 /* Glass surface for kbd elements (light theme override) */

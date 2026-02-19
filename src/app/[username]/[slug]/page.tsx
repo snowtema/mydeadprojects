@@ -206,8 +206,21 @@ export default async function ProjectPage({ params }: Props) {
 
         {/* Tombstone */}
         <div className="max-w-sm w-full">
-          <div className="tombstone-card p-8 border border-border rounded-t-md text-center space-y-3">
-            <div className="tombstone-cross text-2xl text-text-muted">&#10013;</div>
+          <div className={`tombstone-card p-8 border border-border rounded-t-md text-center space-y-3${
+            project.status === "resurrected" ? " tombstone-resurrected" :
+            project.status === "adopted" ? " tombstone-adopted" :
+            isSeeking ? " tombstone-seeking" : ""
+          }`}>
+            <div className={`text-2xl ${
+              project.status === "resurrected" ? "text-green" :
+              project.status === "adopted" ? "text-accent" :
+              isSeeking ? "text-cta resurrection-pulse" :
+              "tombstone-cross text-text-muted"
+            }`}>{
+              project.status === "resurrected" ? "✦" :
+              project.status === "adopted" ? "⚗" :
+              isSeeking ? "☽" : "✝"
+            }</div>
             <h1 className="text-xl font-medium text-text-dim">{project.name}</h1>
             <div className="text-xs text-text-muted font-light">
               {formatDateRange(project.startDate, project.endDate)}
