@@ -58,7 +58,7 @@ export function PayRespects({ projects }: PayRespectsProps) {
   // Listen for F keypress
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if ((e.key === "f" || e.key === "F") && selected !== null && !pressed) {
+      if (e.code === "KeyF" && selected !== null && !pressed) {
         const tag = (e.target as HTMLElement)?.tagName?.toLowerCase();
         if (tag === "input" || tag === "textarea" || tag === "select") return;
         e.preventDefault();
