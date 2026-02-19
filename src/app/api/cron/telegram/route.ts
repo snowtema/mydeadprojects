@@ -76,14 +76,16 @@ export async function POST(request: NextRequest) {
       : "";
 
   let caption = [
+    `#random`,
+    ``,
     `<b>✝ ${escapeHtml(project.name)}</b>`,
     `<i>"${escapeHtml(project.epitaph)}"</i>`,
     ``,
     `📅 ${dateRange}`,
-    `💀 Cause of death: ${escapeHtml(project.causeOfDeath)}`,
+    `💀 Причина смерти: ${escapeHtml(project.causeOfDeath)}`,
     techLine ? techLine.trimStart() : null,
     ``,
-    `<a href="${escapeHtml(projectUrl)}">View full obituary →</a>`,
+    `<a href="${escapeHtml(projectUrl)}">Смотреть полный некролог →</a>`,
   ]
     .filter((line) => line !== null)
     .join("\n");
