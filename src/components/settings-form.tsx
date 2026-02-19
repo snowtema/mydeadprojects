@@ -4,17 +4,22 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { updateProfile, deleteAccount } from "@/actions/auth";
+import { Github } from "lucide-react";
 
 interface SettingsFormProps {
   initialDisplayName: string;
   initialBio: string;
   username: string;
+  githubUsername: string | null;
+  initialShowGithubLink: boolean;
 }
 
 export function SettingsForm({
   initialDisplayName,
   initialBio,
   username,
+  githubUsername,
+  initialShowGithubLink,
 }: SettingsFormProps) {
   const router = useRouter();
   const supabase = createClient();
@@ -22,6 +27,7 @@ export function SettingsForm({
   // Profile form
   const [displayName, setDisplayName] = useState(initialDisplayName);
   const [bio, setBio] = useState(initialBio);
+  const [showGithubLink, setShowGithubLink] = useState(initialShowGithubLink);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [profileError, setProfileError] = useState("");
@@ -33,7 +39,9 @@ export function SettingsForm({
   const [deleteError, setDeleteError] = useState("");
 
   const hasChanges =
-    displayName !== initialDisplayName || bio !== initialBio;
+    displayName !== initialDisplayName ||
+    bio !== initialBio ||
+    showGithubLink !== initialShowGithubLink;
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
@@ -42,7 +50,7 @@ export function SettingsForm({
     setProfileError("");
     setSaved(false);
 
-    const result = await updateProfile({ displayName, bio });
+    const result = await updateProfile({ displayName, bio, showGithubLink });
 
     if (result.error) {
       setProfileError(result.error);
@@ -54,6 +62,15 @@ export function SettingsForm({
     setSaved(true);
     router.refresh();
     setTimeout(() => setSaved(false), 2000);
+  }
+
+  async function handleLinkGitHub() {
+    await supabase.auth.linkIdentity({
+      provider: "github",
+      options: {
+        redirectTo: `${window.location.origin}/api/auth/callback?next=/settings`,
+      },
+    });
   }
 
   async function handleSignOut() {
@@ -126,6 +143,24 @@ export function SettingsForm({
           />
         </div>
 
+        {/* GitHub link toggle */}
+        {githubUsername && (
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={showGithubLink}
+              onChange={(e) => setShowGithubLink(e.target.checked)}
+              className="w-4 h-4 rounded border-border accent-accent cursor-pointer"
+            />
+            <span className="text-xs text-text-muted">
+              Show GitHub link on profile
+              <span className="ml-1.5 text-text-dim font-mono">
+                @{githubUsername}
+              </span>
+            </span>
+          </label>
+        )}
+
         {profileError && (
           <p className="text-red text-xs">{profileError}</p>
         )}
@@ -143,6 +178,25 @@ export function SettingsForm({
           )}
         </div>
       </form>
+
+      {/* GitHub */}
+      {!githubUsername && (
+        <div className="space-y-4">
+          <h2 className="text-xs text-text-dim uppercase tracking-wider">
+            GitHub
+          </h2>
+          <button
+            onClick={handleLinkGitHub}
+            className="inline-flex items-center gap-2 px-4 py-2 text-xs bg-bg-card border border-border rounded-md text-text-dim hover:border-border-hover transition-colors cursor-pointer"
+          >
+            <Github className="w-3.5 h-3.5" />
+            Link GitHub Account
+          </button>
+          <p className="text-xs text-text-muted">
+            Link your GitHub to show a profile link and enable future integrations.
+          </p>
+        </div>
+      )}
 
       {/* Account */}
       <div className="space-y-4">

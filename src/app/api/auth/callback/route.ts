@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 
-const ALLOWED_REDIRECT_PATHS = ["/graveyard", "/bury", "/settings", "/explore"];
+const ALLOWED_REDIRECT_PATHS = ["/graveyard", "/bury", "/settings", "/explore", "/reset-password"];
 
 function getSafeRedirectPath(next: string | null): string {
   if (!next) return "/graveyard";
@@ -42,6 +42,15 @@ export async function GET(request: Request) {
           return NextResponse.redirect(
             `${origin}/signup/username`
           );
+        }
+
+        // Update githubUsername if user linked GitHub after initial signup
+        const ghUsername = user.user_metadata?.user_name;
+        if (existing && ghUsername && !existing.githubUsername) {
+          await db
+            .update(users)
+            .set({ githubUsername: ghUsername, updatedAt: new Date() })
+            .where(eq(users.id, user.id));
         }
       }
 

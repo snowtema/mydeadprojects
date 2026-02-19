@@ -5,6 +5,7 @@ import {
   text,
   integer,
   real,
+  boolean,
   timestamp,
   uniqueIndex,
   index,
@@ -21,6 +22,7 @@ export const users = pgTable(
     avatarUrl: text("avatar_url"),
     bio: varchar("bio", { length: 280 }),
     githubUsername: varchar("github_username", { length: 39 }),
+    showGithubLink: boolean("show_github_link").default(false).notNull(),
     projectsCount: integer("projects_count").default(0).notNull(),
     flowersReceived: integer("flowers_received").default(0).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true })

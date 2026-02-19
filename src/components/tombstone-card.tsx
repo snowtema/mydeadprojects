@@ -45,7 +45,7 @@ export function TombstoneCard({
       {showEdit && (
         <Link
           href={`/bury/${project.id}/edit`}
-          className="absolute top-2 right-2 text-xs text-text-muted hover:text-text-dim opacity-0 group-hover:opacity-100 transition-opacity px-2 py-1 bg-bg-card border border-border rounded"
+          className="absolute top-2 right-2 text-xs text-text-muted hover:text-text-dim opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity px-2 py-1 bg-bg-card border border-border rounded"
         >
           Edit
         </Link>

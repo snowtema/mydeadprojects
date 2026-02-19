@@ -74,6 +74,7 @@ export async function getCurrentUser() {
 export async function updateProfile(input: {
   displayName: string;
   bio: string;
+  showGithubLink?: boolean;
 }): Promise<{ error?: string }> {
   const supabase = await createClient();
   const {
@@ -97,6 +98,7 @@ export async function updateProfile(input: {
     .set({
       displayName: displayName || null,
       bio: bio || null,
+      showGithubLink: input.showGithubLink ?? false,
       updatedAt: new Date(),
     })
     .where(eq(users.id, user.id));
