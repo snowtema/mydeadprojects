@@ -364,9 +364,8 @@ export async function submitResurrectionProof(
     });
   } catch { /* best-effort */ }
 
-  if (project.user?.username) {
-    revalidateProject(project.user.username, project.slug);
-  }
+  // NOTE: no revalidatePath here — the celebration screen handles the transition.
+  // The page will get fresh data when user navigates via router.push().
 
   return {};
 }

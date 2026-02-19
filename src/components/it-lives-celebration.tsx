@@ -1,10 +1,14 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
+import { ShareMenu } from "@/components/share-menu";
 
 interface ItLivesCelebrationProps {
-  onComplete: () => void;
+  projectName: string;
+  projectUrl: string;
+  pageUrl: string;
 }
 
 const LETTERS = "IT LIVES!".split("");
@@ -35,51 +39,55 @@ function generateParticles(): Particle[] {
   }));
 }
 
-export function ItLivesCelebration({ onComplete }: ItLivesCelebrationProps) {
-  const [phase, setPhase] = useState<"flash" | "text" | "done">("flash");
+export function ItLivesCelebration({
+  projectName,
+  projectUrl,
+  pageUrl,
+}: ItLivesCelebrationProps) {
+  const [phase, setPhase] = useState<"flash" | "text">("flash");
   const [visibleLetters, setVisibleLetters] = useState(0);
+  const [showActions, setShowActions] = useState(false);
   const [particles] = useState(generateParticles);
   const reducedMotion = useReducedMotion();
+  const router = useRouter();
 
-  const finish = useCallback(() => {
-    setPhase("done");
-    setTimeout(onComplete, 300);
-  }, [onComplete]);
+  const animationDone = visibleLetters >= LETTERS.length;
 
   useEffect(() => {
     if (reducedMotion) {
       setPhase("text");
       setVisibleLetters(LETTERS.length);
-      const t = setTimeout(finish, 2000);
-      return () => clearTimeout(t);
+      setShowActions(true);
+      return;
     }
 
     // Flash phase: 400ms
     const flashTimer = setTimeout(() => setPhase("text"), 400);
     return () => clearTimeout(flashTimer);
-  }, [reducedMotion, finish]);
+  }, [reducedMotion]);
 
   // Letter-by-letter reveal
   useEffect(() => {
     if (phase !== "text" || reducedMotion) return;
     if (visibleLetters >= LETTERS.length) {
-      const doneTimer = setTimeout(finish, 2500);
-      return () => clearTimeout(doneTimer);
+      // Show actions after a short pause
+      const actionsTimer = setTimeout(() => setShowActions(true), 600);
+      return () => clearTimeout(actionsTimer);
     }
     const letterTimer = setTimeout(
       () => setVisibleLetters((v) => v + 1),
       120
     );
     return () => clearTimeout(letterTimer);
-  }, [phase, visibleLetters, reducedMotion, finish]);
+  }, [phase, visibleLetters, reducedMotion]);
+
+  function handleGoToProject() {
+    router.refresh();
+    router.push(pageUrl);
+  }
 
   return (
-    <div
-      className={`fixed inset-0 z-[10000] flex items-center justify-center cursor-pointer transition-opacity duration-300 ${
-        phase === "done" ? "opacity-0 pointer-events-none" : "opacity-100"
-      }`}
-      onClick={finish}
-    >
+    <div className="fixed inset-0 z-[10000] flex items-center justify-center">
       {/* Background */}
       <div
         className={`absolute inset-0 transition-colors duration-500 ${
@@ -112,9 +120,10 @@ export function ItLivesCelebration({ onComplete }: ItLivesCelebrationProps) {
           />
         ))}
 
-      {/* Text */}
+      {/* Text + Actions */}
       {phase === "text" && (
-        <div className="relative z-10 text-center">
+        <div className="relative z-10 text-center flex flex-col items-center gap-8">
+          {/* Title */}
           <div className="text-4xl sm:text-6xl md:text-8xl font-bold tracking-widest">
             {LETTERS.map((letter, i) => (
               <span
@@ -136,24 +145,39 @@ export function ItLivesCelebration({ onComplete }: ItLivesCelebrationProps) {
               </span>
             ))}
           </div>
+
+          {/* Subtitle */}
           <div
-            className={`mt-6 text-sm text-text-muted transition-opacity duration-500 ${
-              visibleLetters >= LETTERS.length ? "opacity-100" : "opacity-0"
+            className={`text-sm text-text-muted transition-opacity duration-500 ${
+              animationDone ? "opacity-100" : "opacity-0"
             }`}
           >
-            From grave to glory
+            {projectName} has risen from the dead
+          </div>
+
+          {/* Action buttons */}
+          <div
+            className={`flex flex-col items-center gap-5 transition-all duration-700 ${
+              showActions
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-6 pointer-events-none"
+            }`}
+          >
+            <ShareMenu
+              url={projectUrl}
+              title={`${projectName} has been resurrected!`}
+              text={`IT LIVES! ${projectName} was dead but has been resurrected. From grave to glory.`}
+            />
+
+            <button
+              onClick={handleGoToProject}
+              className="text-sm px-6 py-2.5 bg-green-dim border border-green/30 rounded-md text-green hover:border-green/50 transition-colors"
+            >
+              View resurrected project &rarr;
+            </button>
           </div>
         </div>
       )}
-
-      {/* Click to dismiss hint */}
-      <div
-        className={`absolute bottom-8 text-xs text-text-muted/50 transition-opacity duration-500 ${
-          visibleLetters >= LETTERS.length ? "opacity-100" : "opacity-0"
-        }`}
-      >
-        click to continue
-      </div>
     </div>
   );
 }

@@ -2,25 +2,25 @@
 
 import { useState } from "react";
 import { submitResurrectionProof } from "@/actions/resurrection";
-import { ShareMenu } from "@/components/share-menu";
 import { ItLivesCelebration } from "@/components/it-lives-celebration";
 
 interface ResurrectionProofProps {
   projectId: string;
   projectName: string;
   projectUrl: string;
+  pageUrl: string;
 }
 
 export function ResurrectionProof({
   projectId,
   projectName,
   projectUrl,
+  pageUrl,
 }: ResurrectionProofProps) {
   const [url, setUrl] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [celebrating, setCelebrating] = useState(false);
-  const [success, setSuccess] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -37,27 +37,14 @@ export function ResurrectionProof({
     }
   }
 
+  // Celebration is a fullscreen overlay — stays until user navigates away
   if (celebrating) {
     return (
-      <ItLivesCelebration onComplete={() => {
-        setCelebrating(false);
-        setSuccess(true);
-      }} />
-    );
-  }
-
-  if (success) {
-    return (
-      <div className="space-y-3">
-        <p className="text-sm text-green">
-          Project resurrected! Share the good news.
-        </p>
-        <ShareMenu
-          url={projectUrl}
-          title={`${projectName} has been resurrected!`}
-          text={`${projectName} has risen from the dead on MyDeadProjects!`}
-        />
-      </div>
+      <ItLivesCelebration
+        projectName={projectName}
+        projectUrl={projectUrl}
+        pageUrl={pageUrl}
+      />
     );
   }
 
