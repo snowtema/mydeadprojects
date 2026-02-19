@@ -53,7 +53,7 @@ export function ResurrectionToggle({
         <button
           onClick={handleClose}
           disabled={toggling}
-          className="text-sm px-4 py-1.5 bg-green-dim border border-green/30 text-green hover:border-green/50 rounded-md transition-colors disabled:opacity-50"
+          className="text-sm px-4 py-1.5 bg-green-dim border border-green/30 text-green hover:border-green/50 rounded-md transition-colors disabled:opacity-50 cursor-pointer"
         >
           {toggling ? "Updating..." : "Close for Resurrection"}
         </button>
@@ -91,14 +91,14 @@ export function ResurrectionToggle({
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowConfirm(false)}
-            className="text-sm px-4 py-1.5 bg-bg-card border border-border rounded-md text-text-muted hover:border-border-hover hover:text-text-dim transition-colors"
+            className="text-sm px-4 py-1.5 bg-bg-card border border-border rounded-md text-text-muted hover:border-border-hover hover:text-text-dim transition-colors cursor-pointer"
           >
             Cancel
           </button>
           <button
             onClick={handleConfirm}
             disabled={toggling}
-            className="text-sm px-4 py-1.5 bg-green-dim border border-green/30 text-green hover:border-green/50 rounded-md transition-colors disabled:opacity-50"
+            className="text-sm px-4 py-1.5 bg-green-dim border border-green/30 text-green hover:border-green/50 rounded-md transition-colors disabled:opacity-50 cursor-pointer"
           >
             {toggling ? "Opening..." : "☽ Open for Adoption"}
           </button>
@@ -110,7 +110,7 @@ export function ResurrectionToggle({
   return (
     <button
       onClick={() => setShowConfirm(true)}
-      className="text-sm px-4 py-1.5 bg-bg-card border border-border text-text-muted hover:border-border-hover hover:text-text-dim rounded-md transition-colors"
+      className="text-sm px-4 py-1.5 bg-bg-card border border-border text-text-muted hover:border-border-hover hover:text-text-dim rounded-md transition-colors cursor-pointer"
     >
       ☽ Seek a Necromancer
     </button>
