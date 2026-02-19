@@ -114,7 +114,7 @@ export function FlowerButton({
   // Keyboard shortcut: F → flower reaction
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
-      if (e.key === "f" || e.key === "F") {
+      if (e.code === "KeyF") {
         const tag = (e.target as HTMLElement)?.tagName?.toLowerCase();
         if (tag === "input" || tag === "textarea" || tag === "select") return;
         e.preventDefault();
