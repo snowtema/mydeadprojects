@@ -4,7 +4,8 @@ import { useState } from "react";
 import { type Project } from "@/lib/db/schema";
 import { GraveyardGrid } from "./graveyard-grid";
 import { GraveyardTimeline } from "./graveyard-timeline";
-import { Grid3X3, GitCommitHorizontal } from "lucide-react";
+import { GraveyardTable } from "./graveyard-table";
+import { Grid3X3, GitCommitHorizontal, List } from "lucide-react";
 
 interface GraveyardViewToggleProps {
   projects: Project[];
@@ -12,7 +13,7 @@ interface GraveyardViewToggleProps {
   showEdit?: boolean;
 }
 
-type ViewMode = "timeline" | "grid";
+type ViewMode = "table" | "grid" | "timeline";
 
 export function GraveyardViewToggle({
   projects,
@@ -20,6 +21,12 @@ export function GraveyardViewToggle({
   showEdit,
 }: GraveyardViewToggleProps) {
   const [view, setView] = useState<ViewMode>("grid");
+
+  const buttons: { mode: ViewMode; icon: React.ReactNode; label: string }[] = [
+    { mode: "table", icon: <List size={14} />, label: "Table view" },
+    { mode: "grid", icon: <Grid3X3 size={14} />, label: "Grid view" },
+    { mode: "timeline", icon: <GitCommitHorizontal size={14} />, label: "Timeline view" },
+  ];
 
   return (
     <div className="space-y-4">
@@ -29,35 +36,32 @@ export function GraveyardViewToggle({
           The Graveyard
         </div>
         <div className="flex items-center bg-bg-card border border-border rounded-md overflow-hidden">
-          <button
-            onClick={() => setView("timeline")}
-            className={`p-1.5 transition-colors ${
-              view === "timeline"
-                ? "bg-border text-text-dim"
-                : "text-text-muted hover:text-text-dim"
-            }`}
-            aria-label="Timeline view"
-            title="Timeline view"
-          >
-            <GitCommitHorizontal size={14} />
-          </button>
-          <button
-            onClick={() => setView("grid")}
-            className={`p-1.5 transition-colors ${
-              view === "grid"
-                ? "bg-border text-text-dim"
-                : "text-text-muted hover:text-text-dim"
-            }`}
-            aria-label="Grid view"
-            title="Grid view"
-          >
-            <Grid3X3 size={14} />
-          </button>
+          {buttons.map((btn) => (
+            <button
+              key={btn.mode}
+              onClick={() => setView(btn.mode)}
+              className={`p-1.5 transition-colors ${
+                view === btn.mode
+                  ? "bg-border text-text-dim"
+                  : "text-text-muted hover:text-text-dim"
+              }`}
+              aria-label={btn.label}
+              title={btn.label}
+            >
+              {btn.icon}
+            </button>
+          ))}
         </div>
       </div>
 
       {/* View */}
-      {view === "timeline" ? (
+      {view === "table" ? (
+        <GraveyardTable
+          projects={projects}
+          username={username}
+          showEdit={showEdit}
+        />
+      ) : view === "timeline" ? (
         <GraveyardTimeline projects={projects} username={username} />
       ) : (
         <GraveyardGrid
