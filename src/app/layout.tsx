@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono, Cormorant_Garamond, Lora } from "next/font/google";
+import Script from "next/script";
 import { ThemeProvider } from "@/components/theme-provider";
 
 export const dynamic = "force-dynamic";
@@ -65,6 +66,10 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <Script
+          src="https://code.market/widget.min.js"
+          strategy="afterInteractive"
+        />
       </head>
       <body
         className={`${jetbrainsMono.variable} ${cormorantGaramond.variable} ${lora.variable} font-mono bg-bg text-text antialiased min-h-screen`}

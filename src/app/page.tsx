@@ -227,6 +227,20 @@ export default async function Home() {
       {/* Footer */}
       <footer className="py-12 text-center border-t border-border">
         <div className="max-w-[720px] mx-auto px-6">
+          {/* Partners */}
+          <div className="mb-8 pb-8 border-b border-border">
+            <div className="text-[0.65rem] uppercase tracking-[0.15em] text-text-muted mb-4">
+              // partners
+            </div>
+            <div
+              data-codemarket-widget="my-dead-projects-a-graveyard-for-abandoned-ideas"
+              data-theme-bg="#ffffff"
+              data-theme-text="slate-600"
+              data-layout="grid"
+              data-show-branding="false"
+            />
+          </div>
+
           <p className="text-[0.7rem] text-text-muted font-light leading-relaxed">
             Built with love for all the projects that never were.
           </p>
