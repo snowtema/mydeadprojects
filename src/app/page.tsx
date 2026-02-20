@@ -9,6 +9,7 @@ import { Skull, Sparkles, Github, Cross, Send } from "lucide-react";
 import { type ReactNode } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { ResurrectionDemo } from "@/components/landing/resurrection-demo";
+import { CemeteryScene } from "@/components/landing/cemetery-scene";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 3600;
@@ -68,17 +69,17 @@ export default async function Home() {
         <ThemeToggle />
       </div>
 
-      {/* Header */}
-      <header className="pt-12 text-center">
-        <span className="text-5xl block mb-6" aria-hidden="true">
-          🪦
-        </span>
-        <h1 className="text-[clamp(1.5rem,4vw,2.2rem)] font-bold tracking-tight mb-2">
-          my<span className="text-text-dim font-light">dead</span>projects
-        </h1>
-        <p className="text-sm text-text-dim font-light tracking-wide">
-          a graveyard for abandoned side projects
-        </p>
+      {/* Header with Cemetery Scene */}
+      <header className="pt-8 pb-2">
+        <CemeteryScene />
+        <div className="text-center mt-4">
+          <h1 className="text-[clamp(1.5rem,4vw,2.2rem)] font-bold tracking-tight mb-2">
+            my<span className="text-text-dim font-light">dead</span>projects
+          </h1>
+          <p className="text-sm text-text-dim font-light tracking-wide">
+            a graveyard for abandoned side projects
+          </p>
+        </div>
       </header>
 
       <main>

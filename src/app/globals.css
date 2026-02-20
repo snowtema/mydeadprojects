@@ -533,6 +533,16 @@ html.light .glass-kbd {
   100% { opacity: 0; transform: translate(var(--burst-x), var(--burst-y)) scale(0); }
 }
 
+@keyframes twinkle {
+  0%, 100% { opacity: var(--twinkle-min, 0.15); }
+  50% { opacity: var(--twinkle-max, 0.9); }
+}
+
+@keyframes fly-bird {
+  0% { transform: translate(var(--bird-sx, -80px), var(--bird-sy, 0px)); }
+  100% { transform: translate(var(--bird-ex, calc(100vw + 80px)), var(--bird-ey, 0px)); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
