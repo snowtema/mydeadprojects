@@ -8,6 +8,7 @@ import { count, sql } from "drizzle-orm";
 import { Skull, Sparkles, Github, Cross, Send } from "lucide-react";
 import { type ReactNode } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { ResurrectionDemo } from "@/components/landing/resurrection-demo";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 3600;
@@ -27,7 +28,6 @@ const features: { icon: ReactNode; title: string; desc: string; comingSoon?: boo
     icon: <Sparkles className="w-5 h-5 text-text-muted" />,
     title: "Resurrect or Adopt",
     desc: "Someone might want to continue where you stopped. Let others adopt your dead projects and bring them back to life.",
-    comingSoon: true,
   },
   {
     icon: <Github className="w-5 h-5 text-text-muted" />,
@@ -115,6 +115,9 @@ export default async function Home() {
             }))}
           />
         )}
+
+        {/* Resurrection Demo */}
+        <ResurrectionDemo />
 
         {/* Features */}
         <section className="pb-20">

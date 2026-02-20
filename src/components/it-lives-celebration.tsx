@@ -40,10 +40,10 @@ function generateParticles(): Particle[] {
 
 // Zombie hand — fingers + thumb + palm + arm
 const HAND_LINES = [
-  " |  |  |",
-  " |  |  |  /",
-  " |  |  | /",
-  "  \\  | | /",
+  "  |  |  |",
+  "  |  |  | /",
+  "  |  |  |/",
+  "   \\ ||/",
   "    ----",
   "     ||",
   "     ||",
