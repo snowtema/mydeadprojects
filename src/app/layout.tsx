@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono, Cormorant_Garamond, Lora } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
+import { FirebaseAnalytics } from "@/components/firebase-analytics";
 
 export const dynamic = "force-dynamic";
 import "./globals.css";
@@ -69,7 +70,10 @@ export default function RootLayout({
       <body
         className={`${jetbrainsMono.variable} ${cormorantGaramond.variable} ${lora.variable} font-mono bg-bg text-text antialiased min-h-screen`}
       >
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          {children}
+          <FirebaseAnalytics />
+        </ThemeProvider>
       </body>
     </html>
   );
