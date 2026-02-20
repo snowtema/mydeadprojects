@@ -10,6 +10,7 @@ import { type ReactNode } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { ResurrectionDemo } from "@/components/landing/resurrection-demo";
 import { StickyHeader } from "@/components/landing/sticky-header";
+import { CodeMarketWidget } from "@/components/landing/code-market-widget";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 3600;
@@ -232,13 +233,7 @@ export default async function Home() {
             <div className="text-[0.65rem] uppercase tracking-[0.15em] text-text-muted mb-4">
               // partners
             </div>
-            <div
-              data-codemarket-widget="my-dead-projects-a-graveyard-for-abandoned-ideas"
-              data-theme-bg="#ffffff"
-              data-theme-text="slate-600"
-              data-layout="grid"
-              data-show-branding="false"
-            />
+            <CodeMarketWidget />
           </div>
 
           <p className="text-[0.7rem] text-text-muted font-light leading-relaxed">
