@@ -9,6 +9,7 @@ import { Skull, Sparkles, Github, Cross, Send } from "lucide-react";
 import { type ReactNode } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { ResurrectionDemo } from "@/components/landing/resurrection-demo";
+import { StickyHeader } from "@/components/landing/sticky-header";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 3600;
@@ -63,6 +64,9 @@ export default async function Home() {
   };
   return (
     <div className="min-h-screen">
+      {/* Sticky header on scroll */}
+      <StickyHeader />
+
       {/* Theme toggle */}
       <div className="absolute top-4 right-4 z-50">
         <ThemeToggle />
@@ -120,7 +124,7 @@ export default async function Home() {
         <ResurrectionDemo />
 
         {/* Features */}
-        <section className="pb-20">
+        <section id="features" className="pb-20">
           <div className="max-w-[720px] mx-auto px-6">
             <div className="text-[0.65rem] uppercase tracking-[0.15em] text-text-muted mb-8 pb-3 border-b border-border">
               // what is this
