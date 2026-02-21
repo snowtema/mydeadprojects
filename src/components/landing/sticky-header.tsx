@@ -69,8 +69,8 @@ export function StickyHeader() {
         <nav className="hidden sm:flex items-center gap-1">
           <NavLink href="/explore">Explore</NavLink>
           <NavLink href="/#features">Features</NavLink>
-          <NavLink href="https://t.me/mydeadprojects" external>
-            Community
+          <NavLink href="https://x.com/mydeadprojects" external>
+            X
           </NavLink>
         </nav>
 
