@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { JetBrains_Mono, Cormorant_Garamond, Lora } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { FirebaseAnalytics } from "@/components/firebase-analytics";
+import { Footer } from "@/components/footer";
 
 export const dynamic = "force-dynamic";
 import "./globals.css";
@@ -68,10 +69,11 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body
-        className={`${jetbrainsMono.variable} ${cormorantGaramond.variable} ${lora.variable} font-mono bg-bg text-text antialiased min-h-screen`}
+        className={`${jetbrainsMono.variable} ${cormorantGaramond.variable} ${lora.variable} font-mono bg-bg text-text antialiased min-h-screen flex flex-col`}
       >
         <ThemeProvider>
           {children}
+          <Footer />
           <FirebaseAnalytics />
         </ThemeProvider>
       </body>
