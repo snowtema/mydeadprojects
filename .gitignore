@@ -20,6 +20,7 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files
+.env
 .env*.local
 
 # vercel
@@ -31,4 +32,8 @@ next-env.d.ts
 
 # firebase (legacy)
 .firebase/
-~/.claude-personal/**
+.firebaserc
+
+# IDE / tools
+.claude/
+~/

@@ -1,7 +1,25 @@
 {
   "name": "mydeadprojects",
   "version": "0.1.0",
-  "private": true,
+  "description": "A platform where developers create personal graveyards for their abandoned side projects",
+  "license": "GPL-3.0",
+  "author": "Artem Slizhik",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/snowtema/mydeadprojects.git"
+  },
+  "homepage": "https://mydeadprojects.com",
+  "bugs": {
+    "url": "https://github.com/snowtema/mydeadprojects/issues"
+  },
+  "keywords": [
+    "dead-projects",
+    "developer-tools",
+    "portfolio",
+    "side-projects",
+    "graveyard",
+    "open-source"
+  ],
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",

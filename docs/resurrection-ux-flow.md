@@ -1,12 +1,12 @@
 # Resurrection/Adopt — UX Flow & Interaction Design
 
-> Phase 1 MVP. Согласован с существующим design system и UX-паттернами MDP.
+> Phase 1 MVP. Aligned with the existing design system and MDP UX patterns.
 
 ---
 
 ## Design System Extensions
 
-### Новые цвета (расширение палитры)
+### New Colors (palette extension)
 
 ```
 --resurrection:       #5a9a5a     (reuse --green, "alive" signal)
@@ -16,9 +16,9 @@
 --seeking-glow:       rgba(196, 160, 124, 0.12)  (glow for seeking state)
 ```
 
-### Новые статусы (визуальные индикаторы)
+### New Statuses (visual indicators)
 
-| Status | Цвет бейджа | Иконка | Label |
+| Status | Badge Color | Icon | Label |
 |---|---|---|---|
 | `dead` | `--red` / `#8a3a3a` | ✝ | Dead |
 | `resurrectable` | `--seeking` / `#C4A07C` | ☽ | Seeking Necromancer |
@@ -27,7 +27,7 @@
 
 ---
 
-## Flow Map (все потоки)
+## Flow Map (all flows)
 
 ```
                     GRAVEDIGGER FLOWS                    NECROMANCER FLOWS
@@ -82,9 +82,9 @@
 ## Flow 1: Mark as Resurrectable (Gravedigger)
 
 ### Entry Point
-Страница проекта (`/[username]/[slug]`) — владелец видит кнопку в edit-контролах.
+Project page (`/[username]/[slug]`) — the owner sees the button in edit controls.
 
-### Screen: Project Detail (Owner View) — новый элемент
+### Screen: Project Detail (Owner View) — new element
 
 ```
 ┌─────────────────────────────────────────────────────┐
@@ -118,8 +118,8 @@
 
 ### Interaction
 
-1. Владелец нажимает **"Seek a Necromancer"**
-2. Появляется confirmation dialog (inline, не modal):
+1. The owner clicks **"Seek a Necromancer"**
+2. A confirmation dialog appears (inline, not modal):
 
 ```
 ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─┐
@@ -138,11 +138,11 @@
 └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘
 ```
 
-3. После подтверждения:
-   - `status` меняется `dead` → `resurrectable`
-   - Карточка проекта получает seeking-glow эффект
-   - Появляется share prompt с OG-карточкой "Seeking Necromancer"
-   - Кнопка меняется на "Close for Resurrection" (toggle)
+3. After confirmation:
+   - `status` changes from `dead` to `resurrectable`
+   - The project card gets a seeking-glow effect
+   - A share prompt appears with the "Seeking Necromancer" OG card
+   - The button changes to "Close for Resurrection" (toggle)
 
 ### Post-Action: Share Prompt
 
@@ -166,8 +166,8 @@
 
 ## Flow 2: Press R — Resurrection Wish (Visitor, lightweight)
 
-### Где находится
-На странице проекта со статусом `resurrectable`, рядом с flower button.
+### Location
+On the project page with `resurrectable` status, next to the flower button.
 
 ### Screen: Project Detail (Visitor View, Resurrectable)
 
@@ -210,18 +210,18 @@
 
 ### Press R Interaction
 
-1. Visitor нажимает **R** на клавиатуре (или кликает ☽ wish button)
-2. Анимация: floating "R" particles (parallel к "F" particles)
-   - 5 частиц, staggered 80ms
-   - Цвет: `--seeking` (#C4A07C)
-   - Та же `ritual-float` анимация 1.2s
-3. Wish counter увеличивается: `☽ 7 wishes` → `☽ 8 wishes`
-4. Кнопка меняется на `☽ Wished` (disabled state, как flower после нажатия)
-5. Дедупликация: 1 wish per visitor per project (cookie/hash, как flowers)
+1. The visitor presses **R** on the keyboard (or clicks the ☽ wish button)
+2. Animation: floating "R" particles (parallel to "F" particles)
+   - 5 particles, staggered 80ms
+   - Color: `--seeking` (#C4A07C)
+   - Same `ritual-float` animation 1.2s
+3. Wish counter increments: `☽ 7 wishes` to `☽ 8 wishes`
+4. The button changes to `☽ Wished` (disabled state, same as flower after click)
+5. Deduplication: 1 wish per visitor per project (cookie/hash, same as flowers)
 
 ### Ghost Ping (async, backend)
-Когда проект набирает **5 / 10 / 25 / 50 wishes**:
-- Владелец получает уведомление (email или in-app, Phase 2)
+When a project reaches **5 / 10 / 25 / 50 wishes**:
+- The owner receives a notification (email or in-app, Phase 2)
 - "12 developers wish TodoApp v3 was resurrected!"
 
 ---
@@ -229,16 +229,16 @@
 ## Flow 3: Adopt — Resurrection Pledge (Necromancer)
 
 ### Entry Point
-Кнопка **"I'll Resurrect This"** на странице resurrectable проекта.
+The **"I'll Resurrect This"** button on the resurrectable project page.
 
 ### Prerequisite
-- Visitor должен быть залогинен (если нет — redirect на login с return URL)
-- Visitor НЕ является владельцем проекта
-- Проект в статусе `resurrectable` (нет active adoption)
+- The visitor must be logged in (if not, redirect to login with return URL)
+- The visitor is NOT the project owner
+- The project has `resurrectable` status (no active adoption)
 
-### Step 1: Pledge Form (inline expand, не отдельная страница)
+### Step 1: Pledge Form (inline expand, not a separate page)
 
-Нажатие на "I'll Resurrect This" раскрывает форму ПОД кнопкой:
+Clicking "I'll Resurrect This" expands the form BELOW the button:
 
 ```
 ┌──────────────────────────────────────────────────┐
@@ -266,14 +266,14 @@
 
 ### Pledge Form Spec
 
-| Поле | Тип | Лимит | Обязательное |
+| Field | Type | Limit | Required |
 |---|---|---|---|
-| Pledge text | textarea | 140 символов (как epitaph) | Да |
-| Repo / URL | url input | — | Нет |
+| Pledge text | textarea | 140 characters (same as epitaph) | Yes |
+| Repo / URL | url input | — | No |
 
 ### Step 2: Confirmation + Share
 
-После submit:
+After submit:
 
 ```
 ┌──────────────────────────────────────────────────┐
@@ -316,7 +316,7 @@
 
 ### Resurrection Certificate (OG Image)
 
-Двусторонняя карточка для social sharing:
+Dual-sided card for social sharing:
 
 ```
 ┌──────────────────────────────────────────────┐
@@ -341,8 +341,8 @@
 └──────────────────────────────────────────────┘
 ```
 
-Левая сторона: тёмная (#0a0a0a), border `--red`
-Правая сторона: чуть светлее (#111111), border `--resurrection`
+Left side: dark (#0a0a0a), border `--red`
+Right side: slightly lighter (#111111), border `--resurrection`
 
 ---
 
@@ -350,7 +350,7 @@
 
 ### Notification (Phase 1: in-app banner)
 
-Владелец видит баннер на своей странице проекта:
+The owner sees a banner on their project page:
 
 ```
 ┌──────────────────────────────────────────────────┐
@@ -370,11 +370,11 @@
 
 ### Approve Action
 
-1. Владелец нажимает **"Approve Adoption"**
-2. `status` меняется: `resurrectable` → `adopted`
+1. The owner clicks **"Approve Adoption"**
+2. `status` changes: `resurrectable` to `adopted`
 3. `adoptedBy` = necromancer's user ID
-4. Celebration: confetti-анимация (аналог funeral-animation)
-5. Share prompt для владельца:
+4. Celebration: confetti animation (similar to funeral-animation)
+5. Share prompt for the owner:
 
 ```
   Pre-filled tweet:
@@ -385,23 +385,23 @@
 
 ### Decline Action
 
-1. Владелец нажимает **"Decline"**
-2. Pledge удаляется
-3. Проект остаётся `resurrectable`
-4. Necromancer получает notification (Phase 2): "Your pledge was not accepted"
+1. The owner clicks **"Decline"**
+2. The pledge is deleted
+3. The project remains `resurrectable`
+4. The necromancer receives a notification (Phase 2): "Your pledge was not accepted"
 
 ### Multiple Pledges (Policy)
 
-**Phase 1 (MVP):** Один pledge за раз. Если есть pending pledge — кнопка "Adopt" disabled с текстом: "Someone already submitted a pledge. Waiting for owner's decision."
+**Phase 1 (MVP):** One pledge at a time. If there is a pending pledge, the "Adopt" button is disabled with the text: "Someone already submitted a pledge. Waiting for owner's decision."
 
-**Phase 2:** Queue of pledges. Owner видит список и выбирает лучший.
+**Phase 2:** Queue of pledges. The owner sees a list and picks the best one.
 
 ---
 
 ## Flow 5: Resurrection Proof (Necromancer)
 
-### Когда
-После adoption approved, проект в статусе `adopted`. Necromancer видит prompt для подтверждения воскрешения.
+### When
+After adoption is approved, the project has `adopted` status. The necromancer sees a prompt to confirm resurrection.
 
 ### Screen: Project Detail (Adopted, Necromancer View)
 
@@ -444,9 +444,9 @@
 
 ### Submit Proof Action
 
-1. Necromancer вставляет URL repo или live site
-2. Нажимает **"Confirm Resurrection"**
-3. `status` меняется: `adopted` → `resurrected`
+1. The necromancer pastes the repo or live site URL
+2. Clicks **"Confirm Resurrection"**
+3. `status` changes: `adopted` to `resurrected`
 4. **"IT LIVES!" celebration screen:**
 
 ```
@@ -481,13 +481,13 @@
 └──────────────────────────────────────────────────┘
 ```
 
-Анимация: reverse-funeral (particles поднимаются вверх, зелёный glow, screen shake).
+Animation: reverse-funeral (particles float UP, green glow, screen shake).
 
 ---
 
 ## Explore Page: Resurrection Filters
 
-### Новые элементы на Explore
+### New elements on Explore
 
 ```
 ┌──────────────────────────────────────────────────┐
@@ -518,23 +518,23 @@
 ```
 
 ### "Seeking Revival" Tab
-- Третья вкладка рядом с "Graves" и "People"
-- Показывает ТОЛЬКО проекты со статусом `resurrectable`
-- Сортировка: Recent | Most Wished (по числу wishes)
-- Каждая карточка показывает wish count рядом с flowers
+- Third tab next to "Graves" and "People"
+- Shows ONLY projects with `resurrectable` status
+- Sorting: Recent | Most Wished (by wish count)
+- Each card shows wish count alongside flowers
 
 ### Tombstone Card Variants
 
-**Resurrectable card** (в списках):
+**Resurrectable card** (in lists):
 ```
 ┌───────────────────────────────────┐
-│  ☽                                │  ← seeking indicator вместо ✝
+│  ☽                                │  ← seeking indicator instead of ✝
 │  TodoApp v3                       │
 │  2023 — 2024                      │
 │  "Monday promise"                 │
 │  Lost motivation                  │
 │                                   │
-│  🌸 42    ☽ 8 wishes              │  ← wish count добавлен
+│  🌸 42    ☽ 8 wishes              │  ← wish count added
 │                                   │
 │  ·····seeking-glow border·····    │  ← #C4A07C border glow
 └───────────────────────────────────┘
@@ -575,7 +575,7 @@
 
 ## Component Architecture
 
-### Новые компоненты
+### New Components
 
 ```
 src/components/
@@ -590,27 +590,27 @@ src/components/
 │   └── status-badge.tsx             # Visual status indicator
 ```
 
-### Модификации существующих компонентов
+### Modifications to Existing Components
 
-| Компонент | Что меняется |
+| Component | What Changes |
 |---|---|
-| `tombstone-card.tsx` | Добавить status variants (glow, icon, wish count) |
-| `flower-button.tsx` | Расширить: добавить "R" wish button рядом |
-| `share-menu.tsx` | Новые pre-filled тексты для resurrection events |
-| `explore-*.tsx` | Новая вкладка "Seeking Revival", wish count в cards |
+| `tombstone-card.tsx` | Add status variants (glow, icon, wish count) |
+| `flower-button.tsx` | Extend: add "R" wish button alongside |
+| `share-menu.tsx` | New pre-filled texts for resurrection events |
+| `explore-*.tsx` | New "Seeking Revival" tab, wish count in cards |
 
 ---
 
 ## Keyboard Shortcuts
 
-| Клавиша | Действие | Контекст |
+| Key | Action | Context |
 |---|---|---|
-| `F` | Pay respects (flower) | Любой проект (существующее) |
-| `R` | Resurrection wish | Только resurrectable проекты |
+| `F` | Pay respects (flower) | Any project (existing) |
+| `R` | Resurrection wish | Resurrectable projects only |
 
-**Реализация:** `e.code === "KeyR"` (аналогично `KeyF` для non-English layouts).
+**Implementation:** `e.code === "KeyR"` (same approach as `KeyF` for non-English layouts).
 
-**Конфликт:** R не конфликтует с F — разные действия на разных статусах. Оба работают на resurrectable проектах (F = цветы, R = wish).
+**Conflict:** R does not conflict with F — different actions on different statuses. Both work on resurrectable projects (F = flowers, R = wish).
 
 ---
 
@@ -623,13 +623,13 @@ src/components/
   100% { opacity: 0; transform: translateY(-60px) rotate(15deg); }
 }
 ```
-- 5 частиц "☽" символа
-- Цвет: `--seeking` (#C4A07C)
+- 5 particles of the "☽" symbol
+- Color: `--seeking` (#C4A07C)
 - Duration: 1.2s ease-out
-- Stagger: 80ms между частицами
+- Stagger: 80ms between particles
 - Random X offset: -25px to +25px
 
-### Seeking Glow (карточка resurrectable проекта)
+### Seeking Glow (resurrectable project card)
 ```css
 .tombstone-seeking {
   border-color: var(--seeking);
@@ -645,14 +645,14 @@ src/components/
 
 ### Resurrection Celebration ("It Lives!")
 - Reverse funeral-animation: particles float UP (not down)
-- Цвет: `--resurrection` (#5a9a5a)
+- Color: `--resurrection` (#5a9a5a)
 - Screen flash: brief white overlay 200ms
 - Text reveal: letter-by-letter "I T  L I V E S !" with 50ms stagger
 - Confetti: green + gold particles
 
 ### Adoption Confirmed
-- Subtle pulse на карточке проекта
-- Status badge transition: `☽ Seeking` → `⚗ Adopted` с morph-анимацией
+- Subtle pulse on the project card
+- Status badge transition: `☽ Seeking` to `⚗ Adopted` with morph animation
 
 ---
 
@@ -687,7 +687,7 @@ ALTER TABLE users
 ### Drizzle Schema Addition
 
 ```typescript
-// В schema.ts, дополнение projects:
+// In schema.ts, projects extension:
 adoptedBy: uuid("adopted_by").references(() => users.id),
 adoptedAt: timestamp("adopted_at", { withTimezone: true }),
 adoptionPledge: text("adoption_pledge"),
@@ -695,7 +695,7 @@ adoptionPledgeUrl: text("adoption_pledge_url"),
 resurrectionUrl: text("resurrection_url"),
 resurrectedAt: timestamp("resurrected_at", { withTimezone: true }),
 
-// Новая таблица:
+// New table:
 export const resurrectionWishes = pgTable("resurrection_wishes", {
   id: uuid("id").primaryKey().defaultRandom(),
   projectId: uuid("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
@@ -727,21 +727,21 @@ src/actions/
 ## OG Images (Cloudflare Worker extension)
 
 ### "Seeking Necromancer" Card
-- Тёмный фон
-- Большой ☽ символ
-- Имя проекта + эпитафия
+- Dark background
+- Large ☽ symbol
+- Project name + epitaph
 - "Seeking Necromancer" badge
 - CTA: "Will you be its hero?"
 
 ### "Resurrection Pledge" Card (Dual)
 - Split layout: left dark (death), right lighter (life)
-- Левая: имя, даты, эпитафия, cause of death
-- Правая: pledge text, necromancer username
+- Left: name, dates, epitaph, cause of death
+- Right: pledge text, necromancer username
 - Footer: "Resurrection Pledge · mydeadprojects.com"
 
 ### "It Lives!" Card
-- Зелёный акцент
-- Before → After layout
+- Green accent
+- Before / After layout
 - "Dead for N days. Resurrected."
 - Celebratory tone
 
@@ -751,10 +751,10 @@ src/actions/
 
 | Case | Handling |
 |---|---|
-| Owner tries to adopt own project | Кнопка не показывается. (Phase 2: Phoenix badge если resurrect свой) |
+| Owner tries to adopt own project | Button is not shown. (Phase 2: Phoenix badge if you resurrect your own) |
 | Unauth user clicks Adopt | Redirect to `/login?redirect=/[username]/[slug]` |
 | Project already has pending pledge | "Adopt" disabled: "Pledge pending review" |
-| Project adopted, necromancer goes silent | Phase 2: 30-day timeout → auto-revert to `resurrectable` |
+| Project adopted, necromancer goes silent | Phase 2: 30-day timeout, auto-revert to `resurrectable` |
 | Owner deletes project while adopted | Cascade delete, necromancer notified (Phase 2) |
 | Multiple wishes from same visitor | Deduplicate via visitor_hash (same as flowers) |
 | Necromancer submits proof without real URL | Phase 1: trust system. Phase 2: community verification |

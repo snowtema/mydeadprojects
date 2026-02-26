@@ -1,142 +1,142 @@
-# Research: Game-like Cemetery View (свободное размещение могил)
+# Research: Game-like Cemetery View (free grave placement)
 
-**Дата:** 2026-02-18
-**Статус:** Approved, переходим к реализации
-**Тип:** Feature Research & Analysis (FPF)
-
----
-
-## Контекст
-
-Текущее кладбище — статичный CSS-грид (`grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`), одинаковый у всех пользователей. Предлагается заменить на 2D-поле со свободным размещением могил — как игровая механика, придающая проекту шарм и открывающая путь к монетизации.
+**Date:** 2026-02-18
+**Status:** Approved, moving to implementation
+**Type:** Feature Research & Analysis (FPF)
 
 ---
 
-## Конкурентный анализ
+## Context
 
-### Прямые аналоги (кладбища продуктов)
-
-| Проект | Подход | Свободное размещение? |
-|--------|--------|----------------------|
-| Killed by Google | Грид карточек (React/Gatsby) | Нет |
-| Microsoft Graveyard | Грид карточек | Нет |
-| Google Cemetery | Грид карточек | Нет |
-
-**Вывод:** ни один из аналогов не использует свободное 2D-размещение. Незанятая ниша.
-
-### Вдохновение из других доменов
-
-| Источник | Что берём |
-|----------|-----------|
-| **Graveyard Keeper** (игра) | Декорации вокруг могил (ограды, свечи, цветы) → монетизация. Качество могилы влияет на рейтинг |
-| **r/place** (Reddit) | Коллаборативный 2D-canvas с миллионами пользователей. Архитектура: WebSocket + Redis + чанки |
-| **Remember Metaverse** | NFT-могилы по 0.1 ETH. Виртуальные участки (LAND) как торгуемый актив |
-| **PlotBox / Chronicle** | Профессиональный софт для кладбищ: вид сверху, клик по участку, zoom/pan |
-| **WoW / FFXIV мемориалы** | Кладбища как социальные точки — люди возвращаются, оставляют реакции |
+The current cemetery is a static CSS grid (`grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`), identical for all users. The proposal is to replace it with a 2D field with free grave placement -- a game-like mechanic that gives the project charm and opens the door to monetization.
 
 ---
 
-## Техническая оценка
+## Competitive Analysis
 
-### Подходы к реализации
+### Direct Analogues (product cemeteries)
 
-| Подход | Технология | Сложность | Перф. лимит | Мобильная поддержка |
-|--------|-----------|-----------|-------------|---------------------|
-| **A. DOM + CSS absolute** | `react-zoom-pan-pinch` + `position: absolute` | Низкая | ~200-300 элементов | Из коробки |
-| **B. Canvas 2D** | `react-konva` или `Konva` | Средняя | ~2000-5000 элементов | Встроена |
-| **C. WebGL** | `PixiJS` | Высокая | 10000+ спрайтов при 60fps | Требует работы |
-| **D. Infinite Canvas SDK** | `tldraw` | Средняя | Зависит от рендерера | Встроена |
+| Project | Approach | Free placement? |
+|---------|----------|-----------------|
+| Killed by Google | Card grid (React/Gatsby) | No |
+| Microsoft Graveyard | Card grid | No |
+| Google Cemetery | Card grid | No |
 
-### Выбран подход A (DOM + CSS) для MVP
+**Conclusion:** none of the analogues use free 2D placement. An unoccupied niche.
 
-**Почему:**
-- Работает с существующим `TombstoneCard` без изменений
-- 1 новая зависимость (`react-zoom-pan-pinch`, 700K+ weekly downloads)
-- Минимальные изменения в схеме БД (добавить `x`, `y` nullable поля)
-- Достаточно для ~200-300 могил на одном кладбище
-- Pan/zoom/pinch на мобильных — из коробки
+### Inspiration from Other Domains
 
-**Когда мигрировать на B/C:** только если на Explore-странице нужно отображать тысячи могил одновременно.
+| Source | What we take |
+|--------|-------------|
+| **Graveyard Keeper** (game) | Decorations around graves (fences, candles, flowers) -> monetization. Grave quality affects rating |
+| **r/place** (Reddit) | Collaborative 2D canvas with millions of users. Architecture: WebSocket + Redis + chunks |
+| **Remember Metaverse** | NFT graves at 0.1 ETH. Virtual plots (LAND) as a tradable asset |
+| **PlotBox / Chronicle** | Professional cemetery software: top-down view, click on a plot, zoom/pan |
+| **WoW / FFXIV memorials** | Cemeteries as social hubs -- people return, leave reactions |
+
+---
+
+## Technical Assessment
+
+### Implementation Approaches
+
+| Approach | Technology | Complexity | Perf. limit | Mobile support |
+|----------|-----------|------------|-------------|----------------|
+| **A. DOM + CSS absolute** | `react-zoom-pan-pinch` + `position: absolute` | Low | ~200-300 elements | Out of the box |
+| **B. Canvas 2D** | `react-konva` or `Konva` | Medium | ~2000-5000 elements | Built-in |
+| **C. WebGL** | `PixiJS` | High | 10000+ sprites at 60fps | Requires work |
+| **D. Infinite Canvas SDK** | `tldraw` | Medium | Depends on renderer | Built-in |
+
+### Approach A (DOM + CSS) selected for MVP
+
+**Why:**
+- Works with the existing `TombstoneCard` without changes
+- 1 new dependency (`react-zoom-pan-pinch`, 700K+ weekly downloads)
+- Minimal DB schema changes (add `x`, `y` nullable fields)
+- Sufficient for ~200-300 graves per cemetery
+- Pan/zoom/pinch on mobile -- out of the box
+
+**When to migrate to B/C:** only if the Explore page needs to display thousands of graves simultaneously.
 
 ### Collision detection
 
 AABB (Axis-Aligned Bounding Box): `a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y`
 
-### LOD (уровни детализации при зуме)
+### LOD (levels of detail on zoom)
 
-- Далеко: точки с именами
-- Средне: форма надгробия + имя + даты
-- Близко: полная карточка с эпитафией и реакциями
-
----
-
-## Монетизация (задел)
-
-### Краткосрочная
-
-| Модель | Описание | Усилия |
-|--------|----------|--------|
-| Стили надгробий | Готика, мрамор, пиксель-арт, неон, кибер | Средние |
-| Декорации | Цветы, свечи, ограды, ангелы вокруг могилы | Средние |
-| Премиум участки | Центр кладбища, под деревом, у озера | Низкие |
-
-### Среднесрочная
-
-| Модель | Описание | Усилия |
-|--------|----------|--------|
-| Тема кладбища | Полная смена визуала: жуткое, мирное, пиксельное, космическое | Высокие |
-| Анимированные надгробия | Призраки, мерцающие свечи, эффекты погоды | Средние |
-| Бейджи/достижения | "Serial Killer" (10+ проектов), "Necromancer" (воскресил проект) | Низкие |
-
-### Долгосрочная
-
-| Модель | Описание | Усилия |
-|--------|----------|--------|
-| Спонсированные могилы | Компании хоронят свои убитые продукты (платный листинг) | Низкие |
-| Кладбищенский ландшафт | Деревья, дорожки, водоёмы — покупные элементы окружения | Высокие |
+- Far: dots with names
+- Medium: tombstone shape + name + dates
+- Close: full card with epitaph and reactions
 
 ---
 
-## Риски
+## Monetization (groundwork)
 
-| Риск | Вероятность | Митигация |
-|------|-------------|-----------|
-| Перф на мобильных при >100 могил | Средняя | LOD + viewport culling |
-| UX сложность размещения на тач | Средняя | Snap-to-grid (мягкая сетка 20px) + ghost preview |
-| Обратная совместимость | Низкая | nullable поля + Grid как fallback |
-| Пустое кладбище выглядит скучно | Высокая | Дефолтные декоративные элементы |
-| Координаты ломаются при ресайзе | Средняя | Нормализованные координаты (0-1) вместо пикселей |
+### Short-term
+
+| Model | Description | Effort |
+|-------|-------------|--------|
+| Tombstone styles | Gothic, marble, pixel art, neon, cyber | Medium |
+| Decorations | Flowers, candles, fences, angels around the grave | Medium |
+| Premium plots | Center of cemetery, under a tree, by a lake | Low |
+
+### Mid-term
+
+| Model | Description | Effort |
+|-------|-------------|--------|
+| Cemetery theme | Full visual overhaul: eerie, peaceful, pixel, cosmic | High |
+| Animated tombstones | Ghosts, flickering candles, weather effects | Medium |
+| Badges/achievements | "Serial Killer" (10+ projects), "Necromancer" (resurrected a project) | Low |
+
+### Long-term
+
+| Model | Description | Effort |
+|-------|-------------|--------|
+| Sponsored graves | Companies bury their killed products (paid listing) | Low |
+| Cemetery landscape | Trees, paths, ponds -- purchasable environment elements | High |
 
 ---
 
-## Архитектурный план
+## Risks
 
-### Изменения в схеме БД
+| Risk | Probability | Mitigation |
+|------|-------------|------------|
+| Mobile perf with >100 graves | Medium | LOD + viewport culling |
+| UX complexity of placement on touch | Medium | Snap-to-grid (soft 20px grid) + ghost preview |
+| Backward compatibility | Low | Nullable fields + Grid as fallback |
+| Empty cemetery looks boring | High | Default decorative elements |
+| Coordinates break on resize | Medium | Normalized coordinates (0-1) instead of pixels |
+
+---
+
+## Architecture Plan
+
+### DB Schema Changes
 
 ```
-projects: добавить
+projects: add
   - positionX: real (nullable)
   - positionY: real (nullable)
   - tombstoneStyle: varchar(50) (nullable, default "classic")
 ```
 
-### Новые компоненты
+### New Components
 
 ```
-graveyard-canvas.tsx      — 2D поле с pan/zoom
-tombstone-placer.tsx      — режим размещения (ghost + collision)
-graveyard-view-toggle.tsx — переключатель Grid ↔ Canvas
+graveyard-canvas.tsx      -- 2D field with pan/zoom
+tombstone-placer.tsx      -- placement mode (ghost + collision)
+graveyard-view-toggle.tsx -- Grid <-> Canvas toggle
 ```
 
-### Фазы
+### Phases
 
-**Фаза 1 — MVP Canvas:** миграция БД, react-zoom-pan-pinch, рендер через position:absolute, click-to-place, drag, toggle Grid/Canvas
-**Фаза 2 — Полировка:** LOD, мобильный UX, collision detection, визуальная земля
-**Фаза 3 — Монетизация:** tombstoneStyle + варианты, декорации, система покупок
+**Phase 1 -- MVP Canvas:** DB migration, react-zoom-pan-pinch, render via position:absolute, click-to-place, drag, toggle Grid/Canvas
+**Phase 2 -- Polish:** LOD, mobile UX, collision detection, visual ground
+**Phase 3 -- Monetization:** tombstoneStyle + variants, decorations, purchase system
 
 ---
 
-## Источники
+## Sources
 
 - [Killed by Google](https://killedbygoogle.com/) / [GitHub](https://github.com/codyogden/killedbygoogle)
 - [tldraw SDK](https://tldraw.dev/)

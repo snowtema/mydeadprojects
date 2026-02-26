@@ -1,8 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
-SERVER="root@YOUR_SERVER_IP"
-REMOTE_DIR="/opt/mydeadprojects"
+SERVER="${DEPLOY_HOST:?Set DEPLOY_HOST env var, e.g. root@your-server-ip}"
+REMOTE_DIR="${DEPLOY_DIR:-/opt/mydeadprojects}"
 
 echo "==> Syncing files to server..."
 rsync -az --delete --checksum \

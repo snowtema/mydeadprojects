@@ -1,160 +1,160 @@
-# FPF-анализ: страница проекта и скрытые потребности аудитории
+# FPF Analysis: Project Page and Hidden Audience Needs
 
-**Дата**: 2026-02-18
-**Метод**: FPF (A.7 Strict Distinction, B.5 Reasoning Cycle, A.10 Evidence Graph)
-**Объект**: Веб-приложение "My Dead Projects" — кладбище заброшенных сайд-проектов
-**Целевая аудитория**: Разработчики с незаконченными проектами, ищущие социальное принятие и юмор
-
----
-
-## 1. КРИТИЧЕСКИЕ РАЗРЫВЫ (обещано, но не реализовано)
-
-### 1.1 "Resurrect or Adopt" — ложное обещание на лендинге
-
-**Доказательство**: `src/app/page.tsx:26-27` — фича описана в блоке features на главной, но нигде в коде нет ни UI, ни API, ни даже поля в схеме БД для adoption.
-
-**Почему критично**: Это самая вирусная механика в концепции. Посетитель видит мертвый проект → хочет его забрать → нет кнопки → уходит. Landing обещает, продукт не выполняет. Нарушение A.7 (план != реализация).
-
-### 1.2 "GitHub Integration" — ещё одно обещание без реализации
-
-**Доказательство**: `src/app/page.tsx:31-33` — описано как фича, но нет никакого механизма импорта репо, сканирования неактивных проектов или автозаполнения формы из GitHub.
-
-**Почему критично**: GitHub OAuth есть, но используется **только для авторизации**. Пользователь логинится через GitHub, ожидает "мы найдём ваши мёртвые репо" — не получает ничего.
-
-**Рекомендация**: Либо убрать оба пункта с лендинга прямо сейчас (честность > маркетинг), либо добавить пометку "Coming soon".
+**Date**: 2026-02-18
+**Method**: FPF (A.7 Strict Distinction, B.5 Reasoning Cycle, A.10 Evidence Graph)
+**Subject**: Web application "My Dead Projects" — a graveyard for abandoned side projects
+**Target audience**: Developers with unfinished projects seeking social acceptance and humor
 
 ---
 
-## 2. ЧТО НЕ ХВАТАЕТ (скрытые потребности аудитории)
+## 1. CRITICAL GAPS (promised but not implemented)
 
-### 2.1 Уроки и рефлексия — главная ценность, спрятана за toggle
+### 1.1 "Resurrect or Adopt" — false promise on the landing page
 
-**Текущее состояние**: Поле `description` спрятано за "More details (optional)" collapse (`bury-form.tsx:249-254`). На странице проекта показывается как сухой текст под заголовком "Description".
+**Evidence**: `src/app/page.tsx:26-27` — the feature is described in the features block on the homepage, but there is no UI, API, or even a database schema field for adoption anywhere in the code.
 
-**Скрытая потребность**: Люди приходят не за tombstone-картинкой, а за **историей**. "Что пошло не так" — это самый shareable контент. Текущий UX заставляет проскочить мимо этого.
+**Why critical**: This is the most viral mechanic in the concept. A visitor sees a dead project, wants to adopt it, finds no button, and leaves. The landing page promises, but the product does not deliver. Violation of A.7 (plan != implementation).
 
-**Рекомендация**: Выделить отдельное поле "What did you learn?" / "Lessons from the grave" — сделать его заметным на форме и на странице проекта. Это превращает продукт из мема в ценный контент.
+### 1.2 "GitHub Integration" — another promise without implementation
 
-### 2.2 Комментарии / "Книга соболезнований" — полностью отсутствует
+**Evidence**: `src/app/page.tsx:31-33` — described as a feature, but there is no mechanism for repo import, inactive project scanning, or form auto-fill from GitHub.
 
-**Текущее состояние**: Посетитель может только нажать F / candle / rip / lol. Это одноразовое действие без возврата.
+**Why critical**: GitHub OAuth exists but is used **only for authentication**. The user logs in via GitHub, expects "we'll find your dead repos" — gets nothing.
 
-**Скрытая потребность**: Мемориал без гостевой книги — неполон. Разработчики хотят написать "I had the same idea lol" или "This is literally my life". Комменты = контент = SEO = виральность = retention.
-
-### 2.3 "Время с момента смерти" — отсутствует
-
-**Текущее состояние**: Показываются даты `startDate – endDate`. Нет относительного времени.
-
-**Скрытая потребность**: "Dead for 3 years" или "Buried 2 weeks ago" — это эмоциональный якорь. Свежая могила вызывает сочувствие, старая — уважение. Таймер на лендинге есть (countdown в funeral animation), но на самой странице проекта — нет.
-
-### 2.4 Связанные / похожие проекты — нет секции
-
-**Текущее состояние**: Страница проекта заканчивается ссылкой на кладбище автора. Нет перехода к другим проектам.
-
-**Скрытая потребность**: "Ещё один todo-app умер" — пользователь хочет увидеть, что не один такой. Секция "Others who died young" или "Similar graves" увеличивает time-on-site и создает ощущение комьюнити.
-
-### 2.5 Конверсионный CTA после реакции — отсутствует
-
-**Текущее состояние**: Посетитель нажал F → ничего. Счётчик +1, всё.
-
-**Скрытая потребность**: Момент после реакции — пик вовлечённости. Идеальный момент для "You pressed F. Now bury your own dead projects →". На странице `/[username]` есть CTA в футере, на `/[username]/[slug]` — нет.
-
-### 2.6 OG-изображение не автогенерируется
-
-**Текущее состояние**: Поле `ogImageUrl` в схеме есть, route `/api/og/[projectId]` существует, но в `createProject` action нет автогенерации. OG-картинка появляется только если пользователь вручную что-то сделает (или логика скрыта).
-
-**Скрытая потребность**: При шеринге в Twitter без красивой OG-карточки клик-рейт падает в разы. Каждый проект должен автоматически получать сгенерированную tombstone-картинку.
+**Recommendation**: Either remove both items from the landing page immediately (honesty > marketing), or add a "Coming soon" label.
 
 ---
 
-## 3. ЧТО ЛИШНЕЕ / OVERWEIGHT
+## 2. WHAT IS MISSING (hidden audience needs)
 
-### 3.1 LinkedIn-шеринг — культурный мисмач
+### 2.1 Lessons and reflection — the main value, hidden behind a toggle
 
-**Доказательство**: `share-menu.tsx:24` — LinkedIn share кнопка.
+**Current state**: The `description` field is hidden behind a "More details (optional)" collapse (`bury-form.tsx:249-254`). On the project page it appears as plain text under the "Description" heading.
 
-**Проблема**: Целевая аудитория шарит мемы и failures в Twitter/X, Reddit, Discord. LinkedIn — площадка для профессиональных достижений. Никто не постит "RIP my failed startup" в LinkedIn (ну, почти никто). Это занимает место и размывает фокус.
+**Hidden need**: People come not for the tombstone image, but for the **story**. "What went wrong" is the most shareable content. The current UX makes users skip right past it.
 
-**Рекомендация**: Заменить на Reddit или убрать совсем. Либо добавить "Share to Bluesky" — ближе к dev-комьюнити.
+**Recommendation**: Add a separate field "What did you learn?" / "Lessons from the grave" — make it prominent on both the form and the project page. This transforms the product from a meme into valuable content.
 
-### 3.2 Keyboard shortcut (F key) — overengineered для шеринговой страницы
+### 2.2 Comments / "Condolence Book" — completely absent
 
-**Доказательство**: `flower-button.tsx:115-126` — глобальный keydown listener на "F".
+**Current state**: A visitor can only press F / candle / rip / lol. It is a one-time action with no return.
 
-**Проблема**: 95% посетителей приходят по shared link в мобильном Twitter-клиенте. У них нет клавиатуры. Для desktop-посетителей shortcut undiscoverable — нет onboarding или tooltip. Усилия непропорциональны impact-у.
+**Hidden need**: A memorial without a guest book is incomplete. Developers want to write "I had the same idea lol" or "This is literally my life". Comments = content = SEO = virality = retention.
 
-**Нюанс**: Это скорее "приятный пасхальный бонус", чем проблема. Не убирать, но и не считать это core feature.
+### 2.3 "Time since death" — missing
 
-### 3.3 Четыре типа реакций — сложнее, чем нужно на старте
+**Current state**: The dates `startDate – endDate` are shown. No relative time.
 
-**Текущее состояние**: flower, candle, rip, lol — четыре реакции с разными иконками, подсчётами, стилями.
+**Hidden need**: "Dead for 3 years" or "Buried 2 weeks ago" is an emotional anchor. A fresh grave evokes sympathy, an old one — respect. A timer exists on the landing page (countdown in funeral animation), but not on the project page itself.
 
-**Проблема**: Для MVP это overweight. "Press F" — единственная механика, которая мемна и shareable. Candle, RIP, LOL — размывают фокус и усложняют UI. Пользователь колеблется: "что нажать?" вместо "нажать F".
+### 2.4 Related / similar projects — no section
 
-**Рекомендация**: Оставить F как primary (уже так), но рассмотреть убрать остальные до момента, когда появится реальный community и потребность в нюансах.
+**Current state**: The project page ends with a link to the author's graveyard. No navigation to other projects.
 
-### 3.4 Tech stack chips на странице проекта — шум для casual visitor
+**Hidden need**: "Yet another todo-app died" — the user wants to see they are not alone. A "Others who died young" or "Similar graves" section increases time-on-site and creates a sense of community.
 
-**Текущее состояние**: `[username]/[slug]/page.tsx:113-124` — чипы с технологиями.
+### 2.5 Conversion CTA after reaction — missing
 
-**Проблема**: Человек пришёл по ссылке из Twitter. Ему важна история и эпитафия, а не что проект был на "React, Node.js, MongoDB". Tech stack интересен только другим разработчикам, которые целенаправленно explore'ят — то есть 5% аудитории страницы.
+**Current state**: Visitor presses F — nothing happens. Counter +1, that is all.
 
-**Рекомендация**: Не убирать, но сдвинуть вниз, ниже description и reaction buttons. Сейчас tech stack показывается раньше description — это неправильная иерархия.
+**Hidden need**: The moment after a reaction is peak engagement. The ideal moment for "You pressed F. Now bury your own dead projects ->". On the `/[username]` page there is a CTA in the footer; on `/[username]/[slug]` there is none.
+
+### 2.6 OG image is not auto-generated
+
+**Current state**: The `ogImageUrl` field exists in the schema, the route `/api/og/[projectId]` exists, but the `createProject` action has no auto-generation. The OG image only appears if the user manually does something (or the logic is hidden).
+
+**Hidden need**: When sharing on Twitter without a nice OG card, click-through rate drops significantly. Every project should automatically receive a generated tombstone image.
 
 ---
 
-## 4. СТРУКТУРНЫЕ ПРОБЛЕМЫ СТРАНИЦЫ ПРОЕКТА
+## 3. WHAT IS REDUNDANT / OVERWEIGHT
 
-### 4.1 Иерархия информации нарушена
+### 3.1 LinkedIn sharing — cultural mismatch
 
-Текущий порядок на `/[username]/[slug]`:
+**Evidence**: `share-menu.tsx:24` — LinkedIn share button.
+
+**Problem**: The target audience shares memes and failures on Twitter/X, Reddit, Discord. LinkedIn is a platform for professional achievements. Nobody posts "RIP my failed startup" on LinkedIn (well, almost nobody). It takes up space and dilutes focus.
+
+**Recommendation**: Replace with Reddit or remove entirely. Alternatively, add "Share to Bluesky" — closer to the dev community.
+
+### 3.2 Keyboard shortcut (F key) — overengineered for a share landing page
+
+**Evidence**: `flower-button.tsx:115-126` — global keydown listener on "F".
+
+**Problem**: 95% of visitors arrive via a shared link in a mobile Twitter client. They have no keyboard. For desktop visitors, the shortcut is undiscoverable — no onboarding or tooltip. Effort is disproportionate to impact.
+
+**Nuance**: This is more of a "nice easter egg bonus" than a problem. Do not remove, but do not consider it a core feature either.
+
+### 3.3 Four reaction types — more complex than needed at launch
+
+**Current state**: flower, candle, rip, lol — four reactions with different icons, counts, and styles.
+
+**Problem**: For an MVP this is overweight. "Press F" is the only mechanic that is meme-worthy and shareable. Candle, RIP, LOL dilute the focus and complicate the UI. The user hesitates: "what should I press?" instead of "press F".
+
+**Recommendation**: Keep F as primary (already the case), but consider removing the rest until a real community forms and there is a need for nuance.
+
+### 3.4 Tech stack chips on the project page — noise for the casual visitor
+
+**Current state**: `[username]/[slug]/page.tsx:113-124` — technology chips.
+
+**Problem**: The person arrived via a link from Twitter. They care about the story and epitaph, not that the project was built with "React, Node.js, MongoDB". Tech stack is only interesting to other developers who are deliberately exploring — roughly 5% of the page audience.
+
+**Recommendation**: Do not remove, but move below the description and reaction buttons. Currently tech stack is shown before description — this is the wrong hierarchy.
+
+---
+
+## 4. STRUCTURAL ISSUES ON THE PROJECT PAGE
+
+### 4.1 Information hierarchy is broken
+
+Current order on `/[username]/[slug]`:
 
 1. Tombstone (name, dates, epitaph)
 2. Cause of death
-3. **Tech stack** ← не на своём месте
-4. **Description** ← самый ценный контент, но третий по порядку
+3. **Tech stack** — out of place
+4. **Description** — the most valuable content, but third in order
 5. Reactions + Share
 6. Links (website/repo)
 
-**Правильная иерархия** (по потребности посетителя):
+**Correct hierarchy** (based on visitor needs):
 
 1. Tombstone (hook)
 2. Cause of death (context)
 3. Description / "What I learned" (value)
 4. **Reactions + Share** (action at peak engagement)
-5. Links (для тех, кто хочет глубже)
+5. Links (for those who want to go deeper)
 6. Tech stack (supplementary)
 7. Related projects (retention)
 8. CTA "Bury your own" (conversion)
 
-### 4.2 Нет навигации между проектами одного автора
+### 4.2 No navigation between projects by the same author
 
-Сейчас: `← @username's graveyard` вверху и "View full graveyard" внизу. Оба ведут на грид.
+Currently: `<- @username's graveyard` at the top and "View full graveyard" at the bottom. Both lead to the grid.
 
-**Скрытая потребность**: Простые стрелки "← Previous / Next →" между проектами одного автора. Человек зашёл на один — хочет посмотреть остальные, не выходя в грид.
-
----
-
-## 5. СВОДНАЯ МАТРИЦА РЕКОМЕНДАЦИЙ
-
-| # | Что | Тип | Приоритет | Усилия |
-|---|-----|-----|-----------|--------|
-| 1 | Убрать/пометить "Coming soon" на Adopt + GitHub Integration | Fix ложного обещания | **P0** | Мин. |
-| 2 | Автогенерация OG-изображений при создании проекта | Missing core | **P0** | Средн. |
-| 3 | Переставить Description выше Tech Stack | UX fix | **P1** | Мин. |
-| 4 | Добавить CTA "Bury your own" после reaction | Conversion | **P1** | Мин. |
-| 5 | Поле "Lessons learned" / "What I learned" (отдельное от description) | Content value | **P1** | Средн. |
-| 6 | "Dead for X years/months" на странице проекта | Emotional hook | **P2** | Мин. |
-| 7 | Секция "Similar graves" / related projects | Retention | **P2** | Средн. |
-| 8 | Заменить LinkedIn на Reddit/Bluesky в share menu | Cultural fit | **P2** | Мин. |
-| 9 | Навигация prev/next между проектами автора | UX | **P3** | Малые |
-| 10 | Система комментариев / "Condolence book" | Community | **P3** | Выс. |
-| 11 | Убрать/упростить candle+rip+lol реакции | Simplify | **P3** | Малые |
+**Hidden need**: Simple "<- Previous / Next ->" arrows between projects by the same author. A person visits one project and wants to see the rest without going back to the grid.
 
 ---
 
-## Ключевой вывод
+## 5. RECOMMENDATION SUMMARY MATRIX
 
-Продукт имеет **отличную визуальную концепцию и тон** — мрачный юмор, кладбищенская эстетика, "Press F" — всё это работает. Главная проблема: **дисбаланс между формой и содержанием**. Tombstone красивый, но контент внутри — бедный. Продукт продаёт "мемную картинку для Twitter", но не даёт достаточно ценности, чтобы люди возвращались или тратили время на вдумчивое заполнение.
+| # | What | Type | Priority | Effort |
+|---|------|------|----------|--------|
+| 1 | Remove/label "Coming soon" on Adopt + GitHub Integration | False promise fix | **P0** | Min. |
+| 2 | Auto-generate OG images on project creation | Missing core | **P0** | Med. |
+| 3 | Move Description above Tech Stack | UX fix | **P1** | Min. |
+| 4 | Add CTA "Bury your own" after reaction | Conversion | **P1** | Min. |
+| 5 | "Lessons learned" / "What I learned" field (separate from description) | Content value | **P1** | Med. |
+| 6 | "Dead for X years/months" on project page | Emotional hook | **P2** | Min. |
+| 7 | "Similar graves" / related projects section | Retention | **P2** | Med. |
+| 8 | Replace LinkedIn with Reddit/Bluesky in share menu | Cultural fit | **P2** | Min. |
+| 9 | Prev/next navigation between author's projects | UX | **P3** | Low |
+| 10 | Comments system / "Condolence book" | Community | **P3** | High |
+| 11 | Remove/simplify candle+rip+lol reactions | Simplify | **P3** | Low |
 
-Два ложных обещания на лендинге (Adopt, GitHub) — это долг доверия, который нужно закрыть немедленно.
+---
+
+## Key Takeaway
+
+The product has an **excellent visual concept and tone** — dark humor, graveyard aesthetic, "Press F" — all of this works. The main problem: **imbalance between form and substance**. The tombstone is beautiful, but the content inside is thin. The product sells a "meme image for Twitter" but does not provide enough value for people to come back or spend time on thoughtful submissions.
+
+The two false promises on the landing page (Adopt, GitHub) are a trust debt that needs to be addressed immediately.
